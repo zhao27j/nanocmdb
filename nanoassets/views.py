@@ -1,0 +1,67 @@
+from django.shortcuts import render
+
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required 
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from django.views import generic
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+
+from .models import Instance, ModelType, Manufacturer
+
+# Create your views here.
+
+# class InstanceMime()
+
+class InstanceCreate(CreateView):
+    model = Instance
+    fields = '__all__'
+
+class InstanceModelTypeUpdate(UpdateView):
+    model = Instance
+    # fields = '__all__'
+    fields = ['model_type']
+    template_name = 'nanoassets/instance_update_modeltype.html'
+    success_url = reverse_lazy('instance-list')
+
+class InstanceStatusUpdate(UpdateView):
+    model = Instance
+    # fields = '__all__'
+    fields = ['status']
+    template_name = 'nanoassets/instance_update_status.html'
+    success_url = reverse_lazy('instance-list')
+
+class InstanceDetailView(generic.DetailView):
+    model = Instance
+
+class InstanceByUserListView(LoginRequiredMixin, generic.ListView):
+    model = Instance
+    template_name = 'nanoassets/instance_list_by_user.html'
+    
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user).filter(status__exact='u').order_by('eol_date')
+        # return Instance.objects.filter(owner=self.request.user).filter(status__exact='u').order_by('eol_date')
+
+class InstanceListView(LoginRequiredMixin, generic.ListView):
+    model = Instance
+    paginate_by = 10
+
+class ModelTypeDelete(DeleteView):
+    model = ModelType
+    success_url = reverse_lazy("modeltype-list")
+
+class ModelTypeUpdate(UpdateView):
+    model = ModelType
+    fields = '__all__'
+
+class ModelTypeCreate(CreateView):
+    model = ModelType
+    fields = '__all__'
+
+class ModelTypeDetailView(generic.DetailView):
+    model = ModelType
+
+class ModelTypeListView(generic.ListView):
+    model = ModelType
+    paginate_by = 10

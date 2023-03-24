@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+
+<h1>All Instances</h1>
+
+{% if user.is_staff %}
+  <a href="{% url 'instance-new' %}">New</a>
+  {% if instance_list %}
+      <table>
+        <tr>
+          <th>Serial #</th>
+          <th>Model / Type</th>
+          <th>Status</th>
+          <th>Owner</th>
+        </tr>
+        {% for instance in instance_list %}
+            <tr>
+              <td>&nbsp; {{ instance.serial_number }}</td>
+              <td>&nbsp; <a href="{% url 'instance-modeltype-upd' instance.pk %}"><em>{{ instance.model_type }}</em></a></td>
+              <td>&nbsp; <a href="{% url 'instance-status-upd' instance.pk %}">{{ instance.status }}</a></td>
+              <td>&nbsp; {{ instance.owner }}</td>
+            </tr>
+        {% endfor %}
+      </table>
+  {% endif %}
+{% else %}
+  <p>You're not IT staff.</p>
+{% endif %}
+
+{% endblock page_content %}

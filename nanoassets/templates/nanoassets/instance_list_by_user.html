@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block page_content %}
+
+<h1>My Instances</h1>
+
+{% if instance_list %}
+    <ul>
+      {% for instance in object_list %}
+          <li>{{ instance.serial_number }}, {{ instance.model_type }}, {{ instance.status }} </li>
+      {% endfor %}
+    </ul>
+
+  <!--
+    <table>
+      <tr>
+        <th>Serial #</th>
+        <th>Model / Type</th>
+        <th>Status</th>
+        <th>Owner</th>
+      </tr>
+      {% for instance in instance_list %}
+          <tr>
+            <td>&nbsp; {{ instance.serial_number }}</td>
+            <td>&nbsp; <a href="{% url 'instance-modeltype-upd' instance.pk %}"><em>{{ instance.model_type }}</em></a></td>
+            <td>&nbsp; <a href="{% url 'instance-status-upd' instance.pk %}">{{ instance.status }}</a></td>
+            <td>&nbsp; {{ instance.owner }}</td>
+          </tr>
+      {% endfor %}
+    </table>
+    -->
+{% else %}
+    <p>You don't have any IT assets !</p>
+{% endif %}
+
+{% endblock page_content %}
