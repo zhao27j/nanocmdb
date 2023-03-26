@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     
     "nanoassets.apps.NanoassetsConfig",
+
+    'import_export',
 ]
 
 MIDDLEWARE = [
