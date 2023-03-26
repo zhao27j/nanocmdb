@@ -19,12 +19,12 @@ class Instance(models.Model):
     owner = models.ForeignKey(User, verbose_name=_("Owner"), on_delete=models.SET_NULL, null=True, blank=True)
 
     INSTANCE_STATUS = (
-        ('m', 'Maintenance'),
-        ('a', 'Available'),
-        ('u', 'In use'),
+        ('Maintenance', 'Maintenance'),
+        ('Available', 'Available'),
+        ('In use', 'In use'),
     )
 
-    status = models.CharField(max_length=1, choices=INSTANCE_STATUS, default='a', help_text='Asset availability')
+    status = models.CharField(max_length=15, choices=INSTANCE_STATUS, default='Available', help_text='Asset availability')
     eol_date = models.DateField(null=True, blank=True)
 
     @property
