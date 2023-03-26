@@ -1,16 +1,11 @@
 from django.contrib import admin
 
-from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
+from .resources import InstanceResource
 from .models import Instance, ModelType, Manufacturer
 
 # Register your models here.
-
-class InstanceResource(resources.ModelResource):
-    
-    class Meta:
-        model = Instance
 
 class InstanceAdmin(ImportExportModelAdmin):
     resource_classes = [InstanceResource]

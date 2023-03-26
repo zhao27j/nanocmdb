@@ -22,6 +22,3 @@ urlpatterns += [
     path('modeltype/<int:pk>/update', views.ModelTypeUpdate.as_view(), name='modeltype-upd'),
     path('modeltype/<int:pk>/delete', views.ModelTypeDelete.as_view(), name='modeltype-del'),
 ]
-
-
-
