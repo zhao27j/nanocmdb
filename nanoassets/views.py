@@ -8,11 +8,24 @@ from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 
+from django.db.models import Q
+
 from .models import Instance, ModelType, Manufacturer
 
 # Create your views here.
 
 # class InstanceMime()
+
+class InstanceSearchResultsView(generic.ListView):
+    model = Instance
+    template_name = 'nanoassets/instance_search_results.html'
+    
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        object_list = Instance.objects.filter(
+            Q(serial_number__icontains=query) | Q(status__icontains=query) | Q(owner__username__icontains=query) | Q(model_type__name__icontains=query) | Q(model_type__manufacturer__name__icontains=query)
+        )
+        return object_list
 
 class InstanceCreate(CreateView):
     model = Instance

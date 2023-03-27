@@ -21,7 +21,7 @@ class InstanceResource(resources.ModelResource):
     class Meta:
         model = Instance
         import_id_fields = ('serial_number',)
-        # skip_unchanged = True
-        # report_skipped = True
+        skip_unchanged = True
+        report_skipped = False
         # exclude = ('eol_date')
         fields = ('model_type', 'owner', 'serial_number', 'status', 'eol_date',)

@@ -7,6 +7,10 @@ urlpatterns = [
 ]
 
 urlpatterns += [
+    path('search/', views.InstanceSearchResultsView.as_view(), name='instance-search-results'),
+]
+
+urlpatterns += [
     path('instances/', views.InstanceListView.as_view(), name='instance-list'),
     path('myinstances/', views.InstanceByUserListView.as_view(), name='my-instance-list'),
     path('instance/<pk>/', views.InstanceDetailView.as_view(), name='instance-detail'),

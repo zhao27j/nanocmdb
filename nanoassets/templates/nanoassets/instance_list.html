@@ -6,6 +6,11 @@
 
 {% if user.is_staff %}
   <a href="{% url 'instance-new' %}">New</a>
+
+  <form action="{% url 'instance-search-results' %}" method="get">
+    <input name="q" type="text" placeholder="Search...">
+  </form>
+
   {% if instance_list %}
       <table>
         <tr>
