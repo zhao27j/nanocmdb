@@ -122,3 +122,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Redirect to home URL after login (Default redirects to /accounts/profile/)
 LOGIN_REDIRECT_URL = '/instances/'
+
+IMPORT_EXPORT_SKIP_ADMIN_CONFIRM = False
+IMPORT_EXPORT_USE_TRANSACTIONS = True

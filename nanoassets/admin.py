@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from import_export.admin import ImportExportModelAdmin
+from import_export.admin import ImportExportModelAdmin, ImportExportMixin
 
 from .resources import InstanceResource
 from .models import Instance, ModelType, Manufacturer

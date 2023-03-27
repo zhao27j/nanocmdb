@@ -19,9 +19,9 @@ class Instance(models.Model):
     owner = models.ForeignKey(User, verbose_name=_("Owner"), on_delete=models.SET_NULL, null=True, blank=True)
 
     INSTANCE_STATUS = (
-        ('Maintenance', 'Maintenance'),
-        ('Available', 'Available'),
-        ('In use', 'In use'),
+        ('Maintenance', 'in Repair'),
+        ('Available', 'spare'),
+        ('In use', 'in Use'),
     )
 
     status = models.CharField(max_length=15, choices=INSTANCE_STATUS, default='Available', help_text='Asset availability')
@@ -34,7 +34,7 @@ class Instance(models.Model):
         return False
 
     def __str__(self):
-        return '%s (%s, %s)' % (self.serial_number, self.model_type.manufacturer, self.model_type.name)
+        return '%s (%s, %s, %s)' % (self.serial_number, self.model_type.manufacturer, self.model_type.name, self.owner)
     
     def get_absolute_url(self):
         return reverse("instance-detail", kwargs={"pk": self.pk})
