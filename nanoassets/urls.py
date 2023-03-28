@@ -3,11 +3,11 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-
+    path('instance_bulk_update/', views.InstanceBlukUpdate, name='instance-bulk-update'),
 ]
 
 urlpatterns += [
-    path('search/', views.InstanceSearchResultsView.as_view(), name='instance-search-results'),
+    path('instance_search_results/', views.InstanceSearchResultsView.as_view(), name='instance-search-results'),
 ]
 
 urlpatterns += [

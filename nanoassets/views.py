@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required 
@@ -14,7 +14,14 @@ from .models import Instance, ModelType, Manufacturer
 
 # Create your views here.
 
-# class InstanceMime()
+def InstanceBlukUpdate(request):
+    for selected_instance_pk in request.POST.getlist('instance'):
+        selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+        selected_instance.status = 'Scrapped'
+        selected_instance.save()
+
+    return redirect('instance-list')
+
 
 class InstanceSearchResultsView(generic.ListView):
     model = Instance

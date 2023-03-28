@@ -1,3 +1,4 @@
+import uuid # required for unique id
 from datetime import date
 
 from django.db import models
@@ -7,23 +8,35 @@ from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 
-class Manufacturer(models.Model):
-    name = models.CharField(max_length=20)
+class ScrapRequest(models.Model):
+    case_id = models.UUIDField(_("Request case ID"), primary_key=True, default=uuid.uuid4, help_text='Unique ID for the particular request')
+    REQUEST_STATUS = (
+        ('I', 'Initialized'),
+        ('A', 'Approved'),
+    )
+    status = models.CharField(_("Request status"), choices=REQUEST_STATUS, default='I', max_length=1)
+    instance = models.ForeignKey("nanoassets.Instance", verbose_name=_("Instance"), on_delete=models.SET_NULL, null=True, blank=True)
+    requested_by = models.ForeignKey(User, verbose_name=_("Requested by"), related_name='requested_by+', on_delete=models.SET_NULL, null=True, blank=True)
+    requested_on = models.DateField(_("Requested on"), auto_now=False, auto_now_add=False, blank=True, null=True)
+    approved_by = models.ForeignKey(User, verbose_name=_("Approved by"), related_name='approve_by+', on_delete=models.SET_NULL, null=True, blank=True)
+    approved_on = models.DateField(_("Approved on"), auto_now=False, auto_now_add=False, blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return '%s Scrapping Requested by %s on %s, Approved by %s on %s' % (self.case_id, self.requested_by, str(self.requested_on), self.approved_by, str(self.approved_on))
     
+    def get_absolute_url(self):
+        return reverse("scrap-request-detail", kwargs={"pk": self.pk})
+
 class Instance(models.Model):
     serial_number = models.CharField(primary_key=True, max_length=20, help_text='enter serial #')
     model_type = models.ForeignKey("nanoassets.ModelType", verbose_name=_("Model / Type"), on_delete=models.SET_NULL, null=True, blank=True)
     owner = models.ForeignKey(User, verbose_name=_("Owner"), on_delete=models.SET_NULL, null=True, blank=True)
-
     INSTANCE_STATUS = (
-        ('Maintenance', 'in Repair'),
-        ('Available', 'spare'),
+        ('Available', 'Spare'),
         ('In use', 'in Use'),
+        ('Maintenance', 'in Repair'),
+        ('Disposal', 'Scrapped')
     )
-
     status = models.CharField(max_length=15, choices=INSTANCE_STATUS, default='Available', help_text='Asset availability')
     eol_date = models.DateField(null=True, blank=True)
 
@@ -35,10 +48,10 @@ class Instance(models.Model):
 
     def __str__(self):
         return '%s (%s, %s, %s)' % (self.serial_number, self.model_type.manufacturer, self.model_type.name, self.owner)
-    
+
     def get_absolute_url(self):
         return reverse("instance-detail", kwargs={"pk": self.pk})
-    
+
     class Meta:
         ordering = ['model_type']
     
@@ -51,4 +64,10 @@ class ModelType(models.Model):
     
     def get_absolute_url(self):
         return reverse("modeltype-detail", kwargs={"pk": self.pk})
-    
+
+
+class Manufacturer(models.Model):
+    name = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.name

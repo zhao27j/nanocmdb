@@ -3,7 +3,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin, ImportExportMixin
 
 from .resources import InstanceResource
-from .models import Instance, ModelType, Manufacturer
+from .models import Instance, ModelType, Manufacturer, ScrapRequest
 
 # Register your models here.
 
@@ -13,3 +13,4 @@ class InstanceAdmin(ImportExportModelAdmin):
 admin.site.register(Instance, InstanceAdmin)
 admin.site.register(ModelType)
 admin.site.register(Manufacturer)
+admin.site.register(ScrapRequest)
