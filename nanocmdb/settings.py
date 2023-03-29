@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 
+from django.urls import reverse
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -121,7 +123,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Redirect to home URL after login (Default redirects to /accounts/profile/)
-LOGIN_REDIRECT_URL = '/instances/'
+LOGIN_REDIRECT_URL = '/nanoassets/myinstances/'
 
 IMPORT_EXPORT_SKIP_ADMIN_CONFIRM = False
 IMPORT_EXPORT_USE_TRANSACTIONS = True
