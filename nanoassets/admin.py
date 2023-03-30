@@ -7,10 +7,22 @@ from .models import Instance, ModelType, Manufacturer, ScrapRequest
 
 # Register your models here.
 
+
+@admin.register(ScrapRequest)
+class ScrapRequestAdmin(admin.ModelAdmin):
+    list_display = ['case_id', 'status', 'requested_by', 'requested_on', 'approved_by', 'approved_on']
+
+
+@admin.register(Instance)
 class InstanceAdmin(ImportExportModelAdmin):
     resource_classes = [InstanceResource]
 
-admin.site.register(Instance, InstanceAdmin)
+    list_display = ['serial_number', 'model_type', 'status', 'owner', 'eol_date', 'scrap_request']
+    # list_filter = ['model_type', 'status']
+    search_fields = ['model_type__name', 'status', 'owner__username', 'eol_date']
+
+
+# admin.site.register(Instance, InstanceAdmin)
 admin.site.register(ModelType)
 admin.site.register(Manufacturer)
-admin.site.register(ScrapRequest)
+# admin.site.register(ScrapRequest)

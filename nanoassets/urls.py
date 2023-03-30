@@ -3,16 +3,16 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    # path('', views.index, name='index'),
 ]
 
 urlpatterns += [
-    path('instance_bulk_update/', views.InstanceBlukUpdate,
-         name='instance-bulk-update'),
+    path('instance_scrapping_request/', views.InstanceScrappingRequest, name='instance-scrapping-request'),
+    path('instance_scrapping_request_list/', views.InstanceScrappingRequestListView.as_view(), name='instance-scrapping-request-list')
 ]
 
 urlpatterns += [
-    path('instance_search_results/', views.InstanceSearchResultsView.as_view(),
+    path('instance_search_results/', views.InstanceSearchResultsListView.as_view(),
          name='instance-search-results'),
 ]
 

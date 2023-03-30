@@ -12,22 +12,32 @@ from django.urls import reverse_lazy
 
 from django.db.models import Q
 
-from .models import Instance, ModelType, Manufacturer
+from .models import Instance, ModelType, Manufacturer, ScrapRequest
 
 # Create your views here.
 
+class InstanceScrappingRequestListView(LoginRequiredMixin, generic.ListView):
+    model = ScrapRequest
+    template_name = 'nanoassets/instance_scrapping_requests.html'
+    # paginate_by = 10
 
-def InstanceBlukUpdate(request):
-    for selected_instance_pk in request.POST.getlist('instance'):
-        selected_instance = get_object_or_404(
-            Instance, pk=selected_instance_pk)
-        selected_instance.status = 'Scrapped'
-        selected_instance.save()
+def InstanceScrappingRequest(request):
+    if request.method == 'POST':
 
-    return redirect('instance-list')
+        new_scrap_request = ScrapRequest.objects.create(
+            requested_by=request.user)
+        new_scrap_request.save()
+
+        for selected_instance_pk in request.POST.getlist('instance'):
+            selected_instance = get_object_or_404(
+                Instance, pk=selected_instance_pk)
+            selected_instance.scrap_request = new_scrap_request
+            selected_instance.save()
+
+        return redirect('instance-list')
 
 
-class InstanceSearchResultsView(generic.ListView):
+class InstanceSearchResultsListView(generic.ListView):
     model = Instance
     template_name = 'nanoassets/instance_search_results.html'
 

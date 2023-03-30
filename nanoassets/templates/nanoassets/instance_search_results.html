@@ -1,26 +1,26 @@
 {% extends 'base.html' %}
-
 {% block page_content %}
   <div class="container mt-3">
-
     <h1>search results</h1>
-
     <table class="table table-striped table-hover">
+      <tr>
+        <th>Serial #</th>
+        <th>Model / Type</th>
+        <th>Status</th>
+        <th>Owner</th>
+      </tr>
+      {% for instance in object_list %}
         <tr>
-          <th>Serial #</th>
-          <th>Model / Type</th>
-          <th>Status</th>
-          <th>Owner</th>
+          <td>&nbsp; {{ instance.serial_number }}</td>
+          <td>
+            &nbsp; <a href="{% url 'instance-modeltype-upd' instance.pk %}"><em>{{ instance.model_type }}</em></a>
+          </td>
+          <td>
+            &nbsp; <a href="{% url 'instance-status-upd' instance.pk %}">{{ instance.status }}</a>
+          </td>
+          <td>&nbsp; {{ instance.owner }}</td>
         </tr>
-        {% for instance in object_list %}
-            <tr>
-              <td>&nbsp; {{ instance.serial_number }}</td>
-              <td>&nbsp; <a href="{% url 'instance-modeltype-upd' instance.pk %}"><em>{{ instance.model_type }}</em></a></td>
-              <td>&nbsp; <a href="{% url 'instance-status-upd' instance.pk %}">{{ instance.status }}</a></td>
-              <td>&nbsp; {{ instance.owner }}</td>
-            </tr>
-        {% endfor %}
-      </table>
+      {% endfor %}
+    </table>
   </div>
 {% endblock page_content %}
-    

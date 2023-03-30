@@ -1,46 +1,46 @@
 {% extends 'base.html' %}
-
 {% block page_content %}
-
-<div class="container mt-3">
-
-  <h1>All Instances</h1>
-
-  {% if user.is_staff %}
-    <a href="{% url 'instance-new' %}">New</a>
-
-    <form action="{% url 'instance-search-results' %}" method="get">
-      <input name="q" type="text" placeholder="Search...">
-    </form>
-
-    {% if instance_list %}
-      <form action="{% url 'instance-bulk-update' %}" method="post">
-        {% csrf_token %}
-        <input type="submit" value="Bluk update">
-        <table class="table table-striped table-hover">
-          <tr>
-            <th>Serial #</th>
-            <th>Model / Type</th>
-            <th>Status</th>
-            <th>Owner</th>
-          </tr>
-          {% for instance in instance_list %}
+  <div class="container mt-3">
+    <h1>All IT Assets</h1>
+    {% if user.is_staff %}
+      <a href="{% url 'instance-new' %}">New</a>
+      <form action="{% url 'instance-search-results' %}" method="get">
+        <input name="q" type="text" placeholder="Search..."/>
+      </form>
+      {% if instance_list %}
+        <form action="{% url 'instance-scrapping-request' %}" method="post">
+          {% csrf_token %}
+          <input type="submit" value="Apply for Scrapping"/>
+          <table class="table table-striped table-hover">
+            <tr>
+              <th>Serial #</th>
+              <th>Model / Type</th>
+              <th>Status</th>
+              <th>Owner</th>
+            </tr>
+            {% for instance in instance_list %}
               <tr>
                 <td>
-                  <input type="checkbox" name="instance" id="instance{{ forloop.counter }}" value="{{ instance.pk }}">
+                  <input type="checkbox"
+                         name="instance"
+                         id="instance{{ forloop.counter }}"
+                         value="{{ instance.pk }}"/>
                   <label for="instance{{ forloop.counter }}">{{ instance.serial_number }}</label>
                 </td>
-                <td><a href="{% url 'instance-modeltype-upd' instance.pk %}"><em>{{ instance.model_type }}</em></a></td>
-                <td><a href="{% url 'instance-status-upd' instance.pk %}">{{ instance.status }}</a></td>
+                <td>
+                  <a href="{% url 'instance-modeltype-upd' instance.pk %}"><em>{{ instance.model_type }}</em></a>
+                </td>
+                <td>
+                  <a href="{% url 'instance-status-upd' instance.pk %}">{{ instance.status }}</a>
+                </td>
                 <td>{{ instance.owner }}</td>
               </tr>
-          {% endfor %}
-        </table>
-      </form>
+            {% endfor %}
+          </table>
+        </form>
+      {% endif %}
+    {% else %}
+      <p>You're not IT staff.</p>
     {% endif %}
-  
-  {% else %}
-    <p>You're not IT staff.</p>
-{% endif %}
-</div>
+  </div>
 {% endblock page_content %}
