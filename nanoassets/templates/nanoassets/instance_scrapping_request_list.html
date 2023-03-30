@@ -4,6 +4,7 @@
     {% if scraprequest_list %}
         <table class="table table-striped table-hover">
             <tr>
+                <th>Case ID</th>
                 <th>Status</th>
                 <th>Requested by</th>
                 <th>Requested on</th>
@@ -12,6 +13,7 @@
             </tr>
             {% for request in scraprequest_list %}
                 <tr>
+                    <td><a href="{% url 'instance-scrapping-request-detail' request.case_id %}">{{ request.case_id }}</a></td>
                     <td>{{ request.status }}</td>
                     <td>{{ request.requested_by }}</td>
                     <td>{{ request.requested_on }}</td>

@@ -8,7 +8,8 @@ urlpatterns = [
 
 urlpatterns += [
     path('instance_scrapping_request/', views.InstanceScrappingRequest, name='instance-scrapping-request'),
-    path('instance_scrapping_request_list/', views.InstanceScrappingRequestListView.as_view(), name='instance-scrapping-request-list')
+    path('instance_scrapping_request_list/', views.InstanceScrappingRequestListView.as_view(), name='instance-scrapping-request-list'),
+    path('instance_scrapping_request_detail/<pk>/', views.InstanceScrappingRequestDetailView.as_view(), name='instance-scrapping-request-detail'),
 ]
 
 urlpatterns += [

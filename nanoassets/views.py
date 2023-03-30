@@ -16,9 +16,14 @@ from .models import Instance, ModelType, Manufacturer, ScrapRequest
 
 # Create your views here.
 
+class InstanceScrappingRequestDetailView(generic.DetailView):
+    model = ScrapRequest
+    template_name = 'nanoassets/instance_scrapping_request_detail.html'
+
+
 class InstanceScrappingRequestListView(LoginRequiredMixin, generic.ListView):
     model = ScrapRequest
-    template_name = 'nanoassets/instance_scrapping_requests.html'
+    template_name = 'nanoassets/instance_scrapping_request_list.html'
     # paginate_by = 10
 
 def InstanceScrappingRequest(request):
