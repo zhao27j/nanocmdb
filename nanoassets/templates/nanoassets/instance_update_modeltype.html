@@ -7,7 +7,7 @@
     owner: <b>{{ instance.owner }} </b>
   </p>
   <p>
-    Model / Type: <b>{{ instance.status }} </b>
+    Model / Type: <b>{{ instance.get_status_display }} </b>
   </p>
   <form action="" method="post">
     {% csrf_token %}

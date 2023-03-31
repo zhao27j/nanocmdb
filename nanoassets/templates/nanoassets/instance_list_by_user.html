@@ -20,7 +20,7 @@
           <td>
             <em>{{ instance.model_type }}</em>
           </td>
-          <td>{{ instance.status }}</td>
+          <td>{{ instance.get_status_display }}</td>
         </tr>
       {% endfor %}
     </table>

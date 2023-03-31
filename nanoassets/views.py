@@ -9,12 +9,29 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from django.utils import timezone
 
 from django.db.models import Q
 
 from .models import Instance, ModelType, Manufacturer, ScrapRequest
 
 # Create your views here.
+
+
+def InstanceScrappingRequestApproved(request, pk):
+    if request.method == 'POST':
+        scrapRequest = get_object_or_404(ScrapRequest, pk=pk)
+        scrapRequest.status = 'A'
+        scrapRequest.approved_by = request.user
+        scrapRequest.approved_on = timezone.now()
+        scrapRequest.save()
+
+        for scrappedInstance in scrapRequest.instance_set.all():
+            scrappedInstance.status = 'Disposal'
+            scrappedInstance.save()
+
+    return redirect('instance-scrapping-request-list')
+
 
 class InstanceScrappingRequestDetailView(generic.DetailView):
     model = ScrapRequest
@@ -25,6 +42,7 @@ class InstanceScrappingRequestListView(LoginRequiredMixin, generic.ListView):
     model = ScrapRequest
     template_name = 'nanoassets/instance_scrapping_request_list.html'
     # paginate_by = 10
+
 
 def InstanceScrappingRequest(request):
     if request.method == 'POST':
@@ -39,7 +57,7 @@ def InstanceScrappingRequest(request):
             selected_instance.scrap_request = new_scrap_request
             selected_instance.save()
 
-        return redirect('instance-list')
+        return redirect('instance-scrapping-request-list')
 
 
 class InstanceSearchResultsListView(generic.ListView):

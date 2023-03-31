@@ -18,7 +18,7 @@ class ScrapRequest(models.Model):
         ('A', 'Approved'),
     )
     status = models.CharField(_("Request status"), choices=REQUEST_STATUS, default='I', max_length=1)
-    instance = models.ForeignKey("nanoassets.Instance", verbose_name=_("Instance"), on_delete=models.SET_NULL, null=True, blank=True)
+    # instance = models.ForeignKey("nanoassets.Instance", verbose_name=_("Instance"), on_delete=models.SET_NULL, null=True, blank=True)
     requested_by = models.ForeignKey(User, verbose_name=_("Requested by"), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
     requested_on = models.DateField(_("Requested on"), auto_now=False, auto_now_add=True, blank=True, null=True)
     approved_by = models.ForeignKey(User, verbose_name=_("Approved by"), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
@@ -50,7 +50,7 @@ class Instance(models.Model):
 
     eol_date = models.DateField(null=True, blank=True)
     scrap_request = models.ForeignKey("nanoassets.ScrapRequest", verbose_name=_(
-        "Scrap Request"), related_name='scrap_request', on_delete=models.SET_NULL, null=True, blank=True)
+        "Scrap Request"), on_delete=models.SET_NULL, null=True, blank=True)
 
     @property
     def is_overeol(self):

@@ -2,5 +2,5 @@
 {% block page_content %}
     <div>Manufacturer: {{ instance.manufacturer }}</div>
     <div>Serial Number: {{ instance.serial_number }}</div>
-    <div>Status: {{ instance.status }}</div>
+    <div>Status: {{ instance.get_status_display }}</div>
 {% endblock page_content %}

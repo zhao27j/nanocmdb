@@ -31,7 +31,7 @@
                   <a href="{% url 'instance-modeltype-upd' instance.pk %}"><em>{{ instance.model_type }}</em></a>
                 </td>
                 <td>
-                  <a href="{% url 'instance-status-upd' instance.pk %}">{{ instance.status }}</a>
+                  <a href="{% url 'instance-status-upd' instance.pk %}">{{ instance.get_status_display }}</a>
                 </td>
                 <td>{{ instance.owner }}</td>
               </tr>
