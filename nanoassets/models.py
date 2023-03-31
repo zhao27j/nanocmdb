@@ -40,10 +40,10 @@ class Instance(models.Model):
     owner = models.ForeignKey(User, verbose_name=_(
         "Owner"), on_delete=models.SET_NULL, null=True, blank=True)
     INSTANCE_STATUS = (
-        ('Available', 'Spare'),
-        ('In use', 'in Use'),
-        ('Maintenance', 'in Repair'),
-        ('Disposal', 'Scrapped')
+        ('A', 'Available'),
+        ('U', 'in Use'),
+        ('R', 'in Repair'),
+        ('S', 'Scrapped')
     )
     status = models.CharField(max_length=15, choices=INSTANCE_STATUS,
                               default='Available', help_text='Asset availability')

@@ -8,7 +8,7 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
     <div class="container">
       <a class="navbar-brand" href="#">Logo</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,8 +40,8 @@
             {% if user.is_authenticated %}
               <li>
                 <span class="nav-link">
-                    😎 {{ user.get_username }}
-                    {% if user.is_staff %} (staff) {% else %} (non-staff) {% endif %}
+                    😎 {{ user.get_username|truncatechars:8 }}
+                    {% if user.is_staff %} (IT staff) {% else %} (non IT staff) {% endif %}
                 </span>
               </li>
 

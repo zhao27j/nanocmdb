@@ -103,7 +103,7 @@ class InstanceByUserListView(LoginRequiredMixin, generic.ListView):
     template_name = 'nanoassets/instance_list_by_user.html'
 
     def get_queryset(self):
-        return super().get_queryset().filter(owner=self.request.user).filter(status__exact='In use').order_by('eol_date')
+        return super().get_queryset().filter(owner=self.request.user).filter(status__exact='U').order_by('eol_date')
         # return Instance.objects.filter(owner=self.request.user).filter(status__exact='u').order_by('eol_date')
 
 
