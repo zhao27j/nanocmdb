@@ -109,7 +109,7 @@ class InstanceByUserListView(LoginRequiredMixin, generic.ListView):
 
 class InstanceListView(LoginRequiredMixin, generic.ListView):
     model = Instance
-    paginate_by = 5
+    paginate_by = 10
 
 
 class ModelTypeDelete(DeleteView):

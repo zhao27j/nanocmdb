@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
+{% load auth_extras %}
 {% block page_content %}
   <div class="container mt-3">
     <h1>All IT Assets</h1>
-    {% if user.is_staff %}
-      <a href="{% url 'instance-new' %}">New</a>
+    {% if request.user|has_group:"IT China" %}
+      <!-- <a href="{% url 'instance-new' %}">New</a> -->
       <form action="{% url 'instance-search-results' %}" method="get">
         <input name="q" type="text" placeholder="Search..."/>
       </form>
@@ -40,7 +41,7 @@
         </form>
       {% endif %}
     {% else %}
-      <p>You're not IT staff.</p>
+      <p>You're not IT China staff.</p>
     {% endif %}
   </div>
 {% endblock page_content %}
