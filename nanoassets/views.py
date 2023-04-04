@@ -6,6 +6,11 @@ from django.contrib.auth.models import User
 # from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+from django.conf import settings
+from django.core.mail import send_mail, EmailMessage, EmailMultiAlternatives
+from django.template.loader import get_template
+from django.template import Context
+
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
@@ -27,13 +32,13 @@ def InstanceScrappingRequestApproved(request, pk):
         scrapRequest.save()
 
         for scrappedInstance in scrapRequest.instance_set.all():
-            scrappedInstance.status = 'Disposal'
+            scrappedInstance.status = 'S'
             scrappedInstance.save()
 
     return redirect('instance-scrapping-request-list')
 
 
-class InstanceScrappingRequestDetailView(generic.DetailView):
+class InstanceScrappingRequestDetailView(LoginRequiredMixin, generic.DetailView):
     model = ScrapRequest
     template_name = 'nanoassets/instance_scrapping_request_detail.html'
 
@@ -56,6 +61,21 @@ def InstanceScrappingRequest(request):
                 Instance, pk=selected_instance_pk)
             selected_instance.scrap_request = new_scrap_request
             selected_instance.save()
+
+        # message = get_template("nanoassets/instance_scrapping_request_email.html").render(Context({
+        message = get_template("nanoassets/instance_scrapping_request_email.html").render({
+            'new_scrap_request': new_scrap_request,
+            # 'instances': request.POST.getlist('instance'),
+            })
+        mail = EmailMessage(
+            subject='Please approve - IT Assets Scrapping Request ',
+            body=message,
+            from_email='nanoNotification <do-not-reply@tishmanspeyer.com>',
+            to=['juzhao@tishmanspeyer.com',],
+            # reply_to=[EMAIL_ADMIN],
+        )
+        mail.content_subtype = "html"
+        mail.send()
 
         return redirect('instance-scrapping-request-list')
 

@@ -136,6 +136,12 @@ env = environ.Env()
 environ.Env.read_env()
 
 # Sending Email
+
+# from django.core.mail import send_mail
+# from django.conf import settings
+# send_mail( subject='A cool subject', message='A stunning message', from_email=settings.EMAIL_HOST_USER, recipient_list=['juzhao@tishmanspeyer.com'])
+# send_mail('A cool subject', 'A stunning message', settings.EMAIL_HOST_USER, [settings.RECIPIENT_ADDRESS])
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = env('EMAIL_HOST')
 EMAIL_PORT = 587
