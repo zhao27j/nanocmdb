@@ -3,7 +3,7 @@
 {% block page_content %}
   <div class="container mt-3">
     <h1>All IT Assets</h1>
-    {% if request.user|has_group:"IT China" %}
+    {% if user|has_group:"IT China" %}
       <!-- <a href="{% url 'instance-new' %}">New</a> -->
       <form action="{% url 'instance-search-results' %}" method="get">
         <input name="q" type="text" placeholder="Search..."/>
