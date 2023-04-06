@@ -35,6 +35,9 @@ class ScrapRequest(models.Model):
 
     def get_absolute_url(self):
         return reverse("scrap-request-detail", kwargs={"pk": self.pk})
+    
+    class Meta:
+        ordering = ['requested_on',]
 
 
 class Instance(models.Model):

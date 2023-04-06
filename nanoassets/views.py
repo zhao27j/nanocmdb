@@ -1,15 +1,17 @@
 from django.shortcuts import render, get_object_or_404, redirect
 
-from django.http import HttpResponse
+# from django.http import HttpResponse
 
-from django.contrib.auth.models import User
+from django.contrib import messages
+from django.contrib.auth.models import User, Group
 # from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.conf import settings
-from django.core.mail import send_mail, EmailMessage, EmailMultiAlternatives
+# from django.core.mail import send_mail, EmailMessage, EmailMultiAlternatives
+from django.core.mail import EmailMessage
 from django.template.loader import get_template
-from django.template import Context
+# from django.template import Context
 
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -35,7 +37,30 @@ def InstanceScrappingRequestApproved(request, pk):
             scrappedInstance.status = 'S'
             scrappedInstance.save()
 
-    return redirect('instance-scrapping-request-list')
+        reviewer_emails = []
+        for reviewer in User.objects.filter(groups__name='IT Reviewer'):
+            reviewer_emails.append(reviewer.email)
+
+        message = get_template("nanoassets/instance_scrapping_request_approved_email.html").render({
+            'protocol': 'http',
+            'domain': '127.0.0.1:8000',
+            # 'instances': request.POST.getlist('instance'),
+            'scrapRequest': scrapRequest,
+        })
+        mail = EmailMessage(
+            subject='Please notice - IT Assets Scrapping Request is approved by ' +
+            scrapRequest.approved_by.get_full_name(),
+            body=message,
+            from_email='nanoNotification <do-not-reply@tishmanspeyer.com>',
+            to=[scrapRequest.requested_by.email],
+            cc=reviewer_emails,
+            # reply_to=[EMAIL_ADMIN],
+            # connection=
+        )
+        mail.content_subtype = "html"
+        mail.send()
+
+        return redirect('instance-scrapping-request-list')
 
 
 class InstanceScrappingRequestDetailView(LoginRequiredMixin, generic.DetailView):
@@ -51,33 +76,47 @@ class InstanceScrappingRequestListView(LoginRequiredMixin, generic.ListView):
 
 def InstanceScrappingRequest(request):
     if request.method == 'POST':
+        if request.POST.getlist('instance'):
+            for selected_instance_pk in request.POST.getlist('instance'):
+                selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                if selected_instance.status != 'A':
+                    messages.warning(request, "Only Available IT Assets could be selected.")
+                    return redirect('instance-list')
 
-        new_scrap_request = ScrapRequest.objects.create(
-            requested_by=request.user)
-        new_scrap_request.save()
+            new_scrap_request = ScrapRequest.objects.create(requested_by=request.user)
+            new_scrap_request.save()
 
-        for selected_instance_pk in request.POST.getlist('instance'):
-            selected_instance = get_object_or_404(
-                Instance, pk=selected_instance_pk)
-            selected_instance.scrap_request = new_scrap_request
-            selected_instance.save()
+            for selected_instance_pk in request.POST.getlist('instance'):
+                selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                selected_instance.scrap_request = new_scrap_request
+                selected_instance.save()
 
-        # message = get_template("nanoassets/instance_scrapping_request_email.html").render(Context({
-        message = get_template("nanoassets/instance_scrapping_request_email.html").render({
-            'new_scrap_request': new_scrap_request,
-            # 'instances': request.POST.getlist('instance'),
+            reviewer_emails = []
+            for reviewer in User.objects.filter(groups__name='IT Reviewer'):
+                reviewer_emails.append(reviewer.email)
+
+            message = get_template("nanoassets/instance_scrapping_request_email.html").render({
+                'protocol': 'http',
+                'domain': '127.0.0.1:8000',
+                'new_scrap_request': new_scrap_request,
             })
-        mail = EmailMessage(
-            subject='Please approve - IT Assets Scrapping Request ',
-            body=message,
-            from_email='nanoNotification <do-not-reply@tishmanspeyer.com>',
-            to=['juzhao@tishmanspeyer.com',],
-            # reply_to=[EMAIL_ADMIN],
-        )
-        mail.content_subtype = "html"
-        mail.send()
+            mail = EmailMessage(
+                subject='Please approve - IT Assets Scrapping Requested by ' +
+                new_scrap_request.requested_by.get_full_name(),
+                body=message,
+                from_email='nanoNotification <do-not-reply@tishmanspeyer.com>',
+                to=reviewer_emails,
+                cc=[request.user.email],
+                # reply_to=[EMAIL_ADMIN],
+                # connection=
+            )
+            mail.content_subtype = "html"
+            mail.send()
 
-        return redirect('instance-scrapping-request-list')
+            return redirect('instance-scrapping-request-list')
+        else:
+            messages.info(request, "No IT Assets were selected.")
+            return redirect('instance-list')
 
 
 class InstanceSearchResultsListView(generic.ListView):

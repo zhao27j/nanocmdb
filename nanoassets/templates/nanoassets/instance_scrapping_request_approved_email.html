@@ -10,11 +10,11 @@
               crossorigin="anonymous">
     </head>
     <body>
-        Hi Approver,
+        Hi {{ scrapRequest.requested_by.get_full_name }},
         <br>
         <br>
-        <p>Please follow the <a href="{{ protocol }}://{{ domain }}{% url 'instance-scrapping-request-detail' new_scrap_request.pk %}"> link <a> to complete the request, many thanks !>
-        <hr>
+        <p>Please follow the <a href="{{ protocol }}://{{ domain }}{% url 'instance-scrapping-request-detail' scrapRequest.pk %}"> link <a> to check the request details, many thanks !</p>
+        <br>
         <h3>Scrapping Request Details:</h3>
         <br>
         <table class="table table-striped table-hover">
@@ -25,7 +25,7 @@
                 <th>Owner</th>
                 <th>EOL</th>
             </tr>
-            {% for instance in new_scrap_request.instance_set.all %}
+            {% for instance in scrapRequest.instance_set.all %}
                 <tr>
                     <td>{{ instance.serial_number }}</td>
                     <td>
@@ -39,7 +39,8 @@
         </table>
         <br>
         <hr>
-        <p>Requested by {{ new_scrap_request.requested_by.get_full_name }} on {{ new_scrap_request.requested_on }}</p>
+        <p>Requested by {{ scrapRequest.requested_by.get_full_name }} on {{ scrapRequest.requested_on }}</p>
+        <p>Approved by {{ scrapRequest.approved_by.get_full_name }} on {{ scrapRequest.approved_on }}</p>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"
                 integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N"

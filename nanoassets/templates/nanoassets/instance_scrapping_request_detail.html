@@ -5,8 +5,10 @@
           method="post">
         {% csrf_token %}
         <h3 name="case_id">Case ID : {{ scraprequest.case_id }}</h3>
-        <p>requested by {{ scraprequest.requested_by }} on {{ scraprequest.requested_on }}</p>
-        <p>approved by {{ scraprequest.approved_by }} on {{ scraprequest.approved_on }}</p>
+        <p>Requested by {{ scraprequest.requested_by.get_full_name }} on {{ scraprequest.requested_on }}</p>
+        {% if scraprequest.approved_by %}
+            <p>approved by {{ scraprequest.approved_by.get_full_name }} on {{ scraprequest.approved_on }}</p>
+        {% endif %}
         {% if request.user|has_group:"IT Reviewer" %}
             {% if scraprequest.status == 'I' %}<input type="submit" value="Approve" />{% endif %}
         {% endif %}
