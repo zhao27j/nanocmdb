@@ -59,6 +59,8 @@ def InstanceScrappingRequestApproved(request, pk):
         )
         mail.content_subtype = "html"
         mail.send()
+        messages.success(
+            request, "The notification email with the apprival decision is sent.")
 
         return redirect('instance-scrapping-request-list')
 
@@ -78,16 +80,20 @@ def InstanceScrappingRequest(request):
     if request.method == 'POST':
         if request.POST.getlist('instance'):
             for selected_instance_pk in request.POST.getlist('instance'):
-                selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
-                if selected_instance.status != 'A':
-                    messages.warning(request, "Only Available IT Assets could be selected.")
+                selected_instance = get_object_or_404(
+                    Instance, pk=selected_instance_pk)
+                if selected_instance.status != 'A' or selected_instance.scrap_request:
+                    messages.warning(
+                        request, "Only Available and non-requested IT Assets can be selected.")
                     return redirect('instance-list')
 
-            new_scrap_request = ScrapRequest.objects.create(requested_by=request.user)
+            new_scrap_request = ScrapRequest.objects.create(
+                requested_by=request.user)
             new_scrap_request.save()
 
             for selected_instance_pk in request.POST.getlist('instance'):
-                selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                selected_instance = get_object_or_404(
+                    Instance, pk=selected_instance_pk)
                 selected_instance.scrap_request = new_scrap_request
                 selected_instance.save()
 
@@ -112,6 +118,8 @@ def InstanceScrappingRequest(request):
             )
             mail.content_subtype = "html"
             mail.send()
+            messages.success(
+                request, "The notification email with the request detail is sent.")
 
             return redirect('instance-scrapping-request-list')
         else:
@@ -122,14 +130,28 @@ def InstanceScrappingRequest(request):
 class InstanceSearchResultsListView(generic.ListView):
     model = Instance
     template_name = 'nanoassets/instance_search_results.html'
+    paginate_by = 5
 
     def get_queryset(self):
         query = self.request.GET.get('q')
+        
         object_list = Instance.objects.filter(
-            Q(serial_number__icontains=query) | Q(status__icontains=query) | Q(owner__username__icontains=query) | Q(
-                model_type__name__icontains=query) | Q(model_type__manufacturer__name__icontains=query)
+            Q(serial_number__icontains=query) |
+            Q(model_type__name__icontains=query) |
+            Q(model_type__manufacturer__name__icontains=query) |
+            Q(status__icontains=query) |
+            Q(owner__username__icontains=query) |
+            Q(owner__first_name__icontains=query) |
+            Q(owner__last_name__icontains=query) |
+            Q(owner__email__icontains=query)
         )
-        return object_list
+        if object_list:
+            messages.info(self.request, "%s results found." %
+                        object_list.count())
+            return object_list
+        else:
+            messages.info(self.request, "No results found.")
+            # return redirect('instance-list')
 
 
 class InstanceCreate(CreateView):

@@ -1,6 +1,22 @@
 {% extends 'base.html' %}
-{% load auth_extras %}
+<!-- {% load auth_extras %} -->
 {% block page_content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="container-fluid">
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
+                     role="alert">
+                    {{ message }}
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close">
+                        <!-- <span aria-hidden="True">&times;</span> -->
+                    </button>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
     <h1>Scrapping IT Assets</h1>
     {% if user|has_group:"IT China" %}
         {% if scraprequest_list %}

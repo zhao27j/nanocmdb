@@ -4,6 +4,7 @@
   {% if instance_list %}
     <table class="table table-striped table-hover">
       <tr>
+        <th></th>
         <th>Serial #</th>
         <th>Model / Type</th>
         <th>Status</th>
@@ -15,6 +16,8 @@
                    name="instance"
                    id="instance{{ forloop.counter }}"
                    value="{{ instance.pk }}"/>
+          </td>
+          <td>
             <label for="instance{{ forloop.counter }}">{{ instance.serial_number }}</label>
           </td>
           <td>
