@@ -134,7 +134,7 @@ class InstanceSearchResultsListView(generic.ListView):
 
     def get_queryset(self):
         query = self.request.GET.get('q')
-        
+
         object_list = Instance.objects.filter(
             Q(serial_number__icontains=query) |
             Q(model_type__name__icontains=query) |
@@ -146,12 +146,14 @@ class InstanceSearchResultsListView(generic.ListView):
             Q(owner__email__icontains=query)
         )
         if object_list:
-            messages.info(self.request, "%s results found." %
-                        object_list.count())
-            return object_list
+            messages.info(self.request, "%s results found." %object_list.count())
         else:
             messages.info(self.request, "No results found.")
-            # return redirect('instance-list')
+            # self.request.GET = self.request.GET.copy()
+            # self.request.GET['q'] = ''
+
+        return object_list
+
 
 
 class InstanceCreate(CreateView):

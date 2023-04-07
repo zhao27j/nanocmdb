@@ -108,7 +108,7 @@
                 {% if page_obj.has_previous %}
                   <a class="page-link"
                      aria-label="Previous"
-                     href="{{ request.path }}?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                     href="{{ request.path }}?page={{ page_obj.previous_page_number }}{% if object_list %}&q={{ request.GET.q }}{% endif %}">
                     <span aria-hidden="true">&laquo;</span>
                   </a>
                 {% else %}
@@ -122,7 +122,7 @@
               </li>
               <li class="page-item">
                 {% if page_obj.has_next %}
-                  <a class="page-link" aria-label="Next" href="{{ request.path }}?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                  <a class="page-link" aria-label="Next" href="{{ request.path }}?page={{ page_obj.next_page_number }}{% if object_list %}&q={{ request.GET.q }}{% endif %}">
                     <span aria-hidden="true">&raquo;</span>
                   </a>
                 {% else %}
