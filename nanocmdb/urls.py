@@ -18,6 +18,11 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path('chaining/', include('smart_selects.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
-    path("nanoassets/", include('nanoassets.urls')),
+    
+]
+
+urlpatterns += [
+    path('nanoassets/', include('nanoassets.urls')),
 ]

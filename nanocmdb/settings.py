@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "nanoassets.apps.NanoassetsConfig",
 
     'import_export',
+    'smart_selects',
+    'cities_light',
 ]
 
 MIDDLEWARE = [

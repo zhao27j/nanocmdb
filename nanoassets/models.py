@@ -5,9 +5,34 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 # from django.utils import timezone
+
+from smart_selects.db_fields import ChainedForeignKey
+
 from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
+
+
+class branchSite(models.Model):
+    name = models.CharField(_("Site Branch Office Name"), max_length=50, null=True)
+    # project = models.ForeignKey("nanoassets.Model", verbose_name=_("Affiliated with a project"), on_delete=models.SET_NULL, blank=True, null=True)
+
+    country = models.ForeignKey("cities_light.Country", verbose_name=_("Country"), on_delete=models.SET_NULL, null=True)
+    region = ChainedForeignKey("cities_light.Region", chained_field='country', chained_model_field='country', show_all=False, auto_choose=True, sort=True, null=True)
+    city = ChainedForeignKey('cities_light.City', chained_field='region', chained_model_field='region', show_all=False, auto_choose=True, sort=True)
+    addr = models.CharField(_("Site Address"), max_length=50, null=True)
+    # postal = models.IntegerField(_("Postal code"), max_length=6)
+
+    # onSiteTechnican = models.ForeignKey(User, verbose_name=_("Onsite IT Support"), on_delete=models.SET_NULL, null=True)
+    onSiteTech = models.ManyToManyField(User, verbose_name=_("Onsite IT Support"))
+    
+    def __str__(self):
+        return self.name
+    
+    def display_onSiteTech(self):
+        """ Creates a string for the Onsite IT Support. This is required to display Onsite IT Support in Admin. """
+        return ", ".join([onSiteTech.get_full_name() for onSiteTech in self.onSiteTech.all()[:5]])
+    
 
 
 class ScrapRequest(models.Model):
@@ -35,7 +60,7 @@ class ScrapRequest(models.Model):
 
     def get_absolute_url(self):
         return reverse("scrap-request-detail", kwargs={"pk": self.pk})
-    
+
     class Meta:
         ordering = ['requested_on',]
 
