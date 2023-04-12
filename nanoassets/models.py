@@ -23,7 +23,6 @@ class branchSite(models.Model):
     addr = models.CharField(_("Site Address"), max_length=255, null=True)
     postal = models.PositiveIntegerField(_("Postal code"), null=True)
 
-    # onSiteTechnican = models.ForeignKey(User, verbose_name=_("Onsite IT Support"), on_delete=models.SET_NULL, null=True)
     onSiteTech = models.ManyToManyField(User, verbose_name=_("Onsite IT Support"), limit_choices_to={
         # "is_staff": True
         'groups__name': 'IT China'

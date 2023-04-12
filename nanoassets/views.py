@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 
-# from django.http import HttpResponse
+# from django.http import HttpResponse, HttpResponseRedirect
 
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
@@ -20,7 +20,7 @@ from django.utils import timezone
 
 from django.db.models import Q
 
-from .models import Instance, ModelType, Manufacturer, ScrapRequest
+from .models import Instance, ModelType, Manufacturer, ScrapRequest, branchSite
 
 # Create your views here.
 
@@ -85,7 +85,9 @@ def InstanceScrappingRequest(request):
                 if selected_instance.status != 'A' or selected_instance.scrap_request:
                     messages.warning(
                         request, "Only Available and non-requested IT Assets can be selected.")
-                    return redirect('instance-list')
+                    # return redirect('supported-instance-list')
+                    # return redirect(request.path) # 重定向 至 当前 页面 （在此不适合）
+                    return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
 
             new_scrap_request = ScrapRequest.objects.create(
                 requested_by=request.user)
@@ -135,7 +137,7 @@ class InstanceSearchResultsListView(generic.ListView):
     def get_queryset(self):
         query = self.request.GET.get('q')
 
-        object_list = Instance.objects.filter(
+        object_list = Instance.objects.filter(branchSite__onSiteTech=self.request.user).filter(
             Q(serial_number__icontains=query) |
             Q(model_type__name__icontains=query) |
             Q(model_type__manufacturer__name__icontains=query) |
@@ -146,14 +148,13 @@ class InstanceSearchResultsListView(generic.ListView):
             Q(owner__email__icontains=query)
         )
         if object_list:
-            messages.info(self.request, "%s results found." %object_list.count())
+            messages.info(self.request, "%s results found." % object_list.count())
         else:
             messages.info(self.request, "No results found.")
             # self.request.GET = self.request.GET.copy()
             # self.request.GET['q'] = ''
 
         return object_list
-
 
 
 class InstanceCreate(CreateView):
@@ -179,6 +180,15 @@ class InstanceStatusUpdate(UpdateView):
 
 class InstanceDetailView(generic.DetailView):
     model = Instance
+
+
+class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
+    model = Instance
+    template_name = 'nanoassets/instance_list_by_tech.html'
+    # paginate_by = 10
+
+    def get_queryset(self):
+        return super().get_queryset().filter(branchSite__onSiteTech=self.request.user) # 跨多表查询
 
 
 class InstanceByUserListView(LoginRequiredMixin, generic.ListView):

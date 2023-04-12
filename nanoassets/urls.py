@@ -21,15 +21,12 @@ urlpatterns += [
 
 urlpatterns += [
     path('instances/', views.InstanceListView.as_view(), name='instance-list'),
-    path('myinstances/', views.InstanceByUserListView.as_view(),
-         name='my-instance-list'),
-    path('instance/<pk>/', views.InstanceDetailView.as_view(),
-         name='instance-detail'),
+    path('my_instances/', views.InstanceByUserListView.as_view(), name='my-instance-list'),
+    path('supported_instances/', views.InstanceByTechListView.as_view(), name='supported-instance-list'),
+    path('instance/<pk>/', views.InstanceDetailView.as_view(), name='instance-detail'),
     path('instance/new', views.InstanceCreate.as_view(), name='instance-new'),
-    path('instance/<pk>/statusupdate/',
-         views.InstanceStatusUpdate.as_view(), name='instance-status-upd'),
-    path('instance/<pk>/modeltypeupdate/',
-         views.InstanceModelTypeUpdate.as_view(), name='instance-modeltype-upd'),
+    path('instance/<pk>/status_upd/', views.InstanceStatusUpdate.as_view(), name='instance-status-upd'),
+    path('instance/<pk>/modeltypeupdate/', views.InstanceModelTypeUpdate.as_view(), name='instance-modeltype-upd'),
 ]
 
 # Model / Type
