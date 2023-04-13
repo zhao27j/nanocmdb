@@ -13,28 +13,42 @@ from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
 
+class Configuragion(models.Model):
+    hostname = models.CharField(_("Hostname"), max_length=36,
+                                primary_key=True, default=uuid.uuid4, help_text='Hostname')
+
+    def __str__(self):
+        return self.hostname
+
+    def get_absolute_url(self):
+        return reverse("configuration-detail", kwargs={"pk": self.pk})
+
+
 class branchSite(models.Model):
-    name = models.CharField(_("Site / Branch Office Name"), max_length=50, null=True)
+    name = models.CharField(
+        _("Site / Branch Office Name"), max_length=50, null=True)
     # project = models.ForeignKey("nanoassets.Model", verbose_name=_("Affiliated with a project"), on_delete=models.SET_NULL, blank=True, null=True)
 
-    country = models.ForeignKey("cities_light.Country", verbose_name=_("Country"), on_delete=models.SET_NULL, null=True)
-    region = ChainedForeignKey("cities_light.Region", chained_field='country', chained_model_field='country', show_all=False, auto_choose=True, sort=True, null=True)
-    city = ChainedForeignKey('cities_light.City', chained_field='region', chained_model_field='region', show_all=False, auto_choose=True, sort=True)
+    country = models.ForeignKey("cities_light.Country", verbose_name=_(
+        "Country"), on_delete=models.SET_NULL, null=True)
+    region = ChainedForeignKey("cities_light.Region", chained_field='country',
+                               chained_model_field='country', show_all=False, auto_choose=True, sort=True, null=True)
+    city = ChainedForeignKey('cities_light.City', chained_field='region',
+                             chained_model_field='region', show_all=False, auto_choose=True, sort=True)
     addr = models.CharField(_("Site Address"), max_length=255, null=True)
     postal = models.PositiveIntegerField(_("Postal code"), null=True)
 
     onSiteTech = models.ManyToManyField(User, verbose_name=_("Onsite IT Support"), limit_choices_to={
         # "is_staff": True
         'groups__name': 'IT China'
-        },)
-    
+    },)
+
     def __str__(self):
         return self.name
-    
+
     def display_onSiteTech(self):
         """ Creates a string for the Onsite IT Support. This is required to display Onsite IT Support in Admin. """
         return ", ".join([onSiteTech.get_full_name() for onSiteTech in self.onSiteTech.all()[:5]])
-    
 
 
 class ScrapRequest(models.Model):
@@ -69,7 +83,7 @@ class ScrapRequest(models.Model):
 
 class Instance(models.Model):
     serial_number = models.CharField(
-        primary_key=True, max_length=20, help_text='enter serial #')
+        primary_key=True, max_length=36, default=uuid.uuid4, help_text='enter serial #')
     model_type = models.ForeignKey("nanoassets.ModelType", verbose_name=_(
         "Model / Type"), on_delete=models.SET_NULL, null=True, blank=True)
     owner = models.ForeignKey(User, verbose_name=_(
@@ -83,17 +97,21 @@ class Instance(models.Model):
     status = models.CharField(max_length=15, choices=INSTANCE_STATUS,
                               default='Available', help_text='Asset availability')
 
-    eol_date = models.DateField(null=True, blank=True)
+    configuragion = models.ForeignKey("nanoassets.Configuragion", verbose_name=_("Configuragion"), on_delete=models.SET_NULL, null=True, blank=True)
+
     scrap_request = models.ForeignKey("nanoassets.ScrapRequest", verbose_name=_(
         "Scrap Request"), on_delete=models.SET_NULL, null=True, blank=True)
+
+    eol_date = models.DateField(null=True, blank=True)
 
     @property
     def is_overeol(self):
         if self.eol_date and date.today() > self.eol_date:
             return True
         return False
-    
-    branchSite = models.ForeignKey("nanoassets.branchSite", verbose_name=_("Site / Branch Office"), on_delete=models.SET_NULL, null=True)
+
+    branchSite = models.ForeignKey("nanoassets.branchSite", verbose_name=_(
+        "Site / Branch Office"), on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         # return '%s (%s, %s, %s)' % (self.serial_number, self.model_type.manufacturer, self.model_type.name, self.owner)

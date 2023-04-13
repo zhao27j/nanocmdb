@@ -3,7 +3,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin, ImportExportMixin
 
 from .resources import InstanceResource
-from .models import Instance, ModelType, Manufacturer, ScrapRequest, branchSite
+from .models import Instance, ModelType, Manufacturer, ScrapRequest, branchSite, Configuragion
 
 # Register your models here.
 
@@ -17,7 +17,7 @@ class ScrapRequestAdmin(admin.ModelAdmin):
 class InstanceAdmin(ImportExportModelAdmin):
     resource_classes = [InstanceResource]
 
-    list_display = ['serial_number', 'model_type', 'status', 'eol_date', 'owner', 'branchSite', 'scrap_request']
+    list_display = ['serial_number', 'model_type', 'configuragion', 'status', 'eol_date', 'owner', 'branchSite', 'scrap_request']
     # list_filter = ['model_type', 'status']
     search_fields = ['model_type__name', 'status', 'owner__username', 'eol_date']
 
@@ -32,3 +32,4 @@ admin.site.register(ModelType)
 admin.site.register(Manufacturer)
 # admin.site.register(ScrapRequest)
 # admin.site.register(branchSite)
+admin.site.register(Configuragion)
