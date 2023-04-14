@@ -28,13 +28,13 @@ from .models import Instance, ModelType, Manufacturer, ScrapRequest, branchSite
 def InstanceScrappingRequestApproved(request, pk):
     if request.method == 'POST':
         scrapRequest = get_object_or_404(ScrapRequest, pk=pk)
-        scrapRequest.status = 'A'
+        scrapRequest.status = 'AVAILABLE'
         scrapRequest.approved_by = request.user
         scrapRequest.approved_on = timezone.now()
         scrapRequest.save()
 
         for scrappedInstance in scrapRequest.instance_set.all():
-            scrappedInstance.status = 'S'
+            scrappedInstance.status = 'SCRAPPED'
             scrappedInstance.save()
 
         reviewer_emails = []
@@ -82,7 +82,7 @@ def InstanceScrappingRequest(request):
             for selected_instance_pk in request.POST.getlist('instance'):
                 selected_instance = get_object_or_404(
                     Instance, pk=selected_instance_pk)
-                if selected_instance.status != 'A' or selected_instance.scrap_request:
+                if selected_instance.status != 'AVAILABLE' or selected_instance.scrap_request:
                     messages.warning(
                         request, "Only Available and non-requested IT Assets can be selected.")
                     # return redirect('supported-instance-list')
@@ -126,7 +126,7 @@ def InstanceScrappingRequest(request):
             return redirect('instance-scrapping-request-list')
         else:
             messages.info(request, "No IT Assets were selected.")
-            return redirect('instance-list')
+            return redirect('supported-instance-list')
 
 
 class InstanceSearchResultsListView(generic.ListView):
@@ -157,35 +157,43 @@ class InstanceSearchResultsListView(generic.ListView):
         return object_list
 
 
-class InstanceCreate(CreateView):
+def InstanceInRepair(request, pk):
+    if request.user.groups.filter(name='IT China').exists: # user.groups.filter(name__in=['group1', 'group2']).exists()
+        instance = get_object_or_404(Instance, pk=pk)
+        if instance.status != 'inREPAIR':
+            instance.status = 'inREPAIR'
+            instance.activityhistory_set.create(description='Sent to repair by ' + request.user.get_full_name() + ' on ' + str(timezone.now()))
+            # instance.activityhistory_set.save()
+            messages.info(request, instance.serial_number + ' (' + instance.model_type.name + ') ' + "was sent to repair.")
+        elif instance.status == 'inREPAIR' and instance.owner:
+            instance.status = 'inUSE'
+            messages.info(request, instance.serial_number + ' (' + instance.model_type.name + ') ' + "was Repaired.")
+        elif instance.status == 'inREPAIR' and not instance.owner:
+            instance.status = 'AVAILABLE'
+            messages.info(request, instance.serial_number + ' (' + instance.model_type.name + ') ' + "was Repaired.")
+
+        instance.save()
+    
+    return redirect('supported-instance-list')
+
+class InstanceOwnerUpdate(LoginRequiredMixin, UpdateView):
     model = Instance
-    fields = '__all__'
+    fields = ['owner'] # fields = '__all__'
+    template_name = 'nanoassets/instance_update_owner.html'
+    success_url = reverse_lazy('supported-instance-list')
+    def form_valid(self, form):
+        if form.instance.owner:
+            form.instance.status = 'inUSE' # self.object.status = 'inUSE'
+        else:
+            form.instance.status = 'AVAILABLE' # self.object.status = 'AVAILABLE'
 
-
-class InstanceModelTypeUpdate(UpdateView):
-    model = Instance
-    # fields = '__all__'
-    fields = ['model_type']
-    template_name = 'nanoassets/instance_update_modeltype.html'
-    success_url = reverse_lazy('instance-list')
-
-
-class InstanceStatusUpdate(UpdateView):
-    model = Instance
-    # fields = '__all__'
-    fields = ['status']
-    template_name = 'nanoassets/instance_update_status.html'
-    success_url = reverse_lazy('instance-list')
-
-
-class InstanceDetailView(generic.DetailView):
-    model = Instance
+        return super().form_valid(form)
 
 
 class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
     model = Instance
     template_name = 'nanoassets/instance_list_by_tech.html'
-    # paginate_by = 10
+    paginate_by = 15
 
     def get_queryset(self):
         return super().get_queryset().filter(branchSite__onSiteTech=self.request.user) # 跨多表查询
@@ -202,31 +210,7 @@ class InstanceByUserListView(LoginRequiredMixin, generic.ListView):
 
 class InstanceListView(LoginRequiredMixin, generic.ListView):
     model = Instance
-    paginate_by = 10
-
-
-class ModelTypeDelete(DeleteView):
-    model = ModelType
-    success_url = reverse_lazy("modeltype-list")
-
-
-class ModelTypeUpdate(UpdateView):
-    model = ModelType
-    fields = '__all__'
-
-
-class ModelTypeCreate(CreateView):
-    model = ModelType
-    fields = '__all__'
-
-
-class ModelTypeDetailView(generic.DetailView):
-    model = ModelType
-
-
-class ModelTypeListView(generic.ListView):
-    model = ModelType
-    paginate_by = 10
+    paginate_by = 15
 
 
 def index(request):

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block page_content %}
+  <p>
+    Serial Number: <b>{{ instance.serial_number }} </b>
+  </p>
+  <p>
+    Model / Type: <b>{{ instance.model_type }} </b>
+  </p>
+  <p>
+    Status: <b>{{ instance.get_status_display }} </b>
+  </p>
+  <p>
+    Hostname: <b>{{ instance.configuragion }} </b>
+  </p>
+  <p>
+    Site: <b>{{ instance.branchSite }} </b>
+  </p>
+  <form action="" method="post">
+    {% csrf_token %}
+    <table class="table">
+      {{ form.as_p }}
+    </table>
+    <input type="submit" value="update" />
+  </form>
+{% endblock page_content %}

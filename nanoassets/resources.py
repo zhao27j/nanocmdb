@@ -8,27 +8,38 @@ from .models import Instance, ModelType, branchSite, Configuragion
 
 class InstanceResource(resources.ModelResource):
     hostname = fields.Field(
-        column_name='hostname',
-        attribute='hostname',
+        attribute='configuragion',
+        column_name='Hostname',
         widget=ForeignKeyWidget(Configuragion, field='hostname'),
     )
     
-    site_branch = fields.Field(
-        column_name='site',
-        attribute='site',
+    site = fields.Field(
+        attribute='branchSite',
+        column_name='Site',
         widget=ForeignKeyWidget(branchSite, field='name'),
     )
 
     model_type = fields.Field(
-        column_name='model_type',
         attribute='model_type',
+        column_name='Model / Type',
         widget=ForeignKeyWidget(ModelType, field='name'),
     )
 
-    owner = fields.Field(
-        column_name='owner',
+    username = fields.Field(
         attribute='owner',
+        column_name='Username',
         widget=ForeignKeyWidget(User, field='username'),
+    )
+    user_first_name = fields.Field(
+        attribute='owner',
+        column_name='First Name',
+        widget=ForeignKeyWidget(User, field='first_name'),
+    )
+
+    user_last_name = fields.Field(
+        attribute='owner',
+        column_name='Last Name',
+        widget=ForeignKeyWidget(User, field='last_name'),
     )
 
     class Meta:
@@ -37,4 +48,5 @@ class InstanceResource(resources.ModelResource):
         skip_unchanged = True
         report_skipped = False
         # exclude = ('eol_date')
-        fields = ('model_type','serial_number', 'hostname', 'status', 'owner', 'site', 'eol_date',)
+        # fields = ('model_type','serial_number', 'hostname', 'status', 'owner', 'site', 'eol_date',)
+        fields = ('serial_number', 'model_type', 'status', 'hostname', 'username', 'user_first_name', 'user_last_name', 'site', 'eol_date')

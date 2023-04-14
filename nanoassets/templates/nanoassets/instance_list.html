@@ -21,7 +21,6 @@
     <h1>All IT Assets</h1>
     {% if user|has_group:"IT China" %}
       <!--
-      <a href="{% url 'instance-new' %}">New</a>
       <form action="{% url 'instance-search-results' %}" method="get">
         <input name="q" type="search" placeholder="Search..."/>
       </form>
@@ -37,6 +36,7 @@
               <th>Model / Type</th>
               <th>Status</th>
               <th>Owner</th>
+              <th>Site</th>
             </tr>
             {% for instance in instance_list %}
               <tr>
@@ -48,23 +48,33 @@
                 </td>
                 <td>
                   <label for="instance{{ forloop.counter }}">{{ instance.serial_number }}</label>
+                  {% if instance.status == 'inREPAIR' %}🛠️{% endif %}
                 </td>
                 <td>
-                  <!-- <a href="{% url 'instance-modeltype-upd' instance.pk %}"><em>{{ instance.model_type }}</em></a> -->
                   <em>{{ instance.model_type }}</em>
                 </td>
                 <td>
-                  <!-- <a href="{% url 'instance-status-upd' instance.pk %}">{{ instance.get_status_display }}</a> -->
-                  {{ instance.get_status_display }}
+                  <a href="{% url 'instance-status-upd' instance.pk %}">
+                    {{ instance.get_status_display }}
+                  </td>
+                </a>
+                <td>
+                  <a href="{% url 'instance-owner-upd' instance.pk %}">
+                    {% if instance.owner %}
+                      {{ instance.owner.username }}
+                    {% else %}
+                      🈳
+                    {% endif %}
+                  </a>
                 </td>
-                <td>{{ instance.owner }}</td>
+                <td>{{ instance.branchSite }}</td>
               </tr>
             {% endfor %}
           </table>
         </form>
       {% endif %}
     {% else %}
-      <p>You're not IT China staff.</p>
+      <p>You're not IT staff</p>
     {% endif %}
   </div>
 {% endblock page_content %}

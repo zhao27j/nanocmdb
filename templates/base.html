@@ -45,21 +45,22 @@
                 <li>
                   <a class="dropdown-item" href="{% url 'my-instance-list' %}">Owned</a>
                 </li>
-                <li>
-                  <a class="dropdown-item" href="{% url 'supported-instance-list' %}">Supported</a>
-                </li>
-                <li>
-                  <hr class="dropdown-divider">
-                </li>
-                <li>
-                  <a class="dropdown-item" href="{% url 'instance-list' %}">All</a>
-                </li>
-                <li>
-                  <hr class="dropdown-divider">
-                </li>
-                <li>
-                  <a class="dropdown-item" href="{% url 'instance-scrapping-request-list' %}">Scrapping Requests</a>
-                </li>
+                {% if user|has_group:"IT China" %}
+                  <li>
+                    <a class="dropdown-item" href="{% url 'supported-instance-list' %}">Supported</a>
+                  </li>
+                  <!--
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'instance-list' %}">All</a></li>
+                -->
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                  <li>
+                    <a class="dropdown-item"
+                       href="{% url 'instance-scrapping-request-list' %}">Scrapping Requests</a>
+                  </li>
+                {% endif %}
               </ul>
             </li>
             <li class="nav-item">
@@ -73,7 +74,7 @@
                     {% if user|has_group:"IT China" %}
                       (IT staff)
                     {% else %}
-                      (non IT staff)
+                      ({{ user.username }})
                     {% endif %}
                   </span>
                 </li>

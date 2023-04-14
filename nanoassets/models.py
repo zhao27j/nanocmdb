@@ -12,6 +12,11 @@ from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 
+class ActivityHistory(models.Model):
+    description = models.TextField(_("Description"))
+    Instance = models.ForeignKey("nanoassets.Instance", verbose_name=_(""), on_delete=models.SET_NULL, null=True, blank=True)
+    def __str__(self):
+        return self.description
 
 class Configuragion(models.Model):
     hostname = models.CharField(_("Hostname"), max_length=36,
@@ -89,10 +94,10 @@ class Instance(models.Model):
     owner = models.ForeignKey(User, verbose_name=_(
         "Owner"), on_delete=models.SET_NULL, null=True, blank=True)
     INSTANCE_STATUS = (
-        ('A', 'Available'),
-        ('U', 'in Use'),
-        ('R', 'in Repair'),
-        ('S', 'Scrapped')
+        ('AVAILABLE', 'Available'),
+        ('inUSE', 'in Use'),
+        ('inREPAIR', 'in Repair'),
+        ('SCRAPPED', 'Scrapped'),
     )
     status = models.CharField(max_length=15, choices=INSTANCE_STATUS,
                               default='Available', help_text='Asset availability')
@@ -112,6 +117,8 @@ class Instance(models.Model):
 
     branchSite = models.ForeignKey("nanoassets.branchSite", verbose_name=_(
         "Site / Branch Office"), on_delete=models.SET_NULL, null=True)
+    
+    # activity_history = models.ForeignKey("nanoassets.ActivityHistory", verbose_name=_("Activity History"), on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         # return '%s (%s, %s, %s)' % (self.serial_number, self.model_type.manufacturer, self.model_type.name, self.owner)
