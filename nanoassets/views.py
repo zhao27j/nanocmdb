@@ -87,7 +87,8 @@ def InstanceScrappingRequest(request):
                         request, "Only Available and non-requested IT Assets can be selected.")
                     # return redirect('supported-instance-list')
                     # return redirect(request.path) # 重定向 至 当前 页面 （在此不适合）
-                    return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
+                    # 重定向 至 前一个 页面
+                    return redirect(request.META.get('HTTP_REFERER'))
 
             new_scrap_request = ScrapRequest.objects.create(
                 requested_by=request.user)
@@ -135,20 +136,30 @@ class InstanceSearchResultsListView(generic.ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        query = self.request.GET.get('q')
+        queries = tuple(self.request.GET.get('q').split(','))
+        # query_search = tuple(query.split(','))
+        object_list = Instance.objects.filter(
+            branchSite__onSiteTech=self.request.user)
 
-        object_list = Instance.objects.filter(branchSite__onSiteTech=self.request.user).filter(
-            Q(serial_number__icontains=query) |
-            Q(model_type__name__icontains=query) |
-            Q(model_type__manufacturer__name__icontains=query) |
-            Q(status__icontains=query) |
-            Q(owner__username__icontains=query) |
-            Q(owner__first_name__icontains=query) |
-            Q(owner__last_name__icontains=query) |
-            Q(owner__email__icontains=query)
-        )
+        for query in queries:
+
+            object_list = object_list.filter(
+                Q(serial_number__icontains=query) |
+                Q(model_type__name__icontains=query) |
+                Q(model_type__manufacturer__name__icontains=query) |
+                Q(status__icontains=query) |
+                Q(owner__username__icontains=query) |
+                Q(owner__first_name__icontains=query) |
+                Q(owner__last_name__icontains=query) |
+                Q(owner__email__icontains=query) |
+                Q(configuragion__hostname__icontains=query) |
+                Q(branchSite__name__icontains=query) |
+                Q(branchSite__city__name__icontains=query)
+            )
+
         if object_list:
-            messages.info(self.request, "%s results found." % object_list.count())
+            messages.info(self.request, "%s results found." %
+                          object_list.count())
         else:
             messages.info(self.request, "No results found.")
             # self.request.GET = self.request.GET.copy()
@@ -158,34 +169,58 @@ class InstanceSearchResultsListView(generic.ListView):
 
 
 def InstanceInRepair(request, pk):
-    if request.user.groups.filter(name='IT China').exists: # user.groups.filter(name__in=['group1', 'group2']).exists()
+    # 测试 组 权限 user.groups.filter(name__in=['group1', 'group2']).exists()
+    if request.user.groups.filter(name='IT China').exists:
         instance = get_object_or_404(Instance, pk=pk)
         if instance.status != 'inREPAIR':
             instance.status = 'inREPAIR'
-            instance.activityhistory_set.create(description='Sent to repair by ' + request.user.get_full_name() + ' on ' + str(timezone.now()))
+            instance.activityhistory_set.create(
+                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
+                'Sent to repair by ' + request.user.get_full_name())
             # instance.activityhistory_set.save()
-            messages.info(request, instance.serial_number + ' (' + instance.model_type.name + ') ' + "was sent to repair.")
+            messages.info(request, instance.serial_number + ' (' +
+                          instance.model_type.name + ') ' + "was sent to repair.")
         elif instance.status == 'inREPAIR' and instance.owner:
             instance.status = 'inUSE'
-            messages.info(request, instance.serial_number + ' (' + instance.model_type.name + ') ' + "was Repaired.")
+            instance.activityhistory_set.create(
+                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
+                'Got back from repairing by ' + request.user.get_full_name())
+            messages.info(request, instance.serial_number +
+                          ' (' + instance.model_type.name + ') ' + "was Repaired.")
         elif instance.status == 'inREPAIR' and not instance.owner:
             instance.status = 'AVAILABLE'
-            messages.info(request, instance.serial_number + ' (' + instance.model_type.name + ') ' + "was Repaired.")
+            instance.activityhistory_set.create(
+                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
+                'Got back from repairing by ' + request.user.get_full_name())
+            messages.info(request, instance.serial_number +
+                          ' (' + instance.model_type.name + ') ' + "was Repaired.")
 
         instance.save()
-    
+
     return redirect('supported-instance-list')
+
 
 class InstanceOwnerUpdate(LoginRequiredMixin, UpdateView):
     model = Instance
-    fields = ['owner'] # fields = '__all__'
+    fields = ['owner']  # fields = '__all__'
     template_name = 'nanoassets/instance_update_owner.html'
-    success_url = reverse_lazy('supported-instance-list')
+    success_url = reverse_lazy('nanoassets:supported-instance-list')
+
     def form_valid(self, form):
+        original_instance = Instance.objects.get(pk=form.instance.pk)
         if form.instance.owner:
-            form.instance.status = 'inUSE' # self.object.status = 'inUSE'
+            form.instance.status = 'inUSE'  # self.object.status = 'inUSE'
+            self.object.activityhistory_set.create(
+                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
+                'The IT Assets was Assigned to ' + form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 ') + ' by ' + self.request.user.get_full_name())
+            messages.info(self.request, 'The IT Assets was Assign to ' +
+                          form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 '))
         else:
-            form.instance.status = 'AVAILABLE' # self.object.status = 'AVAILABLE'
+            form.instance.status = 'AVAILABLE'  # self.object.status = 'AVAILABLE'
+            self.object.activityhistory_set.create(
+                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
+                'The IT Assets was Returned from ' + original_instance.owner.username + ' by ' + self.request.user.get_full_name())
+            messages.info(self.request, 'The IT Assets was Returned from ' + original_instance.owner.username)
 
         return super().form_valid(form)
 
@@ -196,7 +231,7 @@ class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
     paginate_by = 15
 
     def get_queryset(self):
-        return super().get_queryset().filter(branchSite__onSiteTech=self.request.user) # 跨多表查询
+        return super().get_queryset().filter(branchSite__onSiteTech=self.request.user)  # 跨多表查询
 
 
 class InstanceByUserListView(LoginRequiredMixin, generic.ListView):
@@ -207,6 +242,9 @@ class InstanceByUserListView(LoginRequiredMixin, generic.ListView):
         return super().get_queryset().filter(owner=self.request.user).filter(status__exact='U').order_by('eol_date')
         # return Instance.objects.filter(owner=self.request.user).filter(status__exact='u').order_by('eol_date')
 
+class InstanceDetailView(LoginRequiredMixin, generic.DetailView):
+    model = Instance
+    
 
 class InstanceListView(LoginRequiredMixin, generic.ListView):
     model = Instance

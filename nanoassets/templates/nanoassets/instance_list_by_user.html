@@ -18,7 +18,9 @@
                    value="{{ instance.pk }}"/>
           </td>
           <td>
-            <label for="instance{{ forloop.counter }}">{{ instance.serial_number }}</label>
+            <label for="instance{{ forloop.counter }}">
+              <a href="{% url 'nanoassets:instance-detail' instance.pk %}">{{ instance.serial_number }}</a>
+            </label>
           </td>
           <td>
             <em>{{ instance.model_type }}</em>

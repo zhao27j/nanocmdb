@@ -13,7 +13,7 @@
         Hi {{ scrapRequest.requested_by.get_full_name }},
         <br>
         <br>
-        <p>Please follow the <a href="{{ protocol }}://{{ domain }}{% url 'instance-scrapping-request-detail' scrapRequest.pk %}"> link <a> to check the request details, many thanks !</p>
+        <p>Please follow the <a href="{{ protocol }}://{{ domain }}{% url 'nanoassets:instance-scrapping-request-detail' scrapRequest.pk %}"> link <a> to check the request details, many thanks !</p>
         <br>
         <h3>Scrapping Request Details:</h3>
         <br>

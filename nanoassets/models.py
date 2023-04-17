@@ -14,7 +14,9 @@ from django.utils.translation import gettext_lazy as _
 
 class ActivityHistory(models.Model):
     description = models.TextField(_("Description"))
-    Instance = models.ForeignKey("nanoassets.Instance", verbose_name=_(""), on_delete=models.SET_NULL, null=True, blank=True)
+    # created_on = models.DateTimeField(_("Created on"), auto_now=False, auto_now_add=True)
+    # created_by = models.ForeignKey(User, verbose_name=_("Created by"), on_delete=models.SET_NULL, null=True)
+    Instance = models.ForeignKey("nanoassets.Instance", verbose_name=_("IT Assets"), on_delete=models.SET_NULL, null=True, blank=True)
     def __str__(self):
         return self.description
 
@@ -26,7 +28,7 @@ class Configuragion(models.Model):
         return self.hostname
 
     def get_absolute_url(self):
-        return reverse("configuration-detail", kwargs={"pk": self.pk})
+        return reverse("nanoassets:configuration-detail", kwargs={"pk": self.pk})
 
 
 class branchSite(models.Model):
@@ -80,7 +82,7 @@ class ScrapRequest(models.Model):
         return str(self.case_id)
 
     def get_absolute_url(self):
-        return reverse("scrap-request-detail", kwargs={"pk": self.pk})
+        return reverse("nanoassets:scrap-request-detail", kwargs={"pk": self.pk})
 
     class Meta:
         ordering = ['requested_on',]
@@ -125,7 +127,7 @@ class Instance(models.Model):
         return self.serial_number
 
     def get_absolute_url(self):
-        return reverse("instance-detail", kwargs={"pk": self.pk})
+        return reverse("nanoassets:instance-detail", kwargs={"pk": self.pk})
 
     class Meta:
         ordering = ['model_type', 'eol_date',]
@@ -140,7 +142,7 @@ class ModelType(models.Model):
         return '%s %s' % (self.manufacturer, self.name)
 
     def get_absolute_url(self):
-        return reverse("modeltype-detail", kwargs={"pk": self.pk})
+        return reverse("nanoassets:modeltype-detail", kwargs={"pk": self.pk})
 
 
 class Manufacturer(models.Model):

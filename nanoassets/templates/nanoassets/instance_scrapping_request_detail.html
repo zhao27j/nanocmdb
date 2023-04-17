@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 <!-- {% load auth_extras %} -->
 {% block page_content %}
-    <form action="{% url 'instance-scrapping-request-approved' scraprequest.pk %}"
+    <form action="{% url 'nanoassets:instance-scrapping-request-approved' scraprequest.pk %}"
           method="post">
         {% csrf_token %}
         <h3 name="case_id">Case ID : {{ scraprequest.case_id }}</h3>

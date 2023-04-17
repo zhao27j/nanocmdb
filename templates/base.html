@@ -43,22 +43,22 @@
               </a>
               <ul class="dropdown-menu">
                 <li>
-                  <a class="dropdown-item" href="{% url 'my-instance-list' %}">Owned</a>
+                  <a class="dropdown-item" href="{% url 'nanoassets:my-instance-list' %}">Owned</a>
                 </li>
                 {% if user|has_group:"IT China" %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'supported-instance-list' %}">Supported</a>
+                    <a class="dropdown-item" href="{% url 'nanoassets:supported-instance-list' %}">Supported</a>
                   </li>
                   <!--
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="{% url 'instance-list' %}">All</a></li>
+                <li><a class="dropdown-item" href="{% url 'nanoassets:instance-list' %}">All</a></li>
                 -->
                   <li>
                     <hr class="dropdown-divider">
                   </li>
                   <li>
                     <a class="dropdown-item"
-                       href="{% url 'instance-scrapping-request-list' %}">Scrapping Requests</a>
+                       href="{% url 'nanoassets:instance-scrapping-request-list' %}">Scrapping Requests</a>
                   </li>
                 {% endif %}
               </ul>
@@ -93,12 +93,12 @@
           {% if user|has_group:"IT China" %}
             <form class="d-flex"
                   role="search"
-                  action="{% url 'instance-search-results' %}"
+                  action="{% url 'nanoassets:instance-search-results' %}"
                   method="get">
               <input class="form-control me-2"
                      name="q"
                      type="search"
-                     placeholder="Search..."
+                     placeholder="kwrd1, kwrd2 ..."
                      aria-label="Search"
                      id="autoFocusedInput"
                      autofocus="autofocus">
