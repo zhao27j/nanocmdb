@@ -138,24 +138,23 @@ class InstanceSearchResultsListView(generic.ListView):
     def get_queryset(self):
         queries = tuple(self.request.GET.get('q').split(','))
         # query_search = tuple(query.split(','))
-        object_list = Instance.objects.filter(
-            branchSite__onSiteTech=self.request.user)
+        object_list = Instance.objects.filter(branchSite__onSiteTech=self.request.user)
 
         for query in queries:
-
             object_list = object_list.filter(
-                Q(serial_number__icontains=query) |
-                Q(model_type__name__icontains=query) |
-                Q(model_type__manufacturer__name__icontains=query) |
-                Q(status__icontains=query) |
-                Q(owner__username__icontains=query) |
-                Q(owner__first_name__icontains=query) |
-                Q(owner__last_name__icontains=query) |
-                Q(owner__email__icontains=query) |
-                Q(configuragion__hostname__icontains=query) |
-                Q(branchSite__name__icontains=query) |
+                Q(serial_number__icontains=query) | 
+                Q(model_type__name__icontains=query) | 
+                Q(model_type__manufacturer__name__icontains=query) | 
+                Q(status__icontains=query) | 
+                Q(owner__username__icontains=query) | 
+                Q(owner__first_name__icontains=query) | 
+                Q(owner__last_name__icontains=query) | 
+                Q(owner__email__icontains=query) | 
+                Q(configuragion__hostname__icontains=query) | 
+                Q(branchSite__name__icontains=query) | 
                 Q(branchSite__city__name__icontains=query)
-            )
+                )
+            # result_list.append(object_list)
 
         if object_list:
             messages.info(self.request, "%s results found." %
@@ -239,7 +238,7 @@ class InstanceByUserListView(LoginRequiredMixin, generic.ListView):
     template_name = 'nanoassets/instance_list_by_user.html'
 
     def get_queryset(self):
-        return super().get_queryset().filter(owner=self.request.user).filter(status__exact='U').order_by('eol_date')
+        return super().get_queryset().filter(owner=self.request.user).filter(status__exact='inUSE').order_by('eol_date')
         # return Instance.objects.filter(owner=self.request.user).filter(status__exact='u').order_by('eol_date')
 
 class InstanceDetailView(LoginRequiredMixin, generic.DetailView):

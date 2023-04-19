@@ -11,7 +11,7 @@ Django==4.1.7
 django-autoslug==1.9.9
 django-cities-light==3.9.2
 django-environ==0.10.0
-django-import-export==3.1.0
+django-import-export==3.2.0
 django-smart-selects==1.6.0
 djlint==1.19.16
 EditorConfig==0.12.3
@@ -36,7 +36,7 @@ PyYAML==6.0
 regex==2022.10.31
 six==1.16.0
 sqlparse==0.4.3
-tablib==3.3.0
+tablib==3.4.0
 tomli==2.0.1
 tomlkit==0.11.7
 tqdm==4.65.0

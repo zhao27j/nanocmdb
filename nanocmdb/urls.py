@@ -24,5 +24,5 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    path('nanoassets/', include('nanoassets.urls')),
+    path('', include('nanoassets.urls')),
 ]
