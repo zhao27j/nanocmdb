@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
+import os
 
 import environ
 
@@ -24,10 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-l=$7bc+(lkaf)!^550d5z6ggeu4t+z9gja(@x!9-93%@!(h46("
+# SECRET_KEY = "django-insecure-l=$7bc+(lkaf)!^550d5z6ggeu4t+z9gja(@x!9-93%@!(h46("
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-l=$7bc+(lkaf)!^550d5z6ggeu4t+z9gja(@x!9-93%@!(h46(')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+DEBUG = bool( os.environ.get('DJANGO_DEBUG', True) )
 
 ALLOWED_HOSTS = []
 
