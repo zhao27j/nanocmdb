@@ -21,7 +21,7 @@
     {% if instance_list %}
       <form action="{% url 'nanoassets:instance-scrapping-request' %}" method="post">
         {% csrf_token %}
-        <input type="submit" value="Apply for Scrapping"/>
+        <input type="submit" class="btn btn-outline-primary d-inline-flex align-items-center" value="Apply for Scrapping" />
         <table class="table table-striped table-hover">
           <tr>
             <th></th>
@@ -45,10 +45,11 @@
                   {{ instance.serial_number }}
                   </a>
                 </label>
-                <a href="{% url 'nanoassets:instance-in-repair' instance.pk %}">🛠️</a>
+                
               </td>
               <td>
-                <em>{{ instance.model_type }}</em>
+                <a href="{% url 'nanoassets:instance-in-repair' instance.pk %}">🛠️</a>
+                {{ instance.model_type }}
               </td>
               <td>{{ instance.get_status_display }}</td>
               <td>
