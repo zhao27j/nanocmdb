@@ -42,11 +42,17 @@ class InstanceResource(resources.ModelResource):
         widget=ForeignKeyWidget(User, field='last_name'),
     )
 
+    user_email = fields.Field(
+        attribute='owner',
+        column_name='Email',
+        widget=ForeignKeyWidget(User, field='email'),
+
+    )
+
     class Meta:
         model = Instance
         import_id_fields = ('serial_number',)
         skip_unchanged = True
         report_skipped = False
         # exclude = ('eol_date')
-        # fields = ('model_type','serial_number', 'hostname', 'status', 'owner', 'site', 'eol_date',)
-        fields = ('serial_number', 'model_type', 'status', 'hostname', 'username', 'user_first_name', 'user_last_name', 'site', 'eol_date')
+        fields = ('serial_number', 'model_type', 'status', 'hostname', 'username', 'user_first_name', 'user_last_name', 'user_email', 'site', 'eol_date')
