@@ -17,8 +17,8 @@ RUN pip install --no-cache-dir -r requirements.txt --trusted-host=mirrors.aliyun
 COPY . nanocmdb
 WORKDIR /nanocmdb
 
-EXPOSE 83657
+EXPOSE 8000
 
 # runs the production server
 ENTRYPOINT ["python", "nanocmdb/manage.py"]
-CMD ["runserver", "0.0.0.0:83657"]
+CMD ["runserver", "0.0.0.0:8000"]
