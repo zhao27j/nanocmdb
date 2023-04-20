@@ -3,3 +3,4 @@
 
 # binary files
 *.pyc
+nanocmdb/__pycache__/*.pyc
