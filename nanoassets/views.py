@@ -137,10 +137,10 @@ class InstanceSearchResultsListView(generic.ListView):
 
     def get_queryset(self):
         queries = tuple(self.request.GET.get('q').split(','))
-        # query_search = tuple(query.split(','))
         object_list = Instance.objects.filter(branchSite__onSiteTech=self.request.user)
 
         for query in queries:
+            query = query.strip()
             object_list = object_list.filter(
                 Q(serial_number__icontains=query) | 
                 Q(model_type__name__icontains=query) | 
@@ -154,7 +154,6 @@ class InstanceSearchResultsListView(generic.ListView):
                 Q(branchSite__name__icontains=query) | 
                 Q(branchSite__city__name__icontains=query)
                 )
-            # result_list.append(object_list)
 
         if object_list:
             messages.info(self.request, "%s results found." %
