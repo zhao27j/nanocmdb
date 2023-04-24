@@ -100,6 +100,7 @@ class Instance(models.Model):
         ('inUSE', 'in Use'),
         ('inREPAIR', 'in Repair'),
         ('SCRAPPED', 'Scrapped'),
+        ('buyBACK', 'BuyBack'),
     )
     status = models.CharField(max_length=15, choices=INSTANCE_STATUS,
                               default='Available', help_text='Asset availability')

@@ -133,7 +133,7 @@ def InstanceScrappingRequest(request):
 class InstanceSearchResultsListView(generic.ListView):
     model = Instance
     template_name = 'nanoassets/instance_search_results.html'
-    paginate_by = 5
+    paginate_by = 25
 
     def get_queryset(self):
         queries = tuple(self.request.GET.get('q').split(','))
@@ -226,7 +226,7 @@ class InstanceOwnerUpdate(LoginRequiredMixin, UpdateView):
 class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
     model = Instance
     template_name = 'nanoassets/instance_list_by_tech.html'
-    paginate_by = 15
+    paginate_by = 25
 
     def get_queryset(self):
         return super().get_queryset().filter(branchSite__onSiteTech=self.request.user)  # 跨多表查询

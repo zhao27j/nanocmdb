@@ -3,5 +3,5 @@
 
 # binary files
 *.pyc
-nanocmdb/__pycache__/*.pyc
-nanoassets/__pycache__/*.pyc
+nanocmdb/__pycache__/*pyc
+nanoassets/__pycache__/*pyc
