@@ -85,7 +85,7 @@ def InstanceScrappingRequest(request):
                 if selected_instance.status != 'AVAILABLE' or selected_instance.scrap_request:
                     messages.warning(
                         request, "Only Available and non-requested IT Assets can be selected.")
-                    # return redirect('supported-instance-list')
+                    # return redirect('nanoassets:supported-instance-list')
                     # return redirect(request.path) # 重定向 至 当前 页面 （在此不适合）
                     # 重定向 至 前一个 页面
                     return redirect(request.META.get('HTTP_REFERER'))
@@ -127,7 +127,7 @@ def InstanceScrappingRequest(request):
             return redirect('instance-scrapping-request-list')
         else:
             messages.info(request, "No IT Assets were selected.")
-            return redirect('supported-instance-list')
+            return redirect('nanoassets:supported-instance-list')
 
 
 class InstanceSearchResultsListView(generic.ListView):
@@ -195,7 +195,7 @@ def InstanceInRepair(request, pk):
 
         instance.save()
 
-    return redirect('supported-instance-list')
+    return redirect('nanoassets:supported-instance-list')
 
 
 class InstanceOwnerUpdate(LoginRequiredMixin, UpdateView):
@@ -237,7 +237,7 @@ class InstanceByUserListView(LoginRequiredMixin, generic.ListView):
     template_name = 'nanoassets/instance_list_by_user.html'
 
     def get_queryset(self):
-        return super().get_queryset().filter(owner=self.request.user).filter(status__exact='inUSE').order_by('eol_date')
+        return super().get_queryset().filter(owner=self.request.user).filter(status__icontains='use').order_by('eol_date')
         # return Instance.objects.filter(owner=self.request.user).filter(status__exact='u').order_by('eol_date')
 
 class InstanceDetailView(LoginRequiredMixin, generic.DetailView):

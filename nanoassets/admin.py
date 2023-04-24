@@ -23,13 +23,11 @@ class ScrapRequestAdmin(admin.ModelAdmin):
 @admin.register(Instance)
 class InstanceAdmin(ImportExportModelAdmin):
     resource_classes = [InstanceResource]
-    # resource_class = [InstanceResource]
 
     list_display = ['serial_number', 'model_type', 'configuragion',
                     'status', 'eol_date', 'owner', 'branchSite', 'scrap_request']
-    # list_filter = ['model_type', 'status']
-    search_fields = ['model_type__name',
-                     'status', 'owner__username', 'eol_date']
+    list_filter = ['model_type', 'status', 'branchSite']
+    search_fields = ['model_type__name','status', 'owner__username', 'eol_date']
 
 
 # admin.site.register(Instance, InstanceAdmin)

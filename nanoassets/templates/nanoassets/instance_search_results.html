@@ -21,7 +21,11 @@
     {% if instance_list %}
       <form action="{% url 'nanoassets:instance-scrapping-request' %}" method="post">
         {% csrf_token %}
-        <input type="submit" value="Apply for Scrapping"/>
+        <div class="d-grid gap-2 d-md-block">
+          <input type="submit"
+                class="btn btn-outline-primary d-inline-flex align-items-center"
+                value="Apply for Scrapping"/>
+        </div>
         <table class="table table-striped table-hover">
           <tr>
             <th></th>
@@ -40,13 +44,24 @@
                        value="{{ instance.pk }}"/>
               </td>
               <td>
-                <label for="instance{{ forloop.counter }}">&nbsp; {{ instance.serial_number }}</label>
+                <label for="instance{{ forloop.counter }}">
+                  &nbsp;  <a href="{% url 'nanoassets:instance-detail' instance.pk %}">{{ instance.serial_number }}</a>
+                </label>
               </td>
               <td>
-                &nbsp; <em>{{ instance.model_type }}</em>
+                <a href="{% url 'nanoassets:instance-in-repair' instance.pk %}">🛠</a>
+                &nbsp; {{ instance.model_type }}
               </td>
               <td>&nbsp; {{ instance.get_status_display }}</td>
-              <td>&nbsp; {{ instance.owner }}</td>
+              <td>
+                &nbsp; <a href="{% url 'nanoassets:instance-owner-upd' instance.pk %}">
+                  {% if instance.owner %}
+                    {{ instance.owner.get_full_name }}
+                  {% else %}
+                    🈳
+                  {% endif %}
+                </a>
+              </td>
               <td>&nbsp; {{ instance.branchSite }}</td>
             </tr>
           {% endfor %}

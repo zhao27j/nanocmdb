@@ -101,6 +101,7 @@ class Instance(models.Model):
         ('inREPAIR', 'in Repair'),
         ('SCRAPPED', 'Scrapped'),
         ('buyBACK', 'BuyBack'),
+        ('reUSE', 'Reuse'),
     )
     status = models.CharField(max_length=15, choices=INSTANCE_STATUS,
                               default='Available', help_text='Asset availability')
@@ -131,7 +132,7 @@ class Instance(models.Model):
         return reverse("nanoassets:instance-detail", kwargs={"pk": self.pk})
 
     class Meta:
-        ordering = ['model_type', 'eol_date',]
+        ordering = ['branchSite', 'status', 'model_type', 'eol_date',]
 
 
 class ModelType(models.Model):

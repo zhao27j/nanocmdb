@@ -2,6 +2,6 @@
 *.sqlite3
 
 # binary files
-*.pyc
+*pyc
 nanocmdb/__pycache__/*pyc
 nanoassets/__pycache__/*pyc
