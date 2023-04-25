@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block page_content %}
-  <h1>My IT Assets</h1>
+  <p class="h3">My IT Assets</p>
   {% if instance_list %}
     <table class="table table-striped table-hover">
       <tr>
@@ -19,17 +19,17 @@
           </td>
           <td>
             <label for="instance{{ forloop.counter }}">
-              <a href="{% url 'nanoassets:instance-detail' instance.pk %}">{{ instance.serial_number }}</a>
+              <a href="{% url 'nanoassets:instance-detail' instance.pk %}"><small>{{ instance.serial_number }}</small></a>
             </label>
           </td>
           <td>
-            <em>{{ instance.model_type }}</em>
+            <em><small>{{ instance.model_type }}</small></em>
           </td>
-          <td>{{ instance.get_status_display }}</td>
+          <td><small>{{ instance.get_status_display }}</small></td>
         </tr>
       {% endfor %}
     </table>
   {% else %}
-    <p>You don't have any IT assets !</p>
+    <p class="lead">You don't have any IT assets !</p>
   {% endif %}
 {% endblock page_content %}

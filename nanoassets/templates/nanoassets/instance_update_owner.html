@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
 {% block page_content %}
   <p>
-    Serial Number: <b>{{ instance.serial_number }} </b>
+    Serial Number: <b></small>{{ instance.serial_number }} </small></b>
   </p>
   <p>
-    Model / Type: <b>{{ instance.model_type }} </b>
+    Model / Type: <b><small>{{ instance.model_type }} </small></b>
   </p>
   <p>
-    Status: <b>{{ instance.get_status_display }} </b>
+    Status: <b><small>{{ instance.get_status_display }} </small></b>
   </p>
   <p>
-    Hostname: <b>{{ instance.configuragion }} </b>
+    Hostname: <b><small>{{ instance.configuragion }} </small></b>
   </p>
   <p>
-    Site: <b>{{ instance.branchSite }} </b>
+    Site: <b><small>{{ instance.branchSite }} </small></b>
   </p>
   <form action="" method="post">
     {% csrf_token %}

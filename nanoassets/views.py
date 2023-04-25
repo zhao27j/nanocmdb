@@ -48,10 +48,10 @@ def InstanceScrappingRequestApproved(request, pk):
             'scrapRequest': scrapRequest,
         })
         mail = EmailMessage(
-            subject='Please notice - IT Assets Scrapping Request is approved by ' +
+            subject='ITS express - Please notice - Scrapping Request is approved by ' +
             scrapRequest.approved_by.get_full_name(),
             body=message,
-            from_email='nanoNotification <do-not-reply@tishmanspeyer.com>',
+            from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
             to=[scrapRequest.requested_by.email],
             cc=reviewer_emails,
             # reply_to=[EMAIL_ADMIN],
@@ -60,9 +60,9 @@ def InstanceScrappingRequestApproved(request, pk):
         mail.content_subtype = "html"
         mail.send()
         messages.success(
-            request, "The notification email with the apprival decision is sent.")
+            request, "the notification email with the apprival decision is sent.")
 
-        return redirect('instance-scrapping-request-list')
+        return redirect('nanoassets:instance-scrapping-request-list')
 
 
 class InstanceScrappingRequestDetailView(LoginRequiredMixin, generic.DetailView):
@@ -84,11 +84,10 @@ def InstanceScrappingRequest(request):
                     Instance, pk=selected_instance_pk)
                 if selected_instance.status != 'AVAILABLE' or selected_instance.scrap_request:
                     messages.warning(
-                        request, "Only Available and non-requested IT Assets can be selected.")
+                        request, "only unrequested Available computers can be requested")
                     # return redirect('nanoassets:supported-instance-list')
                     # return redirect(request.path) # 重定向 至 当前 页面 （在此不适合）
-                    # 重定向 至 前一个 页面
-                    return redirect(request.META.get('HTTP_REFERER'))
+                    return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
 
             new_scrap_request = ScrapRequest.objects.create(
                 requested_by=request.user)
@@ -110,10 +109,10 @@ def InstanceScrappingRequest(request):
                 'new_scrap_request': new_scrap_request,
             })
             mail = EmailMessage(
-                subject='Please approve - IT Assets Scrapping Requested by ' +
+                subject='ITS express - Please approve - scrapping IT assets requested by ' +
                 new_scrap_request.requested_by.get_full_name(),
                 body=message,
-                from_email='nanoNotification <do-not-reply@tishmanspeyer.com>',
+                from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
                 to=reviewer_emails,
                 cc=[request.user.email],
                 # reply_to=[EMAIL_ADMIN],
@@ -122,11 +121,11 @@ def InstanceScrappingRequest(request):
             mail.content_subtype = "html"
             mail.send()
             messages.success(
-                request, "The notification email with the request detail is sent.")
+                request, "the notification email with the request detail is sent")
 
             return redirect('instance-scrapping-request-list')
         else:
-            messages.info(request, "No IT Assets were selected.")
+            messages.info(request, "no IT Assets were selected")
             return redirect('nanoassets:supported-instance-list')
 
 
@@ -156,10 +155,10 @@ class InstanceSearchResultsListView(generic.ListView):
                 )
 
         if object_list:
-            messages.info(self.request, "%s results found." %
+            messages.info(self.request, "%s results found" %
                           object_list.count())
         else:
-            messages.info(self.request, "No results found.")
+            messages.info(self.request, "no results found")
             # self.request.GET = self.request.GET.copy()
             # self.request.GET['q'] = ''
 
@@ -177,21 +176,21 @@ def InstanceInRepair(request, pk):
                 'Sent to repair by ' + request.user.get_full_name())
             # instance.activityhistory_set.save()
             messages.info(request, instance.serial_number + ' (' +
-                          instance.model_type.name + ') ' + "was sent to repair.")
+                          instance.model_type.name + ') ' + "was sent to repair")
         elif instance.status == 'inREPAIR' and instance.owner:
             instance.status = 'inUSE'
             instance.activityhistory_set.create(
                 description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
                 'Got back from repairing by ' + request.user.get_full_name())
             messages.info(request, instance.serial_number +
-                          ' (' + instance.model_type.name + ') ' + "was Repaired.")
+                          ' (' + instance.model_type.name + ') ' + "was Repaired")
         elif instance.status == 'inREPAIR' and not instance.owner:
             instance.status = 'AVAILABLE'
             instance.activityhistory_set.create(
                 description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
                 'Got back from repairing by ' + request.user.get_full_name())
             messages.info(request, instance.serial_number +
-                          ' (' + instance.model_type.name + ') ' + "was Repaired.")
+                          ' (' + instance.model_type.name + ') ' + "was Repaired")
 
         instance.save()
 
@@ -211,14 +210,14 @@ class InstanceOwnerUpdate(LoginRequiredMixin, UpdateView):
             self.object.activityhistory_set.create(
                 description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
                 'The IT Assets was Assigned to ' + form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 ') + ' by ' + self.request.user.get_full_name())
-            messages.info(self.request, 'The IT Assets was Assign to ' +
+            messages.info(self.request, 'the IT Assets was Assign to ' +
                           form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 '))
         else:
             form.instance.status = 'AVAILABLE'  # self.object.status = 'AVAILABLE'
             self.object.activityhistory_set.create(
                 description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
                 'The IT Assets was Returned from ' + original_instance.owner.username + ' by ' + self.request.user.get_full_name())
-            messages.info(self.request, 'The IT Assets was Returned from ' + original_instance.owner.username)
+            messages.info(self.request, 'the IT Assets was Returned from ' + original_instance.owner.username)
 
         return super().form_valid(form)
 

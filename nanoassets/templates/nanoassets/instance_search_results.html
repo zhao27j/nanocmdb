@@ -17,7 +17,7 @@
     {% endfor %}
   {% endif %}
   <div class="container mt-3">
-    <h3>search results</h3>
+    <p class="h3">search results</p>
     {% if instance_list %}
       <form action="{% url 'nanoassets:instance-scrapping-request' %}" method="post">
         {% csrf_token %}
@@ -45,30 +45,30 @@
               </td>
               <td>
                 <label for="instance{{ forloop.counter }}">
-                  &nbsp;  <a href="{% url 'nanoassets:instance-detail' instance.pk %}">{{ instance.serial_number }}</a>
+                  &nbsp;  <a href="{% url 'nanoassets:instance-detail' instance.pk %}"><small>{{ instance.serial_number }}</small></a>
                 </label>
               </td>
               <td>
                 <a href="{% url 'nanoassets:instance-in-repair' instance.pk %}">🛠</a>
-                &nbsp; {{ instance.model_type }}
+                &nbsp; <small>{{ instance.model_type }}</small>
               </td>
-              <td>&nbsp; {{ instance.get_status_display }}</td>
+              <td>&nbsp; <small>{{ instance.get_status_display }}</small></td>
               <td>
                 &nbsp; <a href="{% url 'nanoassets:instance-owner-upd' instance.pk %}">
                   {% if instance.owner %}
-                    {{ instance.owner.get_full_name }}
+                <small>{{ instance.owner.get_full_name }}<small>
                   {% else %}
                     🈳
                   {% endif %}
                 </a>
               </td>
-              <td>&nbsp; {{ instance.branchSite }}</td>
+              <td>&nbsp; <small>{{ instance.branchSite }}</small></td>
             </tr>
           {% endfor %}
         </table>
       </form>
     {% else %}
-      <p>Nothing found !</p>
+      <p class="lead">Nothing found !</p>
     {% endif %}
   </div>
 {% endblock page_content %}

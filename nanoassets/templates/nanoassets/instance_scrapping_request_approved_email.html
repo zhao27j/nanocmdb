@@ -23,6 +23,7 @@
                 <th>Model / Type</th>
                 <th>Status</th>
                 <th>Owner</th>
+                <th>Site</th>
                 <th>EOL</th>
             </tr>
             {% for instance in scrapRequest.instance_set.all %}
@@ -33,6 +34,7 @@
                     </td>
                     <td>{{ instance.get_status_display }}</td>
                     <td>{{ instance.owner }}</td>
+                    <td>{{ instance.branchSite }}</td>
                     <td>{{ instance.eol_date }}</td>
                 </tr>
             {% endfor %}
