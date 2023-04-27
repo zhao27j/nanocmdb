@@ -22,7 +22,7 @@
       </form>
       -->
       {% if instance_list %}
-        <form action="{% url 'nanoassets:instance-scrapping-request' %}" method="post">
+        <form action="{% url 'nanoassets:instance-bulk-upd' %}" method="post">
           {% csrf_token %}
           <input type="submit" value="Apply for Scrapping"/>
           <table class="table table-striped table-hover">

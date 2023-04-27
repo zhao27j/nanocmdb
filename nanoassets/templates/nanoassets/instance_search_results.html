@@ -15,10 +15,19 @@
   <div class="container mt-3">
     <p class="h3">search results</p>
     {% if instance_list %}
-      <form action="{% url 'nanoassets:instance-scrapping-request' %}" method="post">
+      <form action="{% url 'nanoassets:instance-bulk-upd' %}" method="post">
         {% csrf_token %}
         <div class="d-grid gap-2 d-md-block">
           <input type="submit" class="btn btn-outline-primary d-inline-flex align-items-center" value="Apply for Scrapping"/>
+          <select name="branchsite_selected" id="site" class="form-select d-inline-flex" style="width:auto;" aria-label="Default select example">
+            <option> - - - - - </option>
+            {% for branchSite_name in branchSites_name %}
+              <option>
+                {{ branchSite_name }}
+              </option>
+            {% endfor %}
+          </select>
+          <input type="submit" name="branchsite-transfer" value="Transfer to ..." class="btn btn-outline-primary d-inline-flex align-items-center"/>
         </div>
         <table class="table table-striped table-hover">
           <tr>

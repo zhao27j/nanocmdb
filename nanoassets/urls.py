@@ -8,17 +8,17 @@ urlpatterns = [
     # path('', views.index, name='index'),
 ]
 
-# Scrapping Workflow
+# Assets Instance
 urlpatterns += [
-    path('instance_scrapping_request/', views.InstanceScrappingRequest, name='instance-scrapping-request'),
+    path('instance_bulk_upd/', views.InstanceBulkUpd, name='instance-bulk-upd'),
+    path('instance_search_results/', views.InstanceSearchResultsListView.as_view(), name='instance-search-results'),
+]
+
+# Scrapping
+urlpatterns += [
     path('instance_scrapping_request_list/', views.InstanceScrappingRequestListView.as_view(), name='instance-scrapping-request-list'),
     path('instance_scrapping_request_detail/<pk>/', views.InstanceScrappingRequestDetailView.as_view(), name='instance-scrapping-request-detail'),
     path('instance_scrapping_request_detail/<pk>/approved/', views.InstanceScrappingRequestApproved, name='instance-scrapping-request-approved'),
-]
-
-# Assets Instance
-urlpatterns += [
-    path('instance_search_results/', views.InstanceSearchResultsListView.as_view(), name='instance-search-results'),
 ]
 
 urlpatterns += [

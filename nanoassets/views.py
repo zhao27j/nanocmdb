@@ -20,9 +20,10 @@ from django.utils import timezone
 
 from django.db.models import Q
 
-from .models import Instance, ModelType, Manufacturer, ScrapRequest, branchSite
+from .models import Instance, ScrapRequest, branchSite
 
 # Create your views here.
+
 
 def InstanceScrappingRequestApproved(request, pk):
     if request.method == 'POST':
@@ -75,7 +76,7 @@ class InstanceScrappingRequestListView(LoginRequiredMixin, generic.ListView):
     # paginate_by = 10
 
 
-def InstanceScrappingRequest(request):
+def InstanceBulkUpd(request):
     if request.method == 'POST':
         if request.POST.getlist('instance'):
             for selected_instance_pk in request.POST.getlist('instance'):
@@ -115,19 +116,26 @@ def InstanceScrappingRequest(request):
                 )
                 mail.content_subtype = "html"
                 mail.send()
-                messages.success(
-                    request, "the notification email with the request detail is sent")
+                messages.success(request, "the notification email with the request detail is sent")
 
                 return redirect('instance-scrapping-request-list')
             
-            elif 'transfer-branchsite' in request.POST:
-                selected_instances = []
-                for selected_instance_pk in request.POST.getlist('instance'):
-                     selected_instances.append(get_object_or_404(Instance, pk=selected_instance_pk))
+            elif 'branchsite-transfer' in request.POST:
+                try:
+                    branchsite_selected = branchSite.objects.get(name=request.POST['branchsite_selected'])
+                except (KeyError, branchSite.DoesNotExist):
+                    messages.info(request, 'distination Site is invalid')
+                else:
+                    for selected_instance_pk in request.POST.getlist('instance'):
+                        selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                        selected_instance.activityhistory_set.create(
+                            description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
+                            'Transferred to ' + request.POST['branchsite_selected'] + ' from ' + selected_instance.branchSite.name + ' by ' + request.user.get_full_name())
+                        selected_instance.branchSite = get_object_or_404(branchSite, name=request.POST['branchsite_selected'])
+                        selected_instance.save()
+                    messages.info(request, 'the selected IT Assets were Transferred to ' + request.POST.get('branchsite_selected'))
 
-                return render(request, 'nanoassets/instance_update_branchsite.html', {
-                    'selected_instances': selected_instances,
-                })
+                return redirect('nanoassets:supported-instance-list')
         else:
             messages.info(request, "no IT Assets were selected")
             return redirect('nanoassets:supported-instance-list')
@@ -167,6 +175,17 @@ class InstanceSearchResultsListView(generic.ListView):
             # self.request.GET['q'] = ''
 
         return object_list
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        branchSites_name = []
+        for site in branchSite.objects.all():
+            branchSites_name.append(site)
+
+        context["branchSites_name"] = branchSites_name
+
+        return context
 
 
 def InstanceInRepair(request, pk):
@@ -201,13 +220,6 @@ def InstanceInRepair(request, pk):
     return redirect('nanoassets:supported-instance-list')
 
 
-class InstanceBranchSiteUpdate(LoginRequiredMixin, UpdateView):
-    model = Instance
-    fields = ['branchSite']
-    template_name = 'nanoassets/instnace_update_branchsite.html'
-    success_url = reverse_lazy('nanoassets:supported-instance-list')
-
-
 class InstanceOwnerUpdate(LoginRequiredMixin, UpdateView):
     model = Instance
     fields = ['owner']  # fields = '__all__'
@@ -220,14 +232,14 @@ class InstanceOwnerUpdate(LoginRequiredMixin, UpdateView):
             form.instance.status = 'inUSE'  # self.object.status = 'inUSE'
             self.object.activityhistory_set.create(
                 description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
-                'The IT Assets was Assigned to ' + form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 ') + ' by ' + self.request.user.get_full_name())
+                'Assigned to ' + form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 ') + ' by ' + self.request.user.get_full_name())
             messages.info(self.request, 'the IT Assets was Assign to ' +
                           form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 '))
         else:
             form.instance.status = 'AVAILABLE'  # self.object.status = 'AVAILABLE'
             self.object.activityhistory_set.create(
                 description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
-                'The IT Assets was Returned from ' + original_instance.owner.username + ' by ' + self.request.user.get_full_name())
+                'Returned from ' + original_instance.owner.username + ' by ' + self.request.user.get_full_name())
             messages.info(self.request, 'the IT Assets was Returned from ' + original_instance.owner.username)
 
         return super().form_valid(form)
@@ -238,6 +250,17 @@ class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
     template_name = 'nanoassets/instance_list_by_tech.html'
     paginate_by = 25
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        branchSites_name = []
+        for site in branchSite.objects.all():
+            branchSites_name.append(site)
+
+        context["branchSites_name"] = branchSites_name
+
+        return context
+    
     def get_queryset(self):
         return super().get_queryset().filter(branchSite__onSiteTech=self.request.user)  # 跨多表查询
 

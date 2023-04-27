@@ -19,6 +19,10 @@ class ActivityHistory(models.Model):
     Instance = models.ForeignKey("nanoassets.Instance", verbose_name=_("IT Assets"), on_delete=models.SET_NULL, null=True, blank=True)
     def __str__(self):
         return self.description
+    
+    class Meta:
+        ordering = ['-description',]
+
 
 class Configuragion(models.Model):
     hostname = models.CharField(_("Hostname"), max_length=36,
