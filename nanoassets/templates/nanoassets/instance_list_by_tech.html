@@ -3,13 +3,9 @@
   {% if messages %}
     {% for message in messages %}
       <div class="container-fluid">
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
-             role="alert">
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
           <div>{{ message }}</div>
-          <button type="button"
-                  class="btn-close"
-                  data-bs-dismiss="alert"
-                  aria-label="Close">
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
             <!-- <span aria-hidden="True">&times;</span> -->
           </button>
         </div>
@@ -19,13 +15,13 @@
   <div class="container mt-3">
     <p class="h3">Supported IT Assets</p>
     {% if instance_list %}
-      <form action="{% url 'nanoassets:instance-scrapping-request' %}"
-            method="post">
+      <form action="{% url 'nanoassets:instance-scrapping-request' %}" method="post">
         {% csrf_token %}
         <div class="d-grid gap-2 d-md-block">
-          <input type="submit"
-                 class="btn btn-outline-primary d-inline-flex align-items-center"
-                 value="Apply for Scrapping"/>
+          <input type="submit" name="scrapping-request" value="Apply for Scrapping" class="btn btn-outline-primary d-inline-flex align-items-center" />
+        </div>
+        <div class="d-grid gap-2 d-md-block">
+          <input type="submit" name="transfer-branchsite" value="Transfer to ..." class="btn btn-outline-primary d-inline-flex align-items-center" />
         </div>
         <table class="table table-striped table-hover fw-light">
           <tr>
@@ -53,7 +49,7 @@
                 <a href="{% url 'nanoassets:instance-in-repair' instance.pk %}">🛠</a>
                 <small>{{ instance.model_type }}</small>
               </td>
-              <td>{{ instance.get_status_display }}</td>
+              <td><small>{{ instance.get_status_display }}</small></td>
               <td>
                 <a href="{% url 'nanoassets:instance-owner-upd' instance.pk %}">
                   {% if instance.owner %}

@@ -24,7 +24,6 @@ from .models import Instance, ModelType, Manufacturer, ScrapRequest, branchSite
 
 # Create your views here.
 
-
 def InstanceScrappingRequestApproved(request, pk):
     if request.method == 'POST':
         scrapRequest = get_object_or_404(ScrapRequest, pk=pk)
@@ -80,50 +79,55 @@ def InstanceScrappingRequest(request):
     if request.method == 'POST':
         if request.POST.getlist('instance'):
             for selected_instance_pk in request.POST.getlist('instance'):
-                selected_instance = get_object_or_404(
-                    Instance, pk=selected_instance_pk)
+                selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
                 if selected_instance.status != 'AVAILABLE' or selected_instance.scrap_request:
-                    messages.warning(
-                        request, "only unrequested Available computers can be requested")
-                    # return redirect('nanoassets:supported-instance-list')
-                    # return redirect(request.path) # 重定向 至 当前 页面 （在此不适合）
+                    messages.warning(request, "only unrequested Available computers can be requested")
+                    # return redirect(request.path) # 重定向 至 当前 页面 (在此不适合)
                     return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
 
-            new_scrap_request = ScrapRequest.objects.create(
-                requested_by=request.user)
-            new_scrap_request.save()
+            if 'scrapping-request' in request.POST:
+                new_scrap_request = ScrapRequest.objects.create(requested_by=request.user)
+                new_scrap_request.save()
 
-            for selected_instance_pk in request.POST.getlist('instance'):
-                selected_instance = get_object_or_404(
-                    Instance, pk=selected_instance_pk)
-                selected_instance.scrap_request = new_scrap_request
-                selected_instance.save()
+                for selected_instance_pk in request.POST.getlist('instance'):
+                    selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                    selected_instance.scrap_request = new_scrap_request
+                    selected_instance.save()
 
-            reviewer_emails = []
-            for reviewer in User.objects.filter(groups__name='IT Reviewer'):
-                reviewer_emails.append(reviewer.email)
+                reviewer_emails = []
+                for reviewer in User.objects.filter(groups__name='IT Reviewer'):
+                    reviewer_emails.append(reviewer.email)
 
-            message = get_template("nanoassets/instance_scrapping_request_email.html").render({
-                'protocol': 'http',
-                'domain': '127.0.0.1:8000',
-                'new_scrap_request': new_scrap_request,
-            })
-            mail = EmailMessage(
-                subject='ITS express - Please approve - scrapping IT assets requested by ' +
-                new_scrap_request.requested_by.get_full_name(),
-                body=message,
-                from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
-                to=reviewer_emails,
-                cc=[request.user.email],
-                # reply_to=[EMAIL_ADMIN],
-                # connection=
-            )
-            mail.content_subtype = "html"
-            mail.send()
-            messages.success(
-                request, "the notification email with the request detail is sent")
+                message = get_template("nanoassets/instance_scrapping_request_email.html").render({
+                    'protocol': 'http',
+                    'domain': '127.0.0.1:8000',
+                    'new_scrap_request': new_scrap_request,
+                })
+                mail = EmailMessage(
+                    subject='ITS express - Please approve - scrapping IT assets requested by ' +
+                    new_scrap_request.requested_by.get_full_name(),
+                    body=message,
+                    from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
+                    to=reviewer_emails,
+                    cc=[request.user.email],
+                    # reply_to=[EMAIL_ADMIN],
+                    # connection=
+                )
+                mail.content_subtype = "html"
+                mail.send()
+                messages.success(
+                    request, "the notification email with the request detail is sent")
 
-            return redirect('instance-scrapping-request-list')
+                return redirect('instance-scrapping-request-list')
+            
+            elif 'transfer-branchsite' in request.POST:
+                selected_instances = []
+                for selected_instance_pk in request.POST.getlist('instance'):
+                     selected_instances.append(get_object_or_404(Instance, pk=selected_instance_pk))
+
+                return render(request, 'nanoassets/instance_update_branchsite.html', {
+                    'selected_instances': selected_instances,
+                })
         else:
             messages.info(request, "no IT Assets were selected")
             return redirect('nanoassets:supported-instance-list')
@@ -197,6 +201,13 @@ def InstanceInRepair(request, pk):
     return redirect('nanoassets:supported-instance-list')
 
 
+class InstanceBranchSiteUpdate(LoginRequiredMixin, UpdateView):
+    model = Instance
+    fields = ['branchSite']
+    template_name = 'nanoassets/instnace_update_branchsite.html'
+    success_url = reverse_lazy('nanoassets:supported-instance-list')
+
+
 class InstanceOwnerUpdate(LoginRequiredMixin, UpdateView):
     model = Instance
     fields = ['owner']  # fields = '__all__'
@@ -238,6 +249,7 @@ class InstanceByUserListView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         return super().get_queryset().filter(owner=self.request.user).filter(status__icontains='use').order_by('eol_date')
         # return Instance.objects.filter(owner=self.request.user).filter(status__exact='u').order_by('eol_date')
+
 
 class InstanceDetailView(LoginRequiredMixin, generic.DetailView):
     model = Instance

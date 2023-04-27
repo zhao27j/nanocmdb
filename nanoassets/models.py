@@ -36,12 +36,9 @@ class branchSite(models.Model):
         _("Site / Branch Office Name"), max_length=50, null=True)
     # project = models.ForeignKey("nanoassets.Model", verbose_name=_("Affiliated with a project"), on_delete=models.SET_NULL, blank=True, null=True)
 
-    country = models.ForeignKey("cities_light.Country", verbose_name=_(
-        "Country"), on_delete=models.SET_NULL, null=True)
-    region = ChainedForeignKey("cities_light.Region", chained_field='country',
-                               chained_model_field='country', show_all=False, auto_choose=True, sort=True, null=True)
-    city = ChainedForeignKey('cities_light.City', chained_field='region',
-                             chained_model_field='region', show_all=False, auto_choose=True, sort=True)
+    country = models.ForeignKey("cities_light.Country", verbose_name=_("Country"), on_delete=models.SET_NULL, null=True)
+    region = ChainedForeignKey("cities_light.Region", chained_field='country', chained_model_field='country', show_all=False, auto_choose=True, sort=True, null=True)
+    city = ChainedForeignKey('cities_light.City', chained_field='region', chained_model_field='region', show_all=False, auto_choose=True, sort=True, null=True)
     addr = models.CharField(_("Site Address"), max_length=255, null=True)
     postal = models.PositiveIntegerField(_("Postal code"), null=True)
 

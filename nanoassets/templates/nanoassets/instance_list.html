@@ -4,13 +4,9 @@
   {% if messages %}
     {% for message in messages %}
       <div class="container-fluid">
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
-             role="alert">
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
           <div>{{ message }}</div>
-          <button type="button"
-                  class="btn-close"
-                  data-bs-dismiss="alert"
-                  aria-label="Close">
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
             <!-- <span aria-hidden="True">&times;</span> -->
           </button>
         </div>
@@ -41,10 +37,7 @@
             {% for instance in instance_list %}
               <tr>
                 <td>
-                  <input type="checkbox"
-                         name="instance"
-                         id="instance{{ forloop.counter }}"
-                         value="{{ instance.pk }}"/>
+                  <input type="checkbox" name="instance" id="instance{{ forloop.counter }}" value="{{ instance.pk }}"/>
                 </td>
                 <td>
                   <label for="instance{{ forloop.counter }}">{{ instance.serial_number }}</label>
