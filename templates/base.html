@@ -8,6 +8,8 @@
           rel="stylesheet"
           integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp"
           crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   </head>
   <body>
     {% load auth_extras %}
@@ -47,9 +49,10 @@
                 </li>
                 {% if user|has_group:"IT China" %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'nanoassets:supported-instance-list' %}">Supported</a>
+                    <a class="dropdown-item"
+                       href="{% url 'nanoassets:supported-instance-list' %}">Supported</a>
                   </li>
-                <!--
+                  <!--
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="{% url 'nanoassets:instance-list' %}">All</a></li>
                 -->
