@@ -16,8 +16,7 @@ class branchSiteAdmin(admin.ModelAdmin):
 
 @admin.register(ScrapRequest)
 class ScrapRequestAdmin(admin.ModelAdmin):
-    list_display = ['case_id', 'status', 'requested_by',
-                    'requested_on', 'approved_by', 'approved_on',]
+    list_display = ['case_id', 'status', 'requested_by', 'requested_on', 'approved_by', 'approved_on',]
 
 
 @admin.register(Instance)

@@ -25,8 +25,7 @@ class ActivityHistory(models.Model):
 
 
 class Configuragion(models.Model):
-    hostname = models.CharField(_("Hostname"), max_length=36,
-                                primary_key=True, default=uuid.uuid4, help_text='Hostname')
+    hostname = models.CharField(_("Hostname"), max_length=36, primary_key=True, default=uuid.uuid4, help_text='Hostname')
 
     def __str__(self):
         return self.hostname
@@ -36,8 +35,7 @@ class Configuragion(models.Model):
 
 
 class branchSite(models.Model):
-    name = models.CharField(
-        _("Site / Branch Office Name"), max_length=50, null=True)
+    name = models.CharField(_("Site / Branch Office Name"), max_length=50, null=True)
     # project = models.ForeignKey("nanoassets.Model", verbose_name=_("Affiliated with a project"), on_delete=models.SET_NULL, blank=True, null=True)
 
     country = models.ForeignKey("cities_light.Country", verbose_name=_("Country"), on_delete=models.SET_NULL, null=True)
@@ -60,23 +58,17 @@ class branchSite(models.Model):
 
 
 class ScrapRequest(models.Model):
-    case_id = models.UUIDField(_("Request case ID"), primary_key=True,
-                               default=uuid.uuid4, help_text='Unique ID for the particular request')
+    case_id = models.UUIDField(_("Request case ID"), primary_key=True, default=uuid.uuid4, help_text='Unique ID for the particular request')
     REQUEST_STATUS = (
         ('I', 'Initialized'),
         ('A', 'Approved'),
     )
-    status = models.CharField(
-        _("Request status"), choices=REQUEST_STATUS, default='I', max_length=1)
+    status = models.CharField(_("Request status"), choices=REQUEST_STATUS, default='I', max_length=1)
     # instance = models.ForeignKey("nanoassets.Instance", verbose_name=_("Instance"), on_delete=models.SET_NULL, null=True, blank=True)
-    requested_by = models.ForeignKey(User, verbose_name=_(
-        "Requested by"), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
-    requested_on = models.DateField(
-        _("Requested on"), auto_now=False, auto_now_add=True, blank=True, null=True)
-    approved_by = models.ForeignKey(User, verbose_name=_(
-        "Approved by"), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
-    approved_on = models.DateField(
-        _("Approved on"), auto_now=False, auto_now_add=False, blank=True, null=True)
+    requested_by = models.ForeignKey(User, verbose_name=_("Requested by"), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
+    requested_on = models.DateField(_("Requested on"), auto_now=False, auto_now_add=True, blank=True, null=True)
+    approved_by = models.ForeignKey(User, verbose_name=_("Approved by"), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
+    approved_on = models.DateField(_("Approved on"), auto_now=False, auto_now_add=False, blank=True, null=True)
 
     def __str__(self):
         # return '%s Scrapping Request %s by %s on %s, Approved by %s on %s' % (self.case_id, self.status, self.requested_by, str(self.requested_on), self.approved_by, str(self.approved_on))
@@ -90,12 +82,9 @@ class ScrapRequest(models.Model):
 
 
 class Instance(models.Model):
-    serial_number = models.CharField(
-        primary_key=True, max_length=36, default=uuid.uuid4, help_text='enter serial #')
-    model_type = models.ForeignKey("nanoassets.ModelType", verbose_name=_(
-        "Model / Type"), on_delete=models.SET_NULL, null=True, blank=True)
-    owner = models.ForeignKey(User, verbose_name=_(
-        "Owner"), on_delete=models.SET_NULL, null=True, blank=True)
+    serial_number = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, help_text='enter serial #')
+    model_type = models.ForeignKey("nanoassets.ModelType", verbose_name=_("Model / Type"), on_delete=models.SET_NULL, null=True, blank=True)
+    owner = models.ForeignKey(User, verbose_name=_("Owner"), on_delete=models.SET_NULL, null=True, blank=True)
     INSTANCE_STATUS = (
         ('AVAILABLE', 'Available'),
         ('inUSE', 'in Use'),
@@ -104,13 +93,11 @@ class Instance(models.Model):
         ('buyBACK', 'BuyBack'),
         ('reUSE', 'Reuse'),
     )
-    status = models.CharField(max_length=15, choices=INSTANCE_STATUS,
-                              default='Available', help_text='Asset availability')
+    status = models.CharField(max_length=15, choices=INSTANCE_STATUS,default='Available', help_text='Asset availability')
 
     configuragion = models.ForeignKey("nanoassets.Configuragion", verbose_name=_("Configuragion"), on_delete=models.SET_NULL, null=True, blank=True)
 
-    scrap_request = models.ForeignKey("nanoassets.ScrapRequest", verbose_name=_(
-        "Scrap Request"), on_delete=models.SET_NULL, null=True, blank=True)
+    scrap_request = models.ForeignKey("nanoassets.ScrapRequest", verbose_name=_("Scrap Request"), on_delete=models.SET_NULL, null=True, blank=True)
 
     eol_date = models.DateField(null=True, blank=True)
 
@@ -120,8 +107,7 @@ class Instance(models.Model):
             return True
         return False
 
-    branchSite = models.ForeignKey("nanoassets.branchSite", verbose_name=_(
-        "Site / Branch Office"), on_delete=models.SET_NULL, null=True)
+    branchSite = models.ForeignKey("nanoassets.branchSite", verbose_name=_("Site / Branch Office"), on_delete=models.SET_NULL, null=True)
     
     # activity_history = models.ForeignKey("nanoassets.ActivityHistory", verbose_name=_("Activity History"), on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -138,8 +124,7 @@ class Instance(models.Model):
 
 class ModelType(models.Model):
     name = models.CharField(max_length=20)
-    manufacturer = models.ForeignKey(
-        "Manufacturer", on_delete=models.SET_NULL, blank=True, null=True)
+    manufacturer = models.ForeignKey("Manufacturer", on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
         return '%s %s' % (self.manufacturer, self.name)
