@@ -26,3 +26,7 @@ urlpatterns = [
 urlpatterns += [
     path('', include('nanoassets.urls')),
 ]
+
+urlpatterns += [
+    path('nanopay/', include('nanopay.urls')),
+]

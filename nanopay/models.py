@@ -12,33 +12,56 @@ from nanoassets.models import Instance
 def path_of_scanned_contract_copy(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     # fs = FileSystemStorage(location="/media/scanned_contract_copy/")
-    return "scanned_contract_copy/user_{0}/{1}".format(instance.user.id, filename)
+    # return "scanned_contract_copy/user_{0}/{1}".format(instance.user.id, filename)
+    return "scanned_contract_copy/year_{0}/{1}".format(instance.startup.year, filename)
     
 
 class Contract(models.Model):
-    name = models.CharField(_("Contract Name"), max_length=50)
+    briefing = models.CharField(_("Briefing"), max_length=50)
     party_a_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("甲方"), related_name='partyas')
     party_b_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("乙方"), related_name='partybs')
     party_c_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("丙方"), related_name='partycs', blank=True)
+    CONTRACT_TYPE = (
+        ('M', 'Maintenance'),
+        ('N', 'New'),
+        ('E', 'Expired'),
+    )
+    type = models.CharField(_("Contract Type"), choices=CONTRACT_TYPE, default='M', max_length=1)
     startup = models.DateField(_("Start Up"))
     endup = models.DateField(_("End Up"))
     scanned_copy = models.FileField(_("Scanned Copy"), upload_to='scanned_contract_copy/', max_length=100, null=True, blank=True)
     assets = models.ManyToManyField(Instance, verbose_name=_("Related Assets"), blank=True)
 
     def __str__(self):
-        return self.name
+        return self.briefing
     
     def get_absolute_url(self):
         return reverse('nanopay:contract-detail', kwargs={'pk': self.pk})
     
     def get_contract_duration_in_month(self):
-        return self.endup - self.startup
+        return (self.endup.year - self.startup.year) * 12 + (self.endup.month - self.startup.month)
     
+    def get_prjct(self):
+        for party in self.party_a_list.all():
+            if  party.type == 'I':
+                return party.prjct
+        for party in self.party_b_list.all():
+            if  party.type == 'I':
+                return party.prjct
+        for party in self.party_c_list.all():
+            if  party.type == 'I':
+                return party.prjct
+    
+    def get_parties_display(self):
+        """ Creates a string for the Onsite IT Support. This is required to display Onsite IT Support in Admin. """
+        return ", ".join([party_a.name for party_a in self.party_a_list.all()]) + ", " + ", ".join([party_b.name for party_b in self.party_b_list.all()]) + ", " + ", ".join([party_c.name for party_c in self.party_c_list.all()])
 
 
 class PaymentTerm(models.Model):
     pay_day = models.DateField(_("Pay Date"))
     amount = models.FloatField(_("Payment Amount"))
+    # paid = models.BooleanField(_("Paid"), default=False)
+    paid_on = models.DateField(_("Paid on"), null=True, blank=True)
     contract = models.ForeignKey("nanopay.Contract", verbose_name=_("Contract"), on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
@@ -65,6 +88,9 @@ class LegalEntity(models.Model):
     
     def get_absolute_url(self):
         return reverse('nanopay:legalentity-detail', kwargs={'pk': self.pk})
+    
+    class Meta:
+        ordering = ['type',]
 
 
 class Prjct(models.Model):
