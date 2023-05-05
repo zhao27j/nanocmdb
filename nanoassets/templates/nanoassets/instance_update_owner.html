@@ -1,22 +1,21 @@
 {% extends 'base.html' %}
 {% block page_content %}
-  <p>
-    Serial Number: <b></small>{{ instance.serial_number }} </small></b>
-  </p>
-  <p>
-    Model / Type: <b><small>{{ instance.model_type }} </small></b>
-  </p>
-  <p>
-    Status: <b><small>{{ instance.get_status_display }} </small></b>
-  </p>
-  <p>
-    Hostname: <b><small>{{ instance.configuragion }} </small></b>
-  </p>
-  <p>
-    Site: <b><small>{{ instance.branchSite }} </small></b>
-  </p>
+  <p>Serial Number: <b></small>{{ instance.serial_number }} </small></b></p>
+  <p>Model / Type: <b><small>{{ instance.model_type }} </small></b></p>
+  <p>Status: <b><small>{{ instance.get_status_display }} </small></b></p>
+  <p>Hostname: <b><small>{{ instance.configuragion }} </small></b></p>
+  <p>Site: <b><small>{{ instance.branchSite }} </small></b></p>
   <form action="" method="post">
     {% csrf_token %}
+
+    <input type="text" list="owners" name="assign_to" placeholder="assign to ..." />
+    <datalist id="owners">
+      {% for owner in owners %}
+        <option value="{{ owner.username }}"></option>
+      {% endfor %}
+    </datalist>
+
+
     <table class="table">
       {{ form.as_p }}
     </table>
