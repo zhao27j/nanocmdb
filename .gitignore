@@ -1,8 +1,9 @@
 # database
-db.sqlite3
+*sqlite3
+*sqlite3*
 
 # binary files
 *pyc
-nanocmdb/__pycache__/*.pyc
-nanoassets/__pycache__/*.pyc
-templatetags/__pycache__/*.pyc
+nanocmdb/__pycache__/*pyc
+nanoassets/__pycache__/*pyc
+templatetags/__pycache__/*pyc

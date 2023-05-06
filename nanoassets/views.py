@@ -230,33 +230,42 @@ class InstanceOwnerUpdate(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         owners = []
         for owner in User.objects.all():
-            owners.append(owner)
+            if owner.username != 'admin':
+                owners.append(owner)
         context['owners'] = owners
         return context
 
     def form_valid(self, form):
-        # original_instance = Instance.objects.get(pk=form.instance.pk)
         original_instance = get_object_or_404(Instance, pk=form.instance.pk)
-        # form.instance.owner = get_object_or_404(User, username=self.request.POST['assign_to'])
-        try:
-            form.instance.owner = User.objects.get(username=self.request.POST['assign_to'])
-        except User.DoesNotExist:
-            form.instance.owner = None
-            
-        if form.instance.owner:
-            form.instance.status = 'inUSE'  # self.object.status = 'inUSE'
-            self.object.activityhistory_set.create(
-                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
-                'Assigned to ' + form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 ') + ' by ' + self.request.user.get_full_name())
-            messages.info(self.request, 'the IT Assets [' + original_instance.serial_number + '] was Assign to ' +
-                          form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 '))
+        assign_to = self.request.POST['assign_to'].strip()
+        if (assign_to == '' and original_instance.status == 'AVAILABLE') or (assign_to == original_instance.owner.username):
+            form.instance.owner = original_instance.owner
+            messages.warning(self.request, 'the ownership of IT Assets [ ' + original_instance.serial_number + ' ] got Nothing to change')
         else:
-            form.instance.status = 'AVAILABLE'  # self.object.status = 'AVAILABLE'
-            self.object.activityhistory_set.create(
-                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
-                'Returned from ' + original_instance.owner.username + ' by ' + self.request.user.get_full_name())
-            messages.info(self.request, 'the IT Assets [' + original_instance.serial_number + '] was Returned from ' + original_instance.owner.username)
+            if assign_to != '':
+                try:
+                    form.instance.owner = User.objects.get(username=assign_to)
+                except User.DoesNotExist:
+                    form.instance.owner = None
 
+                if assign_to != 'admin' and form.instance.owner:
+                    form.instance.status = 'inUSE'  # self.object.status = 'inUSE'
+                    self.object.activityhistory_set.create(
+                        description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
+                        'Assigned to ' + form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 ') + ' by ' + self.request.user.get_full_name())
+                    messages.info(self.request, 'the IT Assets [' + original_instance.serial_number + '] was Assign to ' +
+                                form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 '))
+                else:
+                    form.instance.owner = original_instance.owner
+                    messages.warning(self.request, 'the IT Assets [ ' + original_instance.serial_number + ' ] can NOT be assigned to ' + assign_to)
+            else:
+                form.instance.status = 'AVAILABLE'  # self.object.status = 'AVAILABLE'
+                self.object.activityhistory_set.create(
+                    description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
+                    'Returned from ' + original_instance.owner.username + ' by ' + self.request.user.get_full_name())
+                messages.info(self.request, 'the IT Assets [ ' + original_instance.serial_number + ' ] was Returned from ' + original_instance.owner.username)
+        
+        
         return super().form_valid(form)
 
 
