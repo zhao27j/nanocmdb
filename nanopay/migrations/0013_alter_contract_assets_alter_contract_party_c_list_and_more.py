@@ -25,6 +25,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='contract',
             name='scanned_copy',
-            field=models.FileField(blank=True, null=True, upload_to=nanopay.models.path_of_scanned_contract_copy, verbose_name='Scanned Copy'),
+            field=models.FileField(blank=True, null=True, upload_to=nanopay.models.path_of_contract_scanned_copy, verbose_name='Scanned Copy'),
         ),
     ]

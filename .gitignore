@@ -7,3 +7,6 @@
 nanocmdb/__pycache__/*pyc
 nanoassets/__pycache__/*pyc
 templatetags/__pycache__/*pyc
+
+# attachedment
+*pdf

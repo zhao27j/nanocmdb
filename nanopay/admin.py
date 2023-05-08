@@ -15,7 +15,7 @@ class PaymentTermInline(admin.TabularInline):
 
 @admin.register(Contract)
 class ContractAdmin(admin.ModelAdmin):
-    list_display = ['get_parties_display', 'get_prjct', 'type', 'get_contract_duration_in_month', ]
+    list_display = ['briefing', 'get_parties_display', 'get_prjct', 'type', 'get_contract_duration_in_month', ]
     autocomplete_fields = ['party_a_list', 'party_b_list', 'assets', ]
     inlines = [PaymentTermInline, ]
 

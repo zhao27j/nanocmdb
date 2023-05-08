@@ -80,18 +80,23 @@ def InstanceBulkUpd(request):
     if request.method == 'POST':
         if request.POST.getlist('instance'):
             for selected_instance_pk in request.POST.getlist('instance'):
-                selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                selected_instance = get_object_or_404(
+                    Instance, pk=selected_instance_pk)
                 if selected_instance.status != 'AVAILABLE' or selected_instance.scrap_request:
-                    messages.warning(request, "only unrequested Available computers can be requested")
+                    messages.warning(
+                        request, "only unrequested Available computers can be requested")
                     # return redirect(request.path) # 重定向 至 当前 页面 (在此不适合)
-                    return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
+                    # 重定向 至 前一个 页面
+                    return redirect(request.META.get('HTTP_REFERER'))
 
             if 'scrapping-request' in request.POST:
-                new_scrap_request = ScrapRequest.objects.create(requested_by=request.user)
+                new_scrap_request = ScrapRequest.objects.create(
+                    requested_by=request.user)
                 new_scrap_request.save()
 
                 for selected_instance_pk in request.POST.getlist('instance'):
-                    selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                    selected_instance = get_object_or_404(
+                        Instance, pk=selected_instance_pk)
                     selected_instance.scrap_request = new_scrap_request
                     selected_instance.save()
 
@@ -116,24 +121,29 @@ def InstanceBulkUpd(request):
                 )
                 mail.content_subtype = "html"
                 mail.send()
-                messages.success(request, "the notification email with the request detail is sent")
+                messages.success(
+                    request, "the notification email with the request detail is sent")
 
-                return redirect('instance-scrapping-request-list')
-            
+                return redirect('nanoassets:instance-scrapping-request-list')
+
             elif 'branchsite-transfer' in request.POST:
                 try:
-                    branchsite_selected = branchSite.objects.get(name=request.POST['branchsite_selected'])
+                    branchsite_selected = branchSite.objects.get(
+                        name=request.POST['branchsite_selected'])
                 except (KeyError, branchSite.DoesNotExist):
                     messages.info(request, 'distination Site is invalid')
                 else:
                     for selected_instance_pk in request.POST.getlist('instance'):
-                        selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                        selected_instance = get_object_or_404(
+                            Instance, pk=selected_instance_pk)
                         selected_instance.activityhistory_set.create(
                             description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
                             'Transferred to ' + request.POST['branchsite_selected'] + ' from ' + selected_instance.branchSite.name + ' by ' + request.user.get_full_name())
-                        selected_instance.branchSite = get_object_or_404(branchSite, name=request.POST['branchsite_selected'])
+                        selected_instance.branchSite = get_object_or_404(
+                            branchSite, name=request.POST['branchsite_selected'])
                         selected_instance.save()
-                    messages.info(request, 'the selected IT Assets were Transferred to ' + request.POST.get('branchsite_selected'))
+                    messages.info(request, 'the selected IT Assets were Transferred to ' +
+                                  request.POST.get('branchsite_selected'))
 
                 return redirect('nanoassets:supported-instance-list')
         else:
@@ -148,23 +158,24 @@ class InstanceSearchResultsListView(generic.ListView):
 
     def get_queryset(self):
         queries = tuple(self.request.GET.get('q').split(','))
-        object_list = Instance.objects.filter(branchSite__onSiteTech=self.request.user)
+        object_list = Instance.objects.filter(
+            branchSite__onSiteTech=self.request.user)
 
         for query in queries:
             query = query.strip()
             object_list = object_list.filter(
-                Q(serial_number__icontains=query) | 
-                Q(model_type__name__icontains=query) | 
-                Q(model_type__manufacturer__name__icontains=query) | 
-                Q(status__icontains=query) | 
-                Q(owner__username__icontains=query) | 
-                Q(owner__first_name__icontains=query) | 
-                Q(owner__last_name__icontains=query) | 
-                Q(owner__email__icontains=query) | 
-                Q(configuragion__hostname__icontains=query) | 
-                Q(branchSite__name__icontains=query) | 
+                Q(serial_number__icontains=query) |
+                Q(model_type__name__icontains=query) |
+                Q(model_type__manufacturer__name__icontains=query) |
+                Q(status__icontains=query) |
+                Q(owner__username__icontains=query) |
+                Q(owner__first_name__icontains=query) |
+                Q(owner__last_name__icontains=query) |
+                Q(owner__email__icontains=query) |
+                Q(configuragion__hostname__icontains=query) |
+                Q(branchSite__name__icontains=query) |
                 Q(branchSite__city__name__icontains=query)
-                )
+            )
 
         if object_list:
             messages.info(self.request, "%s results found" %
@@ -175,7 +186,7 @@ class InstanceSearchResultsListView(generic.ListView):
             # self.request.GET['q'] = ''
 
         return object_list
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -238,34 +249,58 @@ class InstanceOwnerUpdate(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         original_instance = get_object_or_404(Instance, pk=form.instance.pk)
         assign_to = self.request.POST['assign_to'].strip()
-        if (assign_to == '' and original_instance.status == 'AVAILABLE') or (assign_to == original_instance.owner.username):
+        if assign_to == 'admin':
             form.instance.owner = original_instance.owner
-            messages.warning(self.request, 'the ownership of IT Assets [ ' + original_instance.serial_number + ' ] got Nothing to change')
+            messages.warning(
+                self.request, 'the IT Assets [ ' + original_instance.serial_number + ' ] can NOT be assigned to ' + assign_to)
+        elif assign_to == '' and original_instance.owner == None:
+            form.instance.owner = original_instance.owner
+            messages.warning(
+                self.request, 'the ownership of IT Assets [ ' + original_instance.serial_number + ' ] got Nothing to change')
+        elif assign_to == '' and original_instance.owner:
+            form.instance.status = 'AVAILABLE'  # self.object.status = 'AVAILABLE'
+            self.object.activityhistory_set.create(
+                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
+                'Returned from ' + original_instance.owner.username + ' by ' + self.request.user.get_full_name())
+            messages.info(self.request, 'the IT Assets [ ' + original_instance.serial_number +
+                          ' ] was Returned from ' + original_instance.owner.username)
         else:
-            if assign_to != '':
-                try:
-                    form.instance.owner = User.objects.get(username=assign_to)
-                except User.DoesNotExist:
-                    form.instance.owner = None
+            try:
+                form.instance.owner = User.objects.get(username=assign_to)
+            except User.DoesNotExist:
+                form.instance.owner = None
 
-                if assign_to != 'admin' and form.instance.owner:
+            if not original_instance.owner:
+                if not form.instance.owner:
+                    form.instance.owner = original_instance.owner
+                    messages.warning(
+                        self.request, 'the IT Assets [ ' + original_instance.serial_number + ' ] can NOT be assigned to ' + assign_to)
+                elif assign_to == original_instance.owner.username:
+                    form.instance.owner = original_instance.owner
+                    messages.warning(
+                        self.request, 'the ownership of IT Assets [ ' + original_instance.serial_number + ' ] got Nothing to change')
+                else:
                     form.instance.status = 'inUSE'  # self.object.status = 'inUSE'
                     self.object.activityhistory_set.create(
-                        description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
-                        'Assigned to ' + form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 ') + ' by ' + self.request.user.get_full_name())
+                        description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Assigned to ' + form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 ') + ' by ' + self.request.user.get_full_name())
                     messages.info(self.request, 'the IT Assets [' + original_instance.serial_number + '] was Assign to ' +
                                 form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 '))
-                else:
-                    form.instance.owner = original_instance.owner
-                    messages.warning(self.request, 'the IT Assets [ ' + original_instance.serial_number + ' ] can NOT be assigned to ' + assign_to)
             else:
-                form.instance.status = 'AVAILABLE'  # self.object.status = 'AVAILABLE'
-                self.object.activityhistory_set.create(
-                    description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
-                    'Returned from ' + original_instance.owner.username + ' by ' + self.request.user.get_full_name())
-                messages.info(self.request, 'the IT Assets [ ' + original_instance.serial_number + ' ] was Returned from ' + original_instance.owner.username)
-        
-        
+                if not form.instance.owner:
+                    form.instance.owner = original_instance.owner
+                    messages.warning(
+                        self.request, 'the IT Assets [ ' + original_instance.serial_number + ' ] can NOT be assigned to ' + assign_to)
+                elif assign_to == original_instance.owner.username:
+                    form.instance.owner = original_instance.owner
+                    messages.warning(
+                        self.request, 'the ownership of IT Assets [ ' + original_instance.serial_number + ' ] got Nothing to change')
+                else:
+                    form.instance.status = 'inUSE'  # self.object.status = 'inUSE'
+                    self.object.activityhistory_set.create(
+                        description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Assigned to ' + form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 ') + ' by ' + self.request.user.get_full_name())
+                    messages.info(self.request, 'the IT Assets [' + original_instance.serial_number + '] was Assign to ' +
+                                form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 '))
+
         return super().form_valid(form)
 
 
@@ -284,7 +319,7 @@ class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
         context["branchSites_name"] = branchSites_name
 
         return context
-    
+
     def get_queryset(self):
         return super().get_queryset().filter(branchSite__onSiteTech=self.request.user)  # 跨多表查询
 
@@ -300,7 +335,7 @@ class InstanceByUserListView(LoginRequiredMixin, generic.ListView):
 
 class InstanceDetailView(LoginRequiredMixin, generic.DetailView):
     model = Instance
-    
+
 
 class InstanceListView(LoginRequiredMixin, generic.ListView):
     model = Instance

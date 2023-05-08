@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=50, verbose_name='Contract Name')),
                 ('startup', models.DateField(verbose_name='Start Up')),
                 ('endup', models.DateField(verbose_name='End Up')),
-                ('scanned_copy', models.FileField(upload_to=nanopay.models.path_of_scanned_contract_copy, verbose_name='Scanned Copy')),
+                ('scanned_copy', models.FileField(upload_to=nanopay.models.path_of_contract_scanned_copy, verbose_name='Scanned Copy')),
                 ('assets', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='nanoassets.instance', verbose_name='')),
                 ('party_a_list', models.ManyToManyField(related_name='partyas', to='nanopay.legalentity', verbose_name='甲方')),
                 ('party_b_list', models.ManyToManyField(related_name='partybs', to='nanopay.legalentity', verbose_name='乙方')),

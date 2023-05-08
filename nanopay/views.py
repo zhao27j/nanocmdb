@@ -1,14 +1,19 @@
-from typing import Any, Dict
-from django.forms.models import BaseModelForm
-from django.http import HttpRequest, HttpResponse
-from django.urls import reverse_lazy
-from django.shortcuts import render
+from datetime import datetime
 
+from typing import Any, Dict
+
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse, reverse_lazy
+
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+
 from django.views import generic
 from django.views.generic.edit import CreateView
 
 from .models import Contract, LegalEntity
+from .forms import NewContractForm
 
 # Create your views here.
 
@@ -23,8 +28,9 @@ class ContractDetailView(LoginRequiredMixin, generic.DetailView):
 
 class ContractCreateView(LoginRequiredMixin, CreateView):
     model = Contract
-    fields = ["briefing"] # fields = "__all__"
-    # template_name = 'nanopay/contract_form copy.html'
+    # fields = ["briefing",] # 
+    fields = "__all__"
+    template_name = 'nanopay/contract_form copy.html'
     success_url = reverse_lazy('nanopay:contract-list')
 
     def get_context_data(self, **kwargs):
@@ -40,27 +46,63 @@ class ContractCreateView(LoginRequiredMixin, CreateView):
         return context
     
     def form_valid(self, form):
-        form.save(commit=False)
-        form.instance.briefing = self.request.POST['briefing']
-        contract_instance = form.save()
-        form.save_m2m()
-        # party_a_list = self.request.POST.getlist('party_a_list')
-        for party_a in self.request.POST.getlist('party_a_list'):
-            # form.save_m2m()
-            form.instance.party_a_list.add(LegalEntity.objects.get(name=party_a))
-            
+        startup = datetime.strptime(self.request.POST['startup'], '%Y-%m-%d').date()
+        endup = datetime.strptime(self.request.POST['endup'], '%Y-%m-%d').date()
 
-        # form.instance.party_b_list.add(self.request.POST['party_b_list']) # form.instance.party_b_list.add = self.request.POST['party_b_list']
-        form.instance.type = self.request.POST['type']
-        form.instance.startup = self.request.POST['startup']
-        form.instance.endup = self.request.POST['endup']
-
+        if endup < startup:
+            messages.warning(
+                self.request, "The End date should not be later than the Start date"
+            )
+            return redirect(self.request.path) # 重定向 至 当前 页面
+        
         return super().form_valid(form)
 
-    """
+    
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
+        
+        # form = self.form_class(request.POST)
+        form = self.get_form()
         if form.is_valid():
-            pass
+            form.save(commit=False)
+            form.instance.briefing = self.request.POST['briefing']
+            contract_instance = form.save()
+            form.save_m2m()
+            # party_a_list = self.request.POST.getlist('party_a_list')
+            for party_a in self.request.POST.getlist('party_a_list'):
+                # form.save_m2m()
+                form.instance.party_a_list.add(LegalEntity.objects.get(name=party_a))
+                
+
+            # form.instance.party_b_list.add(self.request.POST['party_b_list']) # form.instance.party_b_list.add = self.request.POST['party_b_list']
+            form.instance.type = self.request.POST['type']
+            form.instance.startup = self.request.POST['startup']
+            form.instance.endup = self.request.POST['endup']
+
         return super().post(request, *args, **kwargs)
-    """
+
+        # return redirect('nanopay:contract-list')
+
+
+
+def new_contract(request):
+    new_contract=Contract.objects.create()
+
+    if request.method == 'POST': # If this is a POST request then process the Form data
+        form = NewContractForm(request.POST) # Create a form instance and populate it with data from the request (binding):
+        if form.is_valid(): # Check if the form is valid:
+            # process the data in form.cleaned_data as required (here we just write it to the model due_back field)
+            new_contract.briefing = form.cleaned_data['briefing']
+            
+            new_contract.save()
+
+            return HttpResponseRedirect(reverse('nanopay:contract-detail new_contract.pk') ) # redirect to a new URL:
+
+    else: # If this is a GET (or any other method) create the default form.
+        proposed_renewal_date = datetime.date.today() + datetime.timedelta(weeks=3)
+        form = NewContractForm(initial={
+            # 'renewal_date': proposed_renewal_date,
+            })
+
+    return render(request, 'nanopay/contract_form.html', {
+        'form': form, 'new_contract': new_contract
+        })

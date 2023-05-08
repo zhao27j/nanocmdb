@@ -9,28 +9,27 @@ from nanoassets.models import Instance
 
 # Create your models here.
 
-def path_of_scanned_contract_copy(instance, filename):
+def path_of_contract_scanned_copy(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     # fs = FileSystemStorage(location="/media/scanned_contract_copy/")
     # return "scanned_contract_copy/user_{0}/{1}".format(instance.user.id, filename)
-    return "scanned_contract_copy/year_{0}/{1}".format(instance.startup.year, filename)
-    
+    # return "contract_scanned_copy/year_{0}/{1}".format(instance.startup.year, filename)
+    pass
 
 class Contract(models.Model):
     briefing = models.CharField(_("Briefing"), max_length=50, null=True)
     party_a_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("甲方"), related_name='partyas')
     party_b_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("乙方"), related_name='partybs')
-    # party_c_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("丙方"), related_name='partycs', blank=True)
     CONTRACT_TYPE = (
         ('M', 'Maintenance'),
         ('N', 'New'),
         ('R', 'Rental'),
         ('E', 'Expired'),
     )
-    type = models.CharField(_("Contract Type"), choices=CONTRACT_TYPE, default='M', max_length=1, null=True)
+    type = models.CharField(_("Contract Type"), choices=CONTRACT_TYPE, default='M', max_length=1)
     startup = models.DateField(_("Start Up"), null=True)
     endup = models.DateField(_("End Up"), null=True)
-    scanned_copy = models.FileField(_("Scanned Copy"), upload_to='scanned_contract_copy/', max_length=100, null=True, blank=True)
+    scanned_copy = models.FileField(_("Scanned Copy"), upload_to='contract_scanned_copy/', max_length=100, null=True, blank=True)
     assets = models.ManyToManyField(Instance, verbose_name=_("Related Assets"), blank=True)
 
     def __str__(self):
@@ -40,16 +39,14 @@ class Contract(models.Model):
         return reverse('nanopay:contract-detail', kwargs={'pk': self.pk})
     
     def get_contract_duration_in_month(self):
-        return (self.endup.year - self.startup.year) * 12 + (self.endup.month - self.startup.month)
-    
+        # return (self.endup.year - self.startup.year) * 12 + (self.endup.month - self.startup.month)
+        pass
+
     def get_prjct(self):
         for party in self.party_a_list.all():
             if  party.type == 'I':
                 return party.prjct
         for party in self.party_b_list.all():
-            if  party.type == 'I':
-                return party.prjct
-        for party in self.party_c_list.all():
             if  party.type == 'I':
                 return party.prjct
     
