@@ -17,18 +17,19 @@ def path_of_scanned_contract_copy(instance, filename):
     
 
 class Contract(models.Model):
-    briefing = models.CharField(_("Briefing"), max_length=50)
+    briefing = models.CharField(_("Briefing"), max_length=50, null=True)
     party_a_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("甲方"), related_name='partyas')
     party_b_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("乙方"), related_name='partybs')
-    party_c_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("丙方"), related_name='partycs', blank=True)
+    # party_c_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("丙方"), related_name='partycs', blank=True)
     CONTRACT_TYPE = (
         ('M', 'Maintenance'),
         ('N', 'New'),
+        ('R', 'Rental'),
         ('E', 'Expired'),
     )
-    type = models.CharField(_("Contract Type"), choices=CONTRACT_TYPE, default='M', max_length=1)
-    startup = models.DateField(_("Start Up"))
-    endup = models.DateField(_("End Up"))
+    type = models.CharField(_("Contract Type"), choices=CONTRACT_TYPE, default='M', max_length=1, null=True)
+    startup = models.DateField(_("Start Up"), null=True)
+    endup = models.DateField(_("End Up"), null=True)
     scanned_copy = models.FileField(_("Scanned Copy"), upload_to='scanned_contract_copy/', max_length=100, null=True, blank=True)
     assets = models.ManyToManyField(Instance, verbose_name=_("Related Assets"), blank=True)
 
@@ -54,12 +55,23 @@ class Contract(models.Model):
     
     def get_parties_display(self):
         """ Creates a string for the Onsite IT Support. This is required to display Onsite IT Support in Admin. """
-        return ", ".join([party_a.name for party_a in self.party_a_list.all()]) + ", " + ", ".join([party_b.name for party_b in self.party_b_list.all()]) + ", " + ", ".join([party_c.name for party_c in self.party_c_list.all()])
+        return ", ".join([party_a.name for party_a in self.party_a_list.all()]) + ", " + ", ".join([party_b.name for party_b in self.party_b_list.all()])
+    
+    class Meta:
+        ordering = ['startup', ]
 
 
 class PaymentTerm(models.Model):
-    pay_day = models.DateField(_("Pay Date"))
-    amount = models.FloatField(_("Payment Amount"))
+    pay_day = models.DateField(_("Date"))
+    PAYMENT_PLAN = (
+        ('M', 'Monthly'),
+        ('Q', 'Quarterly'),
+        ('S', 'Semi-anually'),
+        ('A', 'Anually'),
+        ('C', 'Custom'),
+    )
+    plan = models.CharField(_("Plan"), choices=PAYMENT_PLAN, default='M', max_length=1)
+    amount = models.FloatField(_("Amount"))
     # paid = models.BooleanField(_("Paid"), default=False)
     paid_on = models.DateField(_("Paid on"), null=True, blank=True)
     contract = models.ForeignKey("nanopay.Contract", verbose_name=_("Contract"), on_delete=models.SET_NULL, null=True)
@@ -90,7 +102,7 @@ class LegalEntity(models.Model):
         return reverse('nanopay:legalentity-detail', kwargs={'pk': self.pk})
     
     class Meta:
-        ordering = ['type',]
+        ordering = ['type', 'name', ]
 
 
 class Prjct(models.Model):
