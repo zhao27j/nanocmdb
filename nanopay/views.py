@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 
 from typing import Any, Dict
 
@@ -16,6 +16,36 @@ from .models import Contract, LegalEntity
 from .forms import NewContractForm
 
 # Create your views here.
+
+def new_contract(request):
+    
+    if request.method == 'POST': # if this is a POST request then process the Form data
+        new_contract=Contract.objects.create()
+
+        form = NewContractForm(request.POST) # create a form instance and populate it with data from the request (binding):
+
+        if form.is_valid(): # check if the form is valid:
+            # process the data in form.cleaned_data as required
+            new_contract = form.clean()
+            
+            new_contract.save()
+
+            return HttpResponseRedirect(reverse('nanopay:contract-detail new_contract.pk') ) # redirect to a new URL:
+
+    else: # if this is a GET (or any other method) create the default form.
+        startup = datetime.date.today()
+        endup = datetime.date.today() + datetime.timedelta(weeks=12)
+        form = NewContractForm(
+            initial={
+                'startup': startup,
+                'endup': endup,
+                })
+
+    return render(request, 'nanopay/contract_form_new.html', {
+        'form': form,
+        # 'new_contract': new_contract, 
+        })
+
 
 class ContractListView(LoginRequiredMixin, generic.ListView):
     model = Contract
@@ -82,27 +112,3 @@ class ContractCreateView(LoginRequiredMixin, CreateView):
 
         # return redirect('nanopay:contract-list')
 
-
-
-def new_contract(request):
-    new_contract=Contract.objects.create()
-
-    if request.method == 'POST': # If this is a POST request then process the Form data
-        form = NewContractForm(request.POST) # Create a form instance and populate it with data from the request (binding):
-        if form.is_valid(): # Check if the form is valid:
-            # process the data in form.cleaned_data as required (here we just write it to the model due_back field)
-            new_contract.briefing = form.cleaned_data['briefing']
-            
-            new_contract.save()
-
-            return HttpResponseRedirect(reverse('nanopay:contract-detail new_contract.pk') ) # redirect to a new URL:
-
-    else: # If this is a GET (or any other method) create the default form.
-        proposed_renewal_date = datetime.date.today() + datetime.timedelta(weeks=3)
-        form = NewContractForm(initial={
-            # 'renewal_date': proposed_renewal_date,
-            })
-
-    return render(request, 'nanopay/contract_form.html', {
-        'form': form, 'new_contract': new_contract
-        })

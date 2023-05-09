@@ -10,3 +10,5 @@ templatetags/__pycache__/*pyc
 
 # attachedment
 *pdf
+*xlsx
+.DS_Store

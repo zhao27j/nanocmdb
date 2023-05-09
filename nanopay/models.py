@@ -33,7 +33,7 @@ class Contract(models.Model):
     assets = models.ManyToManyField(Instance, verbose_name=_("Related Assets"), blank=True)
 
     def __str__(self):
-        return self.briefing
+        return str(self.briefing)
     
     def get_absolute_url(self):
         return reverse('nanopay:contract-detail', kwargs={'pk': self.pk})

@@ -2,21 +2,27 @@
 # from django.core.mail import send_mail
 
 import datetime
+from typing import Any, Dict
 
 from django import forms
 from django.forms import ModelForm, modelformset_factory
 
 from django.core.exceptions import ValidationError
+# from django.contrib.admin.widgets import AdminDateWidget
 from django.utils.translation import gettext_lazy as _
 
-from .models import PaymentTerm
+from .models import Contract, PaymentTerm
 
 
 class NewContractForm(forms.Form):
-    briefing = forms.CharField(required=True, help_text=(_('briefing')))
+    briefing = forms.CharField(required=True, widget=forms.TextInput(attrs={
+        "placeholder": "Briefing",
+        "class": "form-control",
+    }), help_text=(_('briefing')))
     
-    # party_a_list = forms.MultipleChoiceField()
-    # party_b_list = forms.MultipleChoiceField()
+    party_a_list = forms.MultipleChoiceField(required=True)
+    party = 
+    party_b_list = forms.MultipleChoiceField(required=True)
 
     CONTRACT_TYPE = (
         ('M', 'Maintenance'),
@@ -24,31 +30,35 @@ class NewContractForm(forms.Form):
         ('R', 'Rental'),
         ('E', 'Expired'),
     )
-    # type = forms.ChoiceField(initial='M', choices=[CONTRACT_TYPE], required=True, help_text=(_('Type')))
-    startup = forms.DateField(initial=datetime.date.today, required=True, help_text=(_('Start time')))
-    endup = forms.DateField(initial=datetime.date.today, required=True, help_text=(_('End time')))
-    # scanned_copy = forms.FileField(required=True, help_text=(_('Scanned copy')))
+    type = forms.ChoiceField(required=True, initial='M', choices=CONTRACT_TYPE, widget=forms.Select(attrs={
+        "class": "form-control",
+    }), help_text=(_('Type')))
 
-
-    def clean_startup(self):
-        data = self.cleaned_data["startup"]
-        
-        return data
+    startup = forms.DateField(required=True, widget=forms.TextInput(attrs={
+        "type": "date",
+        "class": "form-control",
+    }), help_text=(_('Start time')))
+    endup = forms.DateField(required=True, widget=forms.TextInput(attrs={
+        "type": "date",
+        "class": "form-control",
+    }), help_text=(_('End time')))
     
-    def clean_contract_duration(self):
-        data = self.cleaned_data["startup", "endup"]
+    scanned_copy = forms.FileField(required=True, widget=forms.ClearableFileInput(attrs={
+        "multiple": True,
+        "class": "form-control",
+    }), help_text=(_('Scanned copy')))
 
-        # Check date is not in past.
-        if data < datetime.date.today():
-            raise ValidationError(_("invalid date - renewal in past"))
+    def clean(self):
+        cleaned_data = super().clean()
 
-        # Check date is in range librarian allowed to change (+4 weeks).
-        if data > datetime.date.today() + datetime.timedelta(weeks=4):
-            raise ValidationError(_("Invalid date - renewal more than 4 weeks ahead"))
+        startup = cleaned_data.get("startup")
+        endup = cleaned_data.get("endup")
+        
+        if endup < startup:
+            raise ValidationError(_("the End date should NOT be later than the Start date"))
+        
 
-        # Remember to always return the cleaned data.
-        return data
-
+        # return super().clean()
 
 PaymentTermFormSet = modelformset_factory(
     PaymentTerm,
