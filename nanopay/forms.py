@@ -1,14 +1,14 @@
 # from django.conf import settings
 # from django.core.mail import send_mail
 
-import datetime
+import pathlib
+# import datetime
 from typing import Any, Dict
 
 from django import forms
 from django.forms import ModelForm, modelformset_factory
 
 from django.core.exceptions import ValidationError
-# from django.contrib.admin.widgets import AdminDateWidget
 from django.utils.translation import gettext_lazy as _
 
 from .models import Contract, LegalEntity, PaymentTerm
@@ -30,8 +30,9 @@ class MultipleFileField(forms.FileField):
             result = single_file_clean(data, initial)
         return result
 
+
 class NewContractForm(forms.Form):
-    briefing = forms.CharField(required=True, widget=forms.TextInput(attrs={"placeholder": "Briefing", "class": "form-control",}), help_text=(_('briefing')))
+    briefing = forms.CharField(required=True, widget=forms.TextInput(attrs={"placeholder": "Briefing", "class": "form-control",}))
     
     party_a_list = forms.ModelMultipleChoiceField(required=True, queryset=None, widget=forms.SelectMultiple(attrs={"class": "form-select",}))
     party_b_list = forms.ModelMultipleChoiceField(required=True, queryset=None, widget=forms.SelectMultiple(attrs={"class": "form-select",}))
@@ -47,22 +48,29 @@ class NewContractForm(forms.Form):
         ('R', 'Rental'),
         ('E', 'Expired'),
     )
-    type = forms.ChoiceField(required=True, initial='M', choices=CONTRACT_TYPE, widget=forms.Select(attrs={"class": "form-control",}), help_text=(_('Type')))
+    type = forms.ChoiceField(required=True, initial='M', choices=CONTRACT_TYPE, widget=forms.Select(attrs={"class": "form-control",}))
 
-    startup = forms.DateField(required=True, widget=forms.TextInput(attrs={"type": "date", "class": "form-control",}), help_text=(_('Start time')))
-    endup = forms.DateField(required=True, widget=forms.TextInput(attrs={"type": "date", "class": "form-control",}), help_text=(_('End time')))
+    startup = forms.DateField(required=True, widget=forms.TextInput(attrs={"type": "date", "class": "form-control",}))
+    endup = forms.DateField(required=True, widget=forms.TextInput(attrs={"type": "date", "class": "form-control",}))
     
-    scanned_copy = MultipleFileField(required=True, widget=MultipleFileInput(attrs={"multiple": True, "class": "form-control",}), help_text=(_('Scanned copy')))
+    # scanned_copy = MultipleFileField(required=True)
+    scanned_copy = forms.FileField(required=True, widget=forms.ClearableFileInput(attrs={
+        # "multiple": True,
+        "class": "form-control",
+        }))
 
     def clean(self):
         cleaned_data = super().clean()
 
         startup = cleaned_data.get("startup")
         endup = cleaned_data.get("endup")
-        
         if endup < startup:
             raise ValidationError(_("the End date should NOT be later than the Start date"))
-        
+
+        scanned_copy = cleaned_data.get("scanned_copy")
+        scanned_copy_ext = pathlib.Path(scanned_copy.name).suffix
+        if not scanned_copy_ext in ['.pdf', ]:
+            raise ValidationError(_("PDF is the Only acceptable format is for Scanned Copy"))
 
         # return super().clean()
 

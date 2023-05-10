@@ -35,6 +35,11 @@
                         <li class="list-group-item"><b>Project:</b> <small>{{ contract.get_prjct }}</small></li>
                         <li class="list-group-item"><b>Type:</b> <small>{{ contract.get_type_display }}</small></li>
                         <li class="list-group-item"><b>Duration:</b> <small>{{ contract.get_contract_duration_in_month }} 🈷️</small></li>
+                        <li class="list-group-item"><b>Scanned copy:</b>
+                            <a href="{{ contract.scanned_copy.url }}">
+                            <small>{{ contract.get_scanned_copy_base_file_name }} </small>
+                            </a>
+                        </li>
                         <li class="list-group-item"><em>...</em></li>
                     </ul>
                 </div>

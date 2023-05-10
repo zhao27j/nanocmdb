@@ -1,10 +1,10 @@
-from django.core.files.storage import FileSystemStorage
+import os
+
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from django.db import models
-
 from nanoassets.models import Instance
 
 # Create your models here.
@@ -26,7 +26,7 @@ class Contract(models.Model):
     type = models.CharField(_("Contract Type"), choices=CONTRACT_TYPE, default='M', max_length=1)
     startup = models.DateField(_("Start Up"), null=True)
     endup = models.DateField(_("End Up"), null=True)
-    scanned_copy = models.FileField(_("Scanned Copy"), upload_to='contract_scanned_copy/', max_length=100, null=True, blank=True)
+    scanned_copy = models.FileField(_("Scanned Copy"), upload_to='contract_scanned_copy/%Y/', max_length=100, null=True, blank=True)
     assets = models.ManyToManyField(Instance, verbose_name=_("Related Assets"), blank=True)
 
     def __str__(self):
@@ -51,6 +51,9 @@ class Contract(models.Model):
         """ Creates a string for the Onsite IT Support. This is required to display Onsite IT Support in Admin. """
         return ", ".join([party_a.name for party_a in self.party_a_list.all()]) + ", " + ", ".join([party_b.name for party_b in self.party_b_list.all()])
     
+    def get_scanned_copy_base_file_name(self):
+        return os.path.basename(self.scanned_copy.name).split('/')[-1]
+
     class Meta:
         ordering = ['startup', ]
 
