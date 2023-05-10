@@ -9,17 +9,14 @@ from nanoassets.models import Instance
 
 # Create your models here.
 
-def path_of_contract_scanned_copy(instance, filename):
+def contract_scanned_copy_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    # fs = FileSystemStorage(location="/media/scanned_contract_copy/")
-    # return "scanned_contract_copy/user_{0}/{1}".format(instance.user.id, filename)
-    # return "contract_scanned_copy/year_{0}/{1}".format(instance.startup.year, filename)
-    pass
+    return "contract_scanned_copy/user_{0}/{1}".format(instance.user.id, filename)
 
 class Contract(models.Model):
     briefing = models.CharField(_("Briefing"), max_length=50, null=True)
-    party_a_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("甲方"), related_name='partyas')
-    party_b_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("乙方"), related_name='partybs')
+    party_a_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("Party A"), related_name='partyas')
+    party_b_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("Party B"), related_name='partybs')
     CONTRACT_TYPE = (
         ('M', 'Maintenance'),
         ('N', 'New'),
@@ -39,7 +36,7 @@ class Contract(models.Model):
         return reverse('nanopay:contract-detail', kwargs={'pk': self.pk})
     
     def get_contract_duration_in_month(self):
-        # return (self.endup.year - self.startup.year) * 12 + (self.endup.month - self.startup.month)
+        return (self.endup.year - self.startup.year) * 12 + (self.endup.month - self.startup.month)
         pass
 
     def get_prjct(self):
@@ -93,7 +90,8 @@ class LegalEntity(models.Model):
     reg_phone = models.CharField(_("注册/工作电话"), max_length=15, null=True)
 
     def __str__(self):
-        return "%s, %s (%s)" % (self.type, self.name, self.prjct)
+        # return "%s, %s (%s)" % (self.type, self.name, self.prjct)
+        return self.name
     
     def get_absolute_url(self):
         return reverse('nanopay:legalentity-detail', kwargs={'pk': self.pk})

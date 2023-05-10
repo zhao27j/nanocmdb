@@ -9,6 +9,8 @@ nanoassets/__pycache__/*pyc
 templatetags/__pycache__/*pyc
 
 # attachedment
+*jpeg
 *pdf
 *xlsx
 .DS_Store
+

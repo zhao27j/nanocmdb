@@ -1,6 +1,9 @@
 import datetime
+from pathlib import Path
 
 from typing import Any, Dict
+
+from django.core.files import File
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
@@ -18,19 +21,20 @@ from .forms import NewContractForm
 # Create your views here.
 
 def new_contract(request):
-    
     if request.method == 'POST': # if this is a POST request then process the Form data
-        new_contract=Contract.objects.create()
-
-        form = NewContractForm(request.POST) # create a form instance and populate it with data from the request (binding):
-
+        form = NewContractForm(request.POST, request.FILES) # create a form instance and populate it with data from the request (binding):
         if form.is_valid(): # check if the form is valid:
+            new_contract = Contract.objects.create()
             # process the data in form.cleaned_data as required
-            new_contract = form.clean()
-            
+            new_contract.briefing = form.cleaned_data['briefing']
+            new_contract.party_a_list.set(form.cleaned_data['party_a_list'])
+            new_contract.party_b_list.set(form.cleaned_data['party_b_list'])
+            new_contract.type = form.cleaned_data['type']
+            new_contract.startup = form.cleaned_data['startup']
+            new_contract.endup = form.cleaned_data['endup']
+            new_contract.scanned_copy = form.cleaned_data['scanned_copy']
             new_contract.save()
-
-            return HttpResponseRedirect(reverse('nanopay:contract-detail new_contract.pk') ) # redirect to a new URL:
+            return redirect(new_contract.get_absolute_url()) # redirect to a new URL:
 
     else: # if this is a GET (or any other method) create the default form.
         startup = datetime.date.today()
@@ -41,10 +45,7 @@ def new_contract(request):
                 'endup': endup,
                 })
 
-    return render(request, 'nanopay/contract_form_new.html', {
-        'form': form,
-        # 'new_contract': new_contract, 
-        })
+    return render(request, 'nanopay/contract_form_new.html', {'form': form,})
 
 
 class ContractListView(LoginRequiredMixin, generic.ListView):

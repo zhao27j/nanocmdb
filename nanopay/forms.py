@@ -11,42 +11,48 @@ from django.core.exceptions import ValidationError
 # from django.contrib.admin.widgets import AdminDateWidget
 from django.utils.translation import gettext_lazy as _
 
-from .models import Contract, PaymentTerm
+from .models import Contract, LegalEntity, PaymentTerm
 
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
 
 class NewContractForm(forms.Form):
-    briefing = forms.CharField(required=True, widget=forms.TextInput(attrs={
-        "placeholder": "Briefing",
-        "class": "form-control",
-    }), help_text=(_('briefing')))
+    briefing = forms.CharField(required=True, widget=forms.TextInput(attrs={"placeholder": "Briefing", "class": "form-control",}), help_text=(_('briefing')))
     
-    party_a_list = forms.MultipleChoiceField(required=True)
-    party = 
-    party_b_list = forms.MultipleChoiceField(required=True)
+    party_a_list = forms.ModelMultipleChoiceField(required=True, queryset=None, widget=forms.SelectMultiple(attrs={"class": "form-select",}))
+    party_b_list = forms.ModelMultipleChoiceField(required=True, queryset=None, widget=forms.SelectMultiple(attrs={"class": "form-select",}))
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["party_a_list"].queryset = LegalEntity.objects.filter(type='I')
+        self.fields["party_b_list"].queryset = LegalEntity.objects.filter(type='E')
+    
     CONTRACT_TYPE = (
         ('M', 'Maintenance'),
         ('N', 'New'),
         ('R', 'Rental'),
         ('E', 'Expired'),
     )
-    type = forms.ChoiceField(required=True, initial='M', choices=CONTRACT_TYPE, widget=forms.Select(attrs={
-        "class": "form-control",
-    }), help_text=(_('Type')))
+    type = forms.ChoiceField(required=True, initial='M', choices=CONTRACT_TYPE, widget=forms.Select(attrs={"class": "form-control",}), help_text=(_('Type')))
 
-    startup = forms.DateField(required=True, widget=forms.TextInput(attrs={
-        "type": "date",
-        "class": "form-control",
-    }), help_text=(_('Start time')))
-    endup = forms.DateField(required=True, widget=forms.TextInput(attrs={
-        "type": "date",
-        "class": "form-control",
-    }), help_text=(_('End time')))
+    startup = forms.DateField(required=True, widget=forms.TextInput(attrs={"type": "date", "class": "form-control",}), help_text=(_('Start time')))
+    endup = forms.DateField(required=True, widget=forms.TextInput(attrs={"type": "date", "class": "form-control",}), help_text=(_('End time')))
     
-    scanned_copy = forms.FileField(required=True, widget=forms.ClearableFileInput(attrs={
-        "multiple": True,
-        "class": "form-control",
-    }), help_text=(_('Scanned copy')))
+    scanned_copy = MultipleFileField(required=True, widget=MultipleFileInput(attrs={"multiple": True, "class": "form-control",}), help_text=(_('Scanned copy')))
 
     def clean(self):
         cleaned_data = super().clean()

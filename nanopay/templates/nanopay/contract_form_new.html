@@ -1,43 +1,32 @@
 {% extends 'base.html' %}
 {% block page_content %}
-  {{ form.non_field_errors }}
-  <form action="" method="post">
+  {% for message in form.non_field_errors %}
+    <div class="container-fluid">
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <div>{{ message }}</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+          <!-- <span aria-hidden="True">&times;</span> -->
+        </button>
+      </div>
+    </div>
+  {% endfor %}
+  <form action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <table class="table table-striped table-hover">
       <tr>
         <td><div class="fieldWrapper"><label for="{{ form.briefing.id_for_label }} ">Briefing</label></div></td>
-        <td colspan="3">
-          <div class="fieldWrapper">
-            {{ form.briefing.errors }}
-            {{ form.briefing }}
-          </div>
-        </td>
+        <td colspan="3"><div class="fieldWrapper">{{ form.briefing.errors }} {{ form.briefing }}</div></td>
       </tr>
       <tr>
         <td><div class="fieldWrapper"><label for="{{ form.party_a_list.id_for_label }} ">From</label></div></td>
-        <td>
-          <div class="fieldWrapper">
-            {{ form.party_a_list.errors }}
-            {{ form.party_a_list }}
-          </div>
-        </td>
+        <td><div class="fieldWrapper">{{ form.party_a_list.errors }} {{ form.party_a_list }}</div></td>
         <td><div class="fieldWrapper"><label for="{{ form.party_b_list.id_for_label }} ">To</label></div></td>
-        <td>
-          <div class="fieldWrapper">
-            {{ form.party_b_list.errors }}
-            {{ form.party_b_list }}
-          </div>
-        </td>
+        <td><div class="fieldWrapper">{{ form.party_b_list.errors }} {{ form.party_b_list }}</div></td>
       </tr>
 
       <tr>
         <td><div class="fieldWrapper"><label for="{{ form.type.id_for_label }} ">Type</label></div></td>
-        <td colspan="3">
-          <div class="fieldWrapper">
-            {{ form.type.errors }}
-            {{ form.type }}
-          </div>
-        </td>
+        <td colspan="3"><div class="fieldWrapper">{{ form.type.errors }}{{ form.type }}</div></td>
       </tr>
 
       <tr>
