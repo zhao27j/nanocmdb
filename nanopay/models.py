@@ -5,13 +5,24 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from django.db import models
-from nanoassets.models import Instance
 
 # Create your models here.
-
+"""
+def photo_path(instance, filename):
+    basefilename, file_extension= os.path.splitext(filename)
+    chars= 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890'
+    randomstr= ''.join((random.choice(chars)) for x in range(10))
+    return 'images/userphotos/{userid}/{basename}{randomstring}{ext}'.format(userid= instance.user.id, basename= basefilename, randomstring= randomstr, ext= file_extension)
+"""
 def contract_scanned_copy_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return "contract_scanned_copy/user_{0}/{1}".format(instance.user.id, filename)
+    file_name_base, file_name_ext = os.path.splitext(filename)
+    file_name = str(instance.startup.year) + '_' + instance.get_type_display()+ '_by_' + instance.created_by.username + '_' + file_name_base  + file_name_ext
+    file_path = 'uploads/contract_scanned_copy/' + str(instance.startup.year)
+    full_file_name = os.path.join(file_path, file_name)
+
+    # return "contract_scanned_copy/user_{0}/{1}".format(instance.user.id, filename)
+    return full_file_name
 
 class Contract(models.Model):
     briefing = models.CharField(_("Briefing"), max_length=50, null=True)
@@ -22,12 +33,18 @@ class Contract(models.Model):
         ('N', 'New'),
         ('R', 'Rental'),
         ('E', 'Expired'),
+        ('T', 'Terminated'),
     )
     type = models.CharField(_("Contract Type"), choices=CONTRACT_TYPE, default='M', max_length=1)
     startup = models.DateField(_("Start Up"), null=True)
     endup = models.DateField(_("End Up"), null=True)
-    scanned_copy = models.FileField(_("Scanned Copy"), upload_to='contract_scanned_copy/%Y/', max_length=100, null=True, blank=True)
-    assets = models.ManyToManyField(Instance, verbose_name=_("Related Assets"), blank=True)
+    scanned_copy = models.FileField(_("Scanned Copy"),
+                                    # upload_to='contract_scanned_copy/%Y/',
+                                    upload_to=contract_scanned_copy_path,
+                                    max_length=100, null=True,
+                                    blank=True)
+    assets = models.ManyToManyField("nanoassets.Instance", verbose_name=_("Related Assets"), blank=True)
+    created_by = models.ForeignKey(User, verbose_name=_(""), on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return str(self.briefing)
@@ -48,8 +65,13 @@ class Contract(models.Model):
                 return party.prjct
     
     def get_parties_display(self):
-        """ Creates a string for the Onsite IT Support. This is required to display Onsite IT Support in Admin. """
         return ", ".join([party_a.name for party_a in self.party_a_list.all()]) + ", " + ", ".join([party_b.name for party_b in self.party_b_list.all()])
+    
+    def get_party_a_display(self):
+        return ", ".join([party_a.name for party_a in self.party_a_list.all()])
+    
+    def get_party_b_display(self):
+        return ", ".join([party_b.name for party_b in self.party_b_list.all()])
     
     def get_scanned_copy_base_file_name(self):
         return os.path.basename(self.scanned_copy.name).split('/')[-1]

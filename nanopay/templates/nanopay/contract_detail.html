@@ -1,6 +1,18 @@
 {% extends 'base.html' %}
 {% load auth_extras %}
 {% block page_content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="container-fluid">
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <div>{{ message }}</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                    <!-- <span aria-hidden="True">&times;</span> -->
+                </button>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
     <div class="card text-start">
         <div class="card-header">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -36,9 +48,7 @@
                         <li class="list-group-item"><b>Type:</b> <small>{{ contract.get_type_display }}</small></li>
                         <li class="list-group-item"><b>Duration:</b> <small>{{ contract.get_contract_duration_in_month }} 🈷️</small></li>
                         <li class="list-group-item"><b>Scanned copy:</b>
-                            <a href="{{ contract.scanned_copy.url }}">
-                            <small>{{ contract.get_scanned_copy_base_file_name }} </small>
-                            </a>
+                            <a href="{% url 'nanopay:contract-detail-scanned-copy' contract.pk %}"><small>{{ contract.get_scanned_copy_base_file_name }} </small></a>
                         </li>
                         <li class="list-group-item"><em>...</em></li>
                     </ul>
@@ -53,10 +63,7 @@
                             <li class="list-group-item">
                                 <table class="table table-striped table-hover">
                                     <tr>
-                                        <th></th>
-                                        <th>Date</th>
-                                        <th>Amount</th>
-                                        <th>Paid on</th>
+                                        <th></th> <th>Date</th> <th>Amount</th> <th>Paid on</th>
                                     </tr>
                                     {% for term in contract.paymentterm_set.all %}
                                     <tr>
@@ -84,11 +91,7 @@
                             <li class="list-group-item">
                                 <table class="table table-striped table-hover">
                                     <tr>
-                                        <th>Serial Number</th>
-                                        <th>Model / Type</th>
-                                        <th>Status</th>
-                                        <th>Owner</th>
-                                        <th>Site</th>
+                                        <th>Serial Number</th> <th>Model / Type</th> <th>Status</th> <th>Owner</th> <th>Site</th>
                                     </tr>
                                     {% for instance in contract.assets.all %}
                                     <tr>
@@ -122,9 +125,9 @@
                                 <th></th>
                                 <th></th>
                             </tr>
-                            {% for activityhistory in instance.activityhistory_set.all %}
+                            {% for activityhistory in contract.activityhistory_set.all %}
                                 <tr>
-                                    <td>{{ activityhistory.Instance }}</td>
+                                    <td>{{ activityhistory.Contract }}</td>
                                     <td>{{ activityhistory.description }}</td>
                                 </tr>
                             {% endfor %}

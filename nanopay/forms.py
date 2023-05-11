@@ -8,10 +8,21 @@ from typing import Any, Dict
 from django import forms
 from django.forms import ModelForm, modelformset_factory
 
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.utils.translation import gettext_lazy as _
 
 from .models import Contract, LegalEntity, PaymentTerm
+
+class NewPaymentTermForm(forms.ModelForm):
+    class Meta:
+        model = PaymentTerm
+        fields = "__all__"
+        error_messages = {
+            NON_FIELD_ERRORS: {
+                "unique_together": "%(model_name)s's %(field_labels)s are not unique.",
+            }
+        }
+
 
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
@@ -46,7 +57,7 @@ class NewContractForm(forms.Form):
         ('M', 'Maintenance'),
         ('N', 'New'),
         ('R', 'Rental'),
-        ('E', 'Expired'),
+        # ('E', 'Expired'),
     )
     type = forms.ChoiceField(required=True, initial='M', choices=CONTRACT_TYPE, widget=forms.Select(attrs={"class": "form-control",}))
 
@@ -58,6 +69,15 @@ class NewContractForm(forms.Form):
         # "multiple": True,
         "class": "form-control",
         }))
+    """
+    def clean_scanned_copy(self):
+        data = self.cleaned_data["scanned_copy"]
+        if pathlib.Path(data.name).suffix != '.pdf':
+            raise ValidationError(_('the Only acceptable format is .pdf for Scanned Copy'))
+        else:
+            pass
+        return data
+    """
 
     def clean(self):
         cleaned_data = super().clean()
@@ -68,9 +88,12 @@ class NewContractForm(forms.Form):
             raise ValidationError(_("the End date should NOT be later than the Start date"))
 
         scanned_copy = cleaned_data.get("scanned_copy")
-        scanned_copy_ext = pathlib.Path(scanned_copy.name).suffix
-        if not scanned_copy_ext in ['.pdf', ]:
-            raise ValidationError(_("PDF is the Only acceptable format is for Scanned Copy"))
+        # scanned_copy_ext = pathlib.Path(scanned_copy.name).suffix
+        if not pathlib.Path(scanned_copy.name).suffix in ['.pdf', ]:
+            raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
+        
+        if not scanned_copy.content_type == 'application/pdf':
+            raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
 
         # return super().clean()
 
