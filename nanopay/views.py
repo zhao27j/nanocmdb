@@ -38,12 +38,16 @@ def new_payment_term(request, pk):
 
             contract = get_object_or_404(Contract, pk=pk)
             contract.activityhistory_set.create(
-                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'one Payment Term was successfully added by ' + request.user.get_full_name()
+                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] '
+                  + 'one ' + new_payment_term.get_plan_display()
+                    + ' Payment Term scheduled on ' + str(new_payment_term.pay_day)
+                      + ' in amount ' + str(new_payment_term.amount)
+                        + ' was successfully added by ' + request.user.get_full_name()
                 )
             
             messages.info(request, 'one Payment Term for the Contract [ ' + contract.briefing + ' ] was successfully added by ' + request.user.get_full_name())
 
-            return redirect('contract-detail', pk=pk) # redirect to a new URL:
+            return redirect('nanopay:contract-detail', pk=pk) # redirect to a new URL:
 
     else: # if this is a GET (or any other method) create the default form.
         contract = get_object_or_404(Contract, pk=pk)
