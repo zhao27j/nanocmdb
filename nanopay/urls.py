@@ -11,3 +11,7 @@ urlpatterns = [
     # path('contract/new/', views.ContractCreateView.as_view(), name='contract-new'),
     path('contract/new/', views.new_contract, name='contract-new'),
 ]
+
+urlpatterns += {
+    path('payment_term/<int:pk>/new/', views.new_payment_term, name='payment-term-new'),
+}

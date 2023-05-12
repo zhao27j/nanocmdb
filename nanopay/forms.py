@@ -6,17 +6,45 @@ import pathlib
 from typing import Any, Dict
 
 from django import forms
-from django.forms import ModelForm, modelformset_factory
+from django.forms import ModelForm, TextInput, Select, modelformset_factory
 
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.utils.translation import gettext_lazy as _
+from django.shortcuts import get_object_or_404
 
 from .models import Contract, LegalEntity, PaymentTerm
 
 class NewPaymentTermForm(forms.ModelForm):
+    def clean(self):
+        cleaned_data = super().clean()
+        contract = cleaned_data.get("contract")
+        pay_day = cleaned_data.get('pay_day')
+        if pay_day < contract.startup:
+            raise ValidationError(_("the scheduled Pay date should NOT be later than the Start date defined in the Contract"))
+        
+        # return super().clean()
+    
     class Meta:
         model = PaymentTerm
-        fields = "__all__"
+        fields = ["pay_day", "plan", "amount", "contract"]
+        widgets = {
+            "pay_day": TextInput(attrs={"type": "date", "class": "form-control",}),
+            "plan": Select(attrs={"class": "form-control",}),
+            # "amount": ,
+            "contract": Select(attrs={"readonly": True, "class": "form-control",}),
+        }
+        labels = {
+            "pay_day": _("Date"),
+            "plan": _("Plan"),
+            "amount": _("Amount"),
+            "coutract": _("Contract"),
+        }
+        help_texts = {
+            "pay_day": _("payment date defined in the contract"),
+            "plan": _("payment schedule defined in the contract"),
+            "amount": _("payment acount defined in the contract"),
+        }
+        
         error_messages = {
             NON_FIELD_ERRORS: {
                 "unique_together": "%(model_name)s's %(field_labels)s are not unique.",
@@ -116,12 +144,7 @@ class RenewBookmodelForm(forms.ModelForm):
     class Meta:
         model = BookInstance
         fields = ["due_back"]
-        labels = {
-            "due_back": _("Renewal date"),
-        }
-        help_texts = {
-            "due_back": _("Enter a date between now and 4 weeks (default 3)."),
-        }
+        
 
     def clean_due_back(self):
         data = self.cleaned_data["due_back"]
