@@ -15,22 +15,21 @@
 <h3>New Payment Term</h3>
 <form action="" method="post">
   {% csrf_token %}
-  <div class="fieldWrapper">{{ form.contract }}</div>
-  
   <table class="table table-striped table-hover">
+    <tr>
+      <td><div class="fieldWrapper"><label for="{{ form.contract.id_for_label }} ">Contract</label></div></td>
+      <td colspan="3"><div class="fieldWrapper">{{ form.contract }}</div></td>
+    </tr>
     <tr>
       <td><div class="fieldWrapper"><label for="{{ form.pay_day.id_for_label }} ">Date</label></div></td>
       <td><div class="fieldWrapper">{{ form.pay_day.errors }} {{ form.pay_day }}</div></td>
-    </tr>
     
-    <tr>
       <td><div class="fieldWrapper"><label for="{{ form.plan.id_for_label }} ">Plan</label></div></td>
       <td><div class="fieldWrapper">{{ form.plan.errors }}{{ form.plan }}</div></td>
     </tr>
-
     <tr>
       <td><div class="fieldWrapper"><label for="{{ form.amount.id_for_label }} ">Amount</label></div></td>
-      <td><div class="fieldWrapper">{{ form.amount.errors }} {{ form.amount }}</div></td>
+      <td colspan="3"><div class="fieldWrapper">{{ form.amount.errors }} {{ form.amount }}</div></td>
     </tr>
   </table>
   <input type="submit" value="add" class="btn btn-outline-primary d-inline-flex align-items-center"/>

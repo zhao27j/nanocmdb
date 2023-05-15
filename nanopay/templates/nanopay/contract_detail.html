@@ -22,11 +22,6 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="terms-tab" data-bs-toggle="tab" data-bs-target="#terms-tab-pane" type="button" role="tab" aria-controls="terms-tab-pane" aria-selected="false">
-                        Payment Terms
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
                     <button class="nav-link" id="assets-tab" data-bs-toggle="tab" data-bs-target="#assets-tab-pane" type="button" role="tab" aria-controls="assets-tab-pane" aria-selected="false">
                         Related Assets
                     </button>
@@ -50,15 +45,10 @@
                         <li class="list-group-item"><b>Scanned copy:</b>
                             <a href="{% url 'nanopay:contract-detail-scanned-copy' contract.pk %}"><small>{{ contract.get_scanned_copy_base_file_name }} </small></a>
                         </li>
-                        <li class="list-group-item"><em>...</em></li>
-                    </ul>
-                </div>
-                <div class="tab-pane fade" id="terms-tab-pane" role="tabpanel" aria-labelledby="terms-tab" tabindex="0">
-                    <h5 class="card-title">
-                        <a href="{% url 'nanopay:payment-term-new' contract.pk %}" class="btn btn-outline-primary d-inline-flex align-items-center">Add ...</a>
-                    </h5>
-                    <ul class="list-group list-group-flush">
                         <li class="list-group-item">
+                            <p class="lead">
+                                <a href="{% url 'nanopay:payment-term-new' contract.pk %}" class="btn btn-outline-primary d-inline-flex align-items-center">Add ...</a>
+                            </p>
                             <table class="table table-striped table-hover">
                                 <tr>
                                     <th></th> <th>Term</th> <th>Date</th> <th>Amount</th> <th>Paid on</th>

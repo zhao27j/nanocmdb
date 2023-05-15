@@ -47,7 +47,7 @@ class Contract(models.Model):
     created_by = models.ForeignKey(User, verbose_name=_(""), on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return str(self.briefing)
+        return self.briefing
     
     def get_absolute_url(self):
         return reverse('nanopay:contract-detail', kwargs={'pk': self.pk})

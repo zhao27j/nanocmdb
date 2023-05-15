@@ -31,7 +31,9 @@ class NewPaymentTermForm(forms.ModelForm):
             "pay_day": TextInput(attrs={"type": "date", "class": "form-control",}),
             "plan": Select(attrs={"class": "form-control",}),
             # "amount": ,
-            "contract": Select(attrs={"readonly": True, "class": "form-control",}),
+            "contract": Select(attrs={
+                "disabled":True, 
+                "class": "form-control", }),
         }
         labels = {
             "pay_day": _("Date"),
@@ -137,25 +139,3 @@ class PaymentTermFrom(ModelForm):
     class Meta:
         model = PaymentTerm
         fields = ["pay_day", "plan", "amount", ]
-
-
-"""
-class RenewBookmodelForm(forms.ModelForm):
-    class Meta:
-        model = BookInstance
-        fields = ["due_back"]
-        
-
-    def clean_due_back(self):
-        data = self.cleaned_data["due_back"]
-
-        # check date is not in past.
-        if data < datetime.date.today():
-            raise ValidationError(_("Invalid date - renewal in past"))
-
-        # check date is in range librarian allowed to change (+4 weeks)
-        if data > datetime.date.today() + datetime.timedelta(weeks=4):
-            raise ValidationError(_("Invalid date - renewal more than 4 weeks ahead"))
-
-        return data
-"""

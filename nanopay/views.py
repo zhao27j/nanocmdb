@@ -22,21 +22,24 @@ from .forms import NewContractForm, NewPaymentTermForm
 
 # Create your views here.
 
-
+@login_required
 def new_payment_term(request, pk):
+    contract = get_object_or_404(Contract, pk=pk)
     if request.method == 'POST': # if this is a POST request then process the Form data
-        form = NewPaymentTermForm(request.POST) # create a form instance and populate it with data from the request (binding):
+        post = request.POST.copy()
+        post['contract'] = contract
+        form = NewPaymentTermForm(post) # create a form instance and populate it with data from the request (binding):
+        # form.save(commit=False)
         if form.is_valid(): # check if the form is valid:
             # process the data in form.cleaned_data as required
             # new_payment_term = form.save(commit=False)
-            
             # new_payment_term.pay_day = form.cleaned_data['pay_day']
-            
             # new_payment_term.plan = form.cleaned_data['plan']
             # new_payment_term.amount = form.cleaned_data['amount']
-            new_payment_term = form.save()
 
-            contract = get_object_or_404(Contract, pk=pk)
+            new_payment_term = form.save()
+            new_payment_term.contract = contract
+
             contract.activityhistory_set.create(
                 description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] '
                   + 'one ' + new_payment_term.get_plan_display()
@@ -50,12 +53,16 @@ def new_payment_term(request, pk):
             return redirect('nanopay:contract-detail', pk=pk) # redirect to a new URL:
 
     else: # if this is a GET (or any other method) create the default form.
-        contract = get_object_or_404(Contract, pk=pk)
         pay_day = contract.startup + datetime.timedelta(weeks=4)
-        form = NewPaymentTermForm(
-            initial={'pay_day': pay_day, 'contract': contract,})
+        form = NewPaymentTermForm(initial={
+            'pay_day': pay_day, 
+            'contract': contract,
+            })
 
-    return render(request, 'nanopay/payment_term_new.html', {'form': form,})
+        return render(request, 'nanopay/payment_term_new.html', {
+            'form': form,
+            # 'contract': contract,
+            })
 
 
 @login_required
@@ -107,7 +114,7 @@ def new_contract(request):
                 'endup': endup,
                 })
 
-    return render(request, 'nanopay/contract_new.html', {'form': form,})
+        return render(request, 'nanopay/contract_new.html', {'form': form,})
 
 
 class ContractListView(LoginRequiredMixin, generic.ListView):
