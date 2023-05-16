@@ -45,10 +45,10 @@ def new_payment_term(request, pk):
                   + 'one ' + new_payment_term.get_plan_display()
                     + ' Payment Term scheduled on ' + str(new_payment_term.pay_day)
                       + ' in amount ' + str(new_payment_term.amount)
-                        + ' was successfully added by ' + request.user.get_full_name()
+                        + ' was added by ' + request.user.get_full_name()
                 )
             
-            messages.info(request, 'one Payment Term for the Contract [ ' + contract.briefing + ' ] was successfully added by ' + request.user.get_full_name())
+            messages.info(request, 'one Payment Term for the Contract [ ' + contract.briefing + ' ] was added by ' + request.user.get_full_name())
 
             return redirect('nanopay:contract-detail', pk=pk) # redirect to a new URL:
 
@@ -97,13 +97,14 @@ def new_contract(request):
             new_contract.party_b_list.set(form.cleaned_data['party_b_list'])
 
             new_contract.activityhistory_set.create(
-                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'the base info was successfully added by ' + request.user.get_full_name()
+                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'the base info was added by ' + request.user.get_full_name()
                 )
             
-            messages.info(request, 'the base info of the new Contract [ ' + form.cleaned_data['briefing'] + ' ] was successfully added by ' + request.user.get_full_name())
+            messages.info(request, 'the base info of the new Contract [ ' + form.cleaned_data['briefing'] + ' ] was added by ' + request.user.get_full_name())
 
 
-            return redirect(new_contract.get_absolute_url()) # redirect to a new URL:
+            # return redirect(new_contract.get_absolute_url()) # redirect to a new URL:
+            return redirect('nanopay:payment-term-new', pk=new_contract.pk)
 
     else: # if this is a GET (or any other method) create the default form.
         startup = datetime.date.today()

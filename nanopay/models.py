@@ -25,9 +25,15 @@ def contract_scanned_copy_path(instance, filename):
     return full_file_name
 
 class Contract(models.Model):
-    briefing = models.CharField(_("Briefing"), max_length=50, null=True)
-    party_a_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("Party A"), related_name='partyas')
-    party_b_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("Party B"), related_name='partybs')
+    briefing = models.CharField(
+        # _("Briefing"), 
+        max_length=50, null=True)
+    party_a_list = models.ManyToManyField("nanopay.LegalEntity", 
+                                          # verbose_name=_("Party A"), 
+                                          related_name='partyas')
+    party_b_list = models.ManyToManyField("nanopay.LegalEntity", 
+                                          # verbose_name=_("Party B"), 
+                                          related_name='partybs')
     CONTRACT_TYPE = (
         ('M', 'Maintenance'),
         ('N', 'New'),
@@ -35,16 +41,26 @@ class Contract(models.Model):
         ('E', 'Expired'),
         ('T', 'Terminated'),
     )
-    type = models.CharField(_("Contract Type"), choices=CONTRACT_TYPE, default='M', max_length=1)
-    startup = models.DateField(_("Start Up"), null=True)
-    endup = models.DateField(_("End Up"), null=True)
-    scanned_copy = models.FileField(_("Scanned Copy"),
+    type = models.CharField(
+        # _("Contract Type"), 
+        choices=CONTRACT_TYPE, default='M', max_length=1)
+    startup = models.DateField(
+        # _("Start Up"), 
+        null=True)
+    endup = models.DateField(
+        # _("End Up"), 
+        null=True)
+    scanned_copy = models.FileField(
+        # _("Scanned Copy"),
                                     # upload_to='contract_scanned_copy/%Y/',
                                     upload_to=contract_scanned_copy_path,
-                                    max_length=100, null=True,
+                                    max_length=100, null=True, blank=True)
+    assets = models.ManyToManyField("nanoassets.Instance", 
+                                    # verbose_name=_("Related Assets"), 
                                     blank=True)
-    assets = models.ManyToManyField("nanoassets.Instance", verbose_name=_("Related Assets"), blank=True)
-    created_by = models.ForeignKey(User, verbose_name=_(""), on_delete=models.SET_NULL, null=True)
+    created_by = models.ForeignKey(User, 
+                                   # verbose_name=_(""), 
+                                   on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.briefing
@@ -54,7 +70,6 @@ class Contract(models.Model):
     
     def get_contract_duration_in_month(self):
         return (self.endup.year - self.startup.year) * 12 + (self.endup.month - self.startup.month)
-        pass
 
     def get_prjct(self):
         for party in self.party_a_list.all():
@@ -77,7 +92,7 @@ class Contract(models.Model):
         return os.path.basename(self.scanned_copy.name).split('/')[-1]
 
     class Meta:
-        ordering = ['startup', ]
+        ordering = ["-startup", ]
 
 
 class PaymentTerm(models.Model):

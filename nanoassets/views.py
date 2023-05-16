@@ -21,6 +21,7 @@ from django.utils import timezone
 from django.db.models import Q
 
 from .models import Instance, ScrapRequest, branchSite
+from nanopay.models import Contract
 
 # Create your views here.
 
@@ -79,24 +80,20 @@ class InstanceScrappingRequestListView(LoginRequiredMixin, generic.ListView):
 def InstanceBulkUpd(request):
     if request.method == 'POST':
         if request.POST.getlist('instance'):
-            for selected_instance_pk in request.POST.getlist('instance'):
-                selected_instance = get_object_or_404(
-                    Instance, pk=selected_instance_pk)
-                if selected_instance.status != 'AVAILABLE' or selected_instance.scrap_request:
-                    messages.warning(
-                        request, "only unrequested Available computers can be requested")
-                    # return redirect(request.path) # 重定向 至 当前 页面 (在此不适合)
-                    # 重定向 至 前一个 页面
-                    return redirect(request.META.get('HTTP_REFERER'))
+            if 'scrapping-request' in request.POST or 'branchsite-transfer' in request.POST:
+                for selected_instance_pk in request.POST.getlist('instance'):
+                    selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                    if selected_instance.status != 'AVAILABLE' or selected_instance.scrap_request:
+                        messages.warning(request, "only unrequested Available computers can be requested")
+                        # return redirect(request.path) # 重定向 至 当前 页面 (在此不适合)
+                        return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
 
             if 'scrapping-request' in request.POST:
-                new_scrap_request = ScrapRequest.objects.create(
-                    requested_by=request.user)
+                new_scrap_request = ScrapRequest.objects.create(requested_by=request.user)
                 new_scrap_request.save()
 
                 for selected_instance_pk in request.POST.getlist('instance'):
-                    selected_instance = get_object_or_404(
-                        Instance, pk=selected_instance_pk)
+                    selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
                     selected_instance.scrap_request = new_scrap_request
                     selected_instance.save()
 
@@ -121,34 +118,50 @@ def InstanceBulkUpd(request):
                 )
                 mail.content_subtype = "html"
                 mail.send()
-                messages.success(
-                    request, "the notification email with the request detail is sent")
+                messages.success(request, "the notification email with the request detail is sent")
 
                 return redirect('nanoassets:instance-scrapping-request-list')
 
             elif 'branchsite-transfer' in request.POST:
                 try:
-                    branchsite_selected = branchSite.objects.get(
-                        name=request.POST['branchsite_selected'])
+                    branchsite_selected = branchSite.objects.get(name=request.POST['branchsite_selected'])
                 except (KeyError, branchSite.DoesNotExist):
-                    messages.info(request, 'distination Site is invalid')
+                    messages.info(request, 'distination Site given is invalid')
                 else:
                     for selected_instance_pk in request.POST.getlist('instance'):
-                        selected_instance = get_object_or_404(
-                            Instance, pk=selected_instance_pk)
+                        selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
                         selected_instance.activityhistory_set.create(
                             description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
                             'Transferred to ' + request.POST['branchsite_selected'] + ' from ' + selected_instance.branchSite.name + ' by ' + request.user.get_full_name())
-                        selected_instance.branchSite = get_object_or_404(
-                            branchSite, name=request.POST['branchsite_selected'])
+                        selected_instance.branchSite = get_object_or_404(branchSite, name=request.POST['branchsite_selected'])
                         selected_instance.save()
-                    messages.info(request, 'the selected IT Assets were Transferred to ' +
-                                  request.POST.get('branchsite_selected'))
+                    messages.info(request, 'the selected IT Assets were Transferred to ' + request.POST.get('branchsite_selected'))
 
-                return redirect('nanoassets:supported-instance-list')
+                # return redirect('nanoassets:supported-instance-list')
+            elif 'contract-associate' in request.POST:
+                try:
+                    contract_selected = Contract.objects.get(briefing=request.POST['contract_selected'])
+                except (KeyError, Contract.DoesNotExist):
+                    messages.info(request, 'Contract given is invalid')
+                else:
+                    for selected_instance_pk in request.POST.getlist('instance'):
+                        selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                        contract_selected.assets.add(selected_instance)
+                        contract_selected.activityhistory_set.create(
+                            description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
+                            'Associated with the IT Assets [ ' + selected_instance.serial_number + ' ] by ' + request.user.get_full_name())
+                        contract_selected.save()
+                        selected_instance.activityhistory_set.create(
+                            description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
+                            'Associated with the Contract [ ' + contract_selected.briefing + ' ] by ' + request.user.get_full_name())
+                        selected_instance.save()
+                    messages.info(request, 'the selected IT Assets were Associated with the Contract [ ' + request.POST.get('contract_selected')) + ' ]'
+                    
+            return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
         else:
             messages.info(request, "no IT Assets were selected")
-            return redirect('nanoassets:supported-instance-list')
+            # return redirect('nanoassets:supported-instance-list')
+            return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
 
 
 class InstanceSearchResultsListView(generic.ListView):
@@ -193,8 +206,12 @@ class InstanceSearchResultsListView(generic.ListView):
         branchSites_name = []
         for site in branchSite.objects.all():
             branchSites_name.append(site)
-
         context["branchSites_name"] = branchSites_name
+
+        contracts = []
+        for contract in Contract.objects.all():
+            contracts.append(contract)
+        context['contracts'] = contracts
 
         return context
 
