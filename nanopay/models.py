@@ -1,10 +1,12 @@
 import os
+import datetime
 
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from django.db import models
+from django.db.models import Sum
 
 # Create your models here.
 """
@@ -25,15 +27,9 @@ def contract_scanned_copy_path(instance, filename):
     return full_file_name
 
 class Contract(models.Model):
-    briefing = models.CharField(
-        # _("Briefing"), 
-        max_length=50, null=True)
-    party_a_list = models.ManyToManyField("nanopay.LegalEntity", 
-                                          # verbose_name=_("Party A"), 
-                                          related_name='partyas')
-    party_b_list = models.ManyToManyField("nanopay.LegalEntity", 
-                                          # verbose_name=_("Party B"), 
-                                          related_name='partybs')
+    briefing = models.CharField(_("Briefing"), max_length=50, null=True)
+    party_a_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("Party A"), related_name='partyas')
+    party_b_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("Party B"), related_name='partybs')
     CONTRACT_TYPE = (
         ('M', 'Maintenance'),
         ('N', 'New'),
@@ -41,26 +37,15 @@ class Contract(models.Model):
         ('E', 'Expired'),
         ('T', 'Terminated'),
     )
-    type = models.CharField(
-        # _("Contract Type"), 
-        choices=CONTRACT_TYPE, default='M', max_length=1)
-    startup = models.DateField(
-        # _("Start Up"), 
-        null=True)
-    endup = models.DateField(
-        # _("End Up"), 
-        null=True)
-    scanned_copy = models.FileField(
-        # _("Scanned Copy"),
+    type = models.CharField(_("Contract Type"), choices=CONTRACT_TYPE, default='M', max_length=1)
+    startup = models.DateField(_("From"), null=True)
+    endup = models.DateField(_("To"), null=True, blank=True)
+    scanned_copy = models.FileField(_("Scanned Copy"),
                                     # upload_to='contract_scanned_copy/%Y/',
                                     upload_to=contract_scanned_copy_path,
                                     max_length=100, null=True, blank=True)
-    assets = models.ManyToManyField("nanoassets.Instance", 
-                                    # verbose_name=_("Related Assets"), 
-                                    blank=True)
-    created_by = models.ForeignKey(User, 
-                                   # verbose_name=_(""), 
-                                   on_delete=models.SET_NULL, null=True)
+    assets = models.ManyToManyField("nanoassets.Instance", verbose_name=_("Assets associated with"), blank=True)
+    created_by = models.ForeignKey(User, verbose_name=_("Created by"), on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.briefing
@@ -69,7 +54,21 @@ class Contract(models.Model):
         return reverse('nanopay:contract-detail', kwargs={'pk': self.pk})
     
     def get_contract_duration_in_month(self):
-        return (self.endup.year - self.startup.year) * 12 + (self.endup.month - self.startup.month)
+         if self.endup:
+            return (self.endup.year - self.startup.year) * 12 + (self.endup.month - self.startup.month)
+         else:
+             return 'pay-as-you-go'
+    
+    def get_contract_time_remaining_in_percent(self):
+        if self.endup:
+            total_days = (self.endup - self.startup).days
+            total_days_left = (self.endup - datetime.date.today()).days
+            return round((total_days_left / total_days) * 100, 2)
+        else:
+            return 'pay-as-you-go'
+
+    def get_total_amount(self):
+        return self.paymentterm_set.aggregate(Sum('amount'))
 
     def get_prjct(self):
         for party in self.party_a_list.all():

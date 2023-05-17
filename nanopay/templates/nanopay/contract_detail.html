@@ -23,7 +23,7 @@
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="assets-tab" data-bs-toggle="tab" data-bs-target="#assets-tab-pane" type="button" role="tab" aria-controls="assets-tab-pane" aria-selected="false">
-                        Related Assets
+                        Assets associated with
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -41,7 +41,7 @@
                         <li class="list-group-item"><b>Parties:</b> <small>{{ contract.get_parties_display }}</small></li>
                         <li class="list-group-item"><b>Project:</b> <small>{{ contract.get_prjct }}</small></li>
                         <li class="list-group-item"><b>Type:</b> <small>{{ contract.get_type_display }}</small></li>
-                        <li class="list-group-item"><b>Duration:</b> <small>{{ contract.get_contract_duration_in_month }} 🈷️</small></li>
+                        <li class="list-group-item"><b>Total months:</b> <small>{{ contract.get_contract_duration_in_month }}</small> 🈷️</li>
                         <li class="list-group-item"><b>Scanned copy:</b>
                             <a href="{% url 'nanopay:contract-detail-scanned-copy' contract.pk %}"><small>{{ contract.get_scanned_copy_base_file_name }} </small></a>
                         </li>
@@ -70,35 +70,30 @@
                     </ul>
                 </div>
                 <div class="tab-pane fade" id="assets-tab-pane" role="tabpanel" aria-labelledby="assets-tab" tabindex="0">
-                    <form action="" method="post">
-                        {% csrf_token %}
-                        <h5 class="card-title">
-                            <input type="submit" name="associate-with-assets" value="Associate with Assets" class="btn btn-outline-primary d-inline-flex align-items-center"/>
-                        </h5>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">
-                                <table class="table table-striped table-hover">
-                                    <tr>
-                                        <th>Serial Number</th> <th>Model / Type</th> <th>Status</th> <th>Owner</th> <th>Site</th>
-                                    </tr>
-                                    {% for instance in contract.assets.all %}
-                                    <tr>
-                                        <td><a href="{% url 'nanoassets:instance-detail' instance.pk %}"><small>{{ instance.serial_number }}</small></a></td>
-                                        <td><small>{{ instance.model_type }}</small></td>
-                                        <td><small>{{ instance.get_status_display }}</small></td>
-                                        <td>
-                                        <a href="{% url 'nanoassets:instance-owner-upd' instance.pk %}">
-                                            {% if instance.owner %}<small>{{ instance.owner.get_full_name }}</small>{% else %}🈳{% endif %}
-                                        </a>
-                                        </td>
-                                        <td><small>{{ instance.branchSite }}</small></td>
-                                    </tr>
-                                    {% endfor %}
-                                </table>
-                            </li>
-                            <li class="list-group-item"><em>...</em></li>
-                        </ul>
-                    </form>
+                    <h5 class="card-title"></h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <table class="table table-striped table-hover">
+                                <tr>
+                                    <th>Serial Number</th> <th>Model / Type</th> <th>Status</th> <th>Owner</th> <th>Site</th>
+                                </tr>
+                                {% for instance in contract.assets.all %}
+                                <tr>
+                                    <td><a href="{% url 'nanoassets:instance-detail' instance.pk %}"><small>{{ instance.serial_number }}</small></a></td>
+                                    <td><small>{{ instance.model_type }}</small></td>
+                                    <td><small>{{ instance.get_status_display }}</small></td>
+                                    <td>
+                                    {#<a href="{% url 'nanoassets:instance-owner-upd' instance.pk %}">#}
+                                        {% if instance.owner %}<small>{{ instance.owner.get_full_name }}</small>{% else %}🈳{% endif %}
+                                    {#</a>#}
+                                    </td>
+                                    <td><small>{{ instance.branchSite }}</small></td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </li>
+                        <li class="list-group-item"><em>...</em></li>
+                    </ul>
                 </div>
                 <div class="tab-pane fade" id="disabled-tab-pane" role="tabpanel" aria-labelledby="disabled-tab" tabindex="0">...</div>
             </div>
