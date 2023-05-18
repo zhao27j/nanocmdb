@@ -1,5 +1,6 @@
 import os
 import datetime
+import uuid
 
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -9,22 +10,77 @@ from django.db import models
 from django.db.models import Sum
 
 # Create your models here.
-"""
-def photo_path(instance, filename):
-    basefilename, file_extension= os.path.splitext(filename)
-    chars= 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890'
-    randomstr= ''.join((random.choice(chars)) for x in range(10))
-    return 'images/userphotos/{userid}/{basename}{randomstring}{ext}'.format(userid= instance.user.id, basename= basefilename, randomstring= randomstr, ext= file_extension)
-"""
+
+def invoice_scanned_copy_path(instance, filename):
+    file_name_base, file_name_ext = os.path.splitext(filename)
+    file_name = str(instance.requested_on.year) + '_' + instance.get_type_display()+ '_by_' + instance.requested_by.username + '_' + file_name_base  + file_name_ext
+    file_path = 'uploads/invoice_scanned_copy/' + str(instance.requested_on.year)
+    full_file_name = os.path.join(file_path, file_name)
+
+    return full_file_name
+
+
+class PaymentRequest(models.Model):
+    case_id = models.UUIDField(_("Request case ID"), primary_key=True, default=uuid.uuid4, help_text='Unique ID for the particular request')
+    REQUEST_STATUS = (
+        ('I', 'Initialized'),
+        ('A', 'Approved'),
+    )
+    status = models.CharField(_("Request status"), choices=REQUEST_STATUS, default='I', max_length=1)
+    payment_term = models.ForeignKey("nanopay.PaymentTerm", verbose_name=_("Payment Term"), on_delete=models.SET_NULL, null=True, blank=True)
+    requested_by = models.ForeignKey(User, verbose_name=_("Requested by"), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
+    requested_on = models.DateField(_("Requested on"), blank=True, null=True)
+    approved_by = models.ForeignKey(User, verbose_name=_("Approved by"), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
+    approved_on = models.DateField(_("Approved on"), blank=True, null=True)
+
+    invoice = models.FileField(_("Scanned Copy of Invoice"), upload_to=invoice_scanned_copy_path, max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        # return '%s Scrapping Request %s by %s on %s, Approved by %s on %s' % (self.case_id, self.status, self.requested_by, str(self.requested_on), self.approved_by, str(self.approved_on))
+        return str(self.case_id)
+
+    def get_absolute_url(self):
+        return reverse("nanopay:payment-request-detail", kwargs={"pk": self.pk})
+
+    class Meta:
+        ordering = ['requested_on',]
+
+
+class PaymentTerm(models.Model):
+    pay_day = models.DateField(_("Date"))
+    PAYMENT_PLAN = (
+        ('M', 'Monthly'),
+        ('Q', 'Quarterly'),
+        ('S', 'Semi-anually'),
+        ('A', 'Anually'),
+        ('C', 'Custom'),
+    )
+    plan = models.CharField(_("Plan"), choices=PAYMENT_PLAN, default='M', max_length=1)
+    recurring = models.PositiveSmallIntegerField(_("Recurring"), default=1)
+    amount = models.FloatField(_("Amount"))
+    # paid = models.BooleanField(_("Paid"), default=False)
+    paid_on = models.DateField(_("Paid on"), null=True, blank=True)
+    contract = models.ForeignKey("nanopay.Contract", verbose_name=_("Contract"), on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return "%s, %s" % (self.pay_day, self.amount)
+    
+    def get_absolute_url(self):
+        return reverse('nanopay:payment-term-detail', kwargs={'pk': self.pk})
+    
+    class Meta:
+        ordering = ['pay_day']
+
+
 def contract_scanned_copy_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     file_name_base, file_name_ext = os.path.splitext(filename)
     file_name = str(instance.startup.year) + '_' + instance.get_type_display()+ '_by_' + instance.created_by.username + '_' + file_name_base  + file_name_ext
     file_path = 'uploads/contract_scanned_copy/' + str(instance.startup.year)
     full_file_name = os.path.join(file_path, file_name)
-
     # return "contract_scanned_copy/user_{0}/{1}".format(instance.user.id, filename)
     return full_file_name
+
 
 class Contract(models.Model):
     briefing = models.CharField(_("Briefing"), max_length=50, null=True)
@@ -53,13 +109,13 @@ class Contract(models.Model):
     def get_absolute_url(self):
         return reverse('nanopay:contract-detail', kwargs={'pk': self.pk})
     
-    def get_contract_duration_in_month(self):
+    def get_duration_in_month(self):
          if self.endup:
             return (self.endup.year - self.startup.year) * 12 + (self.endup.month - self.startup.month)
          else:
              return 'pay-as-you-go'
     
-    def get_contract_time_remaining_in_percent(self):
+    def get_time_remaining_in_percent(self):
         if self.endup:
             total_days = (self.endup - self.startup).days
             total_days_left = (self.endup - datetime.date.today()).days
@@ -92,26 +148,6 @@ class Contract(models.Model):
 
     class Meta:
         ordering = ["-startup", ]
-
-
-class PaymentTerm(models.Model):
-    pay_day = models.DateField(_("Date"))
-    PAYMENT_PLAN = (
-        ('M', 'Monthly'),
-        ('Q', 'Quarterly'),
-        ('S', 'Semi-anually'),
-        ('A', 'Anually'),
-        ('C', 'Custom'),
-    )
-    plan = models.CharField(_("Plan"), choices=PAYMENT_PLAN, default='M', max_length=1)
-    amount = models.FloatField(_("Amount"))
-    # paid = models.BooleanField(_("Paid"), default=False)
-    paid_on = models.DateField(_("Paid on"), null=True, blank=True)
-    contract = models.ForeignKey("nanopay.Contract", verbose_name=_("Contract"), on_delete=models.SET_NULL, null=True)
-
-    def __str__(self):
-        return "%s, %s" % (self.pay_day, self.amount)
-    
 
 
 class LegalEntity(models.Model):

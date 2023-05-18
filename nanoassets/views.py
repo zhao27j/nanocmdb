@@ -332,8 +332,12 @@ class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
         branchSites_name = []
         for site in branchSite.objects.all():
             branchSites_name.append(site)
-
         context["branchSites_name"] = branchSites_name
+
+        contracts = []
+        for contract in Contract.objects.all():
+            contracts.append(contract)
+        context['contracts'] = contracts
 
         return context
 

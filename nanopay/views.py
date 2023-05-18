@@ -17,7 +17,7 @@ from django.utils import timezone
 from django.views import generic
 from django.views.generic.edit import CreateView
 
-from .models import Contract, LegalEntity
+from .models import Contract, PaymentTerm, LegalEntity
 from .forms import NewContractForm, NewPaymentTermForm
 
 # Create your views here.
@@ -32,12 +32,26 @@ def new_payment_term(request, pk):
         # form.save(commit=False)
         if form.is_valid(): # check if the form is valid:
             # process the data in form.cleaned_data as required
-            # new_payment_term = form.save(commit=False)
-            # new_payment_term.pay_day = form.cleaned_data['pay_day']
-            # new_payment_term.plan = form.cleaned_data['plan']
-            # new_payment_term.amount = form.cleaned_data['amount']
+            new_payment_term_plan = form.cleaned_data['plan']
+            new_payment_term_recurring = form.cleaned_data['recurring']
+            if new_payment_term_plan != 'C' and new_payment_term_recurring > 1:
+                pay_day = form.cleaned_data['pay_day']
+                recurring = 1
+                while recurring < new_payment_term_recurring:
+                    if new_payment_term_plan == 'M':
+                        pay_day += datetime.timedelta(weeks=(4.33333))
+                    elif new_payment_term_plan == 'Q':
+                        pay_day += datetime.timedelta(weeks=(13))
+                    elif new_payment_term_plan == 'S':
+                        pay_day += datetime.timedelta(weeks=(26))
+                    elif new_payment_term_plan == 'A':
+                        pay_day += datetime.timedelta(weeks=(52))
+                    
+                    PaymentTerm.objects.create(pay_day=pay_day, plan=new_payment_term_plan, recurring=1, amount=form.cleaned_data['amount'], contract=form.cleaned_data['contract'],)
+                    recurring += 1
 
             new_payment_term = form.save()
+            new_payment_term.recurring = 1
             new_payment_term.contract = contract
 
             contract.activityhistory_set.create(
@@ -48,21 +62,18 @@ def new_payment_term(request, pk):
                         + ' was added by ' + request.user.get_full_name()
                 )
             
-            messages.info(request, 'one Payment Term for the Contract [ ' + contract.briefing + ' ] was added by ' + request.user.get_full_name())
+            messages.info(request, str(new_payment_term_recurring) + ' x Payment Terms for the Contract [ ' + contract.briefing + ' ] were added by ' + request.user.get_full_name())
 
             return redirect('nanopay:contract-detail', pk=pk) # redirect to a new URL:
 
     else: # if this is a GET (or any other method) create the default form.
-        pay_day = contract.startup + datetime.timedelta(weeks=4)
+        pay_day = contract.startup + datetime.timedelta(weeks=4.33333)
         form = NewPaymentTermForm(initial={
             'pay_day': pay_day, 
             'contract': contract,
             })
 
-        return render(request, 'nanopay/payment_term_new.html', {
-            'form': form,
-            # 'contract': contract,
-            })
+    return render(request, 'nanopay/payment_term_new.html', {'form': form,})
 
 
 @login_required

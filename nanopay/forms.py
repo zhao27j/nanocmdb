@@ -6,7 +6,7 @@ import pathlib
 from typing import Any, Dict
 
 from django import forms
-from django.forms import ModelForm, TextInput, Select, modelformset_factory
+from django.forms import ModelForm, TextInput, Select, NumberInput, modelformset_factory
 
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.utils.translation import gettext_lazy as _
@@ -19,18 +19,27 @@ class NewPaymentTermForm(forms.ModelForm):
         cleaned_data = super().clean()
         contract = cleaned_data.get("contract")
         pay_day = cleaned_data.get('pay_day')
+        plan = cleaned_data.get('plan')
+        recurring = abs(cleaned_data.get('recurring'))
         if pay_day < contract.startup:
             raise ValidationError(_("the scheduled Pay date should NOT be later than the Start date defined in the Contract"))
+        
+        if recurring == 0:
+            raise ValidationError(_("the value of Recurring must be > 0"))
+
+        if plan == 'C' and recurring != 1:
+            raise ValidationError(_("the Recurring for Custom plan must be = 1 "))
         
         # return super().clean()
     
     class Meta:
         model = PaymentTerm
-        fields = ["pay_day", "plan", "amount", "contract"]
+        fields = ["pay_day", "plan", "recurring", "amount", "contract"]
         widgets = {
             "pay_day": TextInput(attrs={"type": "date", "class": "form-control",}),
             "plan": Select(attrs={"class": "form-control",}),
-            # "amount": ,
+            "recurring": NumberInput(attrs={"class": "form-control",}),
+            "amount": NumberInput(attrs={"class": "form-control",}),
             "contract": Select(attrs={
                 "disabled":True, 
                 "class": "form-control", }),
@@ -38,12 +47,14 @@ class NewPaymentTermForm(forms.ModelForm):
         labels = {
             "pay_day": _("Date"),
             "plan": _("Plan"),
+            "recurring": _("Recurring"),
             "amount": _("Amount"),
             "coutract": _("Contract"),
         }
         help_texts = {
             "pay_day": _("payment date defined in the contract"),
             "plan": _("payment schedule defined in the contract"),
+            "recurring": _("payment recurring defined in the contract"),
             "amount": _("payment acount defined in the contract"),
         }
         
