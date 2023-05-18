@@ -126,7 +126,7 @@ def new_contract(request):
                 'endup': endup,
                 })
 
-        return render(request, 'nanopay/contract_new.html', {'form': form,})
+    return render(request, 'nanopay/contract_new.html', {'form': form,})
 
 
 class ContractListView(LoginRequiredMixin, generic.ListView):

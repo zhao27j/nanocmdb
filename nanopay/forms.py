@@ -123,6 +123,11 @@ class NewContractForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
 
+        briefing = cleaned_data.get('briefing')
+        contracts = Contract.objects.filter(briefing=briefing)
+        if contracts:
+            raise ValidationError(_("contract with the same Briefing already exists"))
+        
         startup = cleaned_data.get("startup")
         endup = cleaned_data.get("endup")
         if endup < startup:
@@ -138,6 +143,7 @@ class NewContractForm(forms.Form):
 
         # return super().clean()
 
+
 PaymentTermFormSet = modelformset_factory(
     PaymentTerm,
     fields=[
@@ -145,6 +151,7 @@ PaymentTermFormSet = modelformset_factory(
     ],
     extra=1
 )
+
 
 class PaymentTermFrom(ModelForm):
     class Meta:

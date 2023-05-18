@@ -61,7 +61,7 @@
                                 <label for="term{{ forloop.counter }}">
                                     <td><small> {{ term.pay_day }} </small></td>
                                 </label>
-                                <td><small> ¥{{ term.amount }} </small></td>
+                                <td><small> ¥{{ term.amount|floatformat:"2g" }} </small></td>
                                 <td>{% if term.paid_on %}<small> {{ term.paid_on }} </small>{% else %}❌{% endif %}</td>
                             </tr>
                             {% endfor %}
