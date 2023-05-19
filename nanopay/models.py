@@ -13,37 +13,40 @@ from django.db.models import Sum
 
 def invoice_scanned_copy_path(instance, filename):
     file_name_base, file_name_ext = os.path.splitext(filename)
-    file_name = str(instance.requested_on.year) + '_' + instance.get_type_display()+ '_by_' + instance.requested_by.username + '_' + file_name_base  + file_name_ext
-    file_path = 'uploads/invoice_scanned_copy/' + str(instance.requested_on.year)
+    file_name = str(instance.request_id) + '_invoice uploaded by_' + instance.requested_by.username + '_' + file_name_base  + file_name_ext
+    file_path = 'uploads/payment_request/' + str(instance.requested_on.year)
     full_file_name = os.path.join(file_path, file_name)
 
     return full_file_name
 
 
 class PaymentRequest(models.Model):
-    case_id = models.UUIDField(_("Request case ID"), primary_key=True, default=uuid.uuid4, help_text='Unique ID for the particular request')
+    request_id = models.UUIDField(_("Request ID"), primary_key=True, default=uuid.uuid4, help_text='Unique ID for the particular request')
     REQUEST_STATUS = (
         ('I', 'Initialized'),
         ('A', 'Approved'),
     )
     status = models.CharField(_("Request status"), choices=REQUEST_STATUS, default='I', max_length=1)
     payment_term = models.ForeignKey("nanopay.PaymentTerm", verbose_name=_("Payment Term"), on_delete=models.SET_NULL, null=True, blank=True)
-    requested_by = models.ForeignKey(User, verbose_name=_("Requested by"), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
-    requested_on = models.DateField(_("Requested on"), blank=True, null=True)
+    # non_payroll_expense = models.ForeignKey("nanopay.NonPayrollExpense", verbose_name=_("Non Payroll Expense"), on_delete=models.SET_NULL, null=True, blank=True)
+    amount = models.DecimalField(_("Invoice Amount"), max_digits=8, decimal_places=2, null=True)
+    scanned_copy = models.FileField(_("Scanned Copy of Invoice"), upload_to=invoice_scanned_copy_path, max_length=200, null=True, blank=True)
+    # paper_form = models.FileField(_("Paper Form"), upload_to=None, max_length=100)
+
+    requested_by = models.ForeignKey(User, verbose_name=_("Requested by"), related_name='+', on_delete=models.SET_NULL, null=True)
+    requested_on = models.DateField(_("Requested on"), null=True)
     approved_by = models.ForeignKey(User, verbose_name=_("Approved by"), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
     approved_on = models.DateField(_("Approved on"), blank=True, null=True)
 
-    invoice = models.FileField(_("Scanned Copy of Invoice"), upload_to=invoice_scanned_copy_path, max_length=100, null=True, blank=True)
-
     def __str__(self):
         # return '%s Scrapping Request %s by %s on %s, Approved by %s on %s' % (self.case_id, self.status, self.requested_by, str(self.requested_on), self.approved_by, str(self.approved_on))
-        return str(self.case_id)
+        return str(self.request_id)
 
     def get_absolute_url(self):
         return reverse("nanopay:payment-request-detail", kwargs={"pk": self.pk})
 
     class Meta:
-        ordering = ['requested_on',]
+        ordering = ['requested_on', ]
 
 
 class PaymentTerm(models.Model):
@@ -56,7 +59,7 @@ class PaymentTerm(models.Model):
         ('C', 'Custom'),
     )
     plan = models.CharField(_("Plan"), choices=PAYMENT_PLAN, default='M', max_length=1)
-    recurring = models.PositiveSmallIntegerField(_("Recurring"), default=1)
+    recurring = models.DecimalField(_("Recurring"), max_digits=2, decimal_places=0, default=1)
     amount = models.FloatField(_("Amount"))
     # paid = models.BooleanField(_("Paid"), default=False)
     paid_on = models.DateField(_("Paid on"), null=True, blank=True)
@@ -75,7 +78,7 @@ class PaymentTerm(models.Model):
 def contract_scanned_copy_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     file_name_base, file_name_ext = os.path.splitext(filename)
-    file_name = str(instance.startup.year) + '_' + instance.get_type_display()+ '_by_' + instance.created_by.username + '_' + file_name_base  + file_name_ext
+    file_name = str(instance.startup.year) + '_' + instance.get_type_display()+ '_uploaded by_' + instance.created_by.username + '_' + file_name_base  + file_name_ext
     file_path = 'uploads/contract_scanned_copy/' + str(instance.startup.year)
     full_file_name = os.path.join(file_path, file_name)
     # return "contract_scanned_copy/user_{0}/{1}".format(instance.user.id, filename)
@@ -83,7 +86,7 @@ def contract_scanned_copy_path(instance, filename):
 
 
 class Contract(models.Model):
-    briefing = models.CharField(_("Briefing"), max_length=50, null=True)
+    briefing = models.CharField(_("Briefing"), unique=True, max_length=50, null=True)
     party_a_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("Party A"), related_name='partyas')
     party_b_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("Party B"), related_name='partybs')
     CONTRACT_TYPE = (
@@ -100,7 +103,10 @@ class Contract(models.Model):
                                     # upload_to='contract_scanned_copy/%Y/',
                                     upload_to=contract_scanned_copy_path,
                                     max_length=100, null=True, blank=True)
+    
+    non_payroll_expense = models.ForeignKey("nanopay.NonPayrollExpense", verbose_name=_("Non Payroll Expense"), on_delete=models.SET_NULL, null=True, blank=True)
     assets = models.ManyToManyField("nanoassets.Instance", verbose_name=_("Assets associated with"), blank=True)
+    
     created_by = models.ForeignKey(User, verbose_name=_("Created by"), on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
@@ -180,3 +186,59 @@ class Prjct(models.Model):
 
     def __str__(self):
         return self.name
+
+class NonPayrollExpense(models.Model):
+    non_payroll_expense_year = models.DecimalField(_("Budget Year"), max_digits=4, decimal_places=0, default=datetime.datetime.now().year)
+    QUARTERLY_REFORECASTING = (
+        ('Q0', 'Q0'),
+        ('Q1', 'Q1'),
+        ('Q2', 'Q2'),
+        ('Q3', 'Q3'),
+    )
+    non_payroll_expense_reforecasting = models.CharField(_("Quarterly Reforecasting"), choices=QUARTERLY_REFORECASTING, default='Q0', max_length=2)
+    
+    originating_sub_region = models.CharField(_("Originating Sub Region"), max_length=32)
+    functional_department = models.CharField(_("Functional Department"), max_length=32)
+    global_gl_account = models.DecimalField(_("Global GL Account"), max_digits=6, decimal_places=0)
+    vendor = models.CharField(_("Vendor"), max_length=64, null=True, blank=True)
+    global_expense_tracking_id = models.CharField(_("Global Expense Tracking ID"), max_length=16)
+    CURRENCY_TYPE = (
+        ('CNY', 'CNY'),
+        ('USD', 'USD'),
+    )
+    currency = models.CharField(_("Currency"), choices=CURRENCY_TYPE, max_length=3, default='CNY')
+    allocation = models.CharField(_("Allocation"), max_length=128)
+    description = models.TextField(_("Description"), unique=True)
+
+    jan = models.DecimalField(_("Jan"), max_digits=8, decimal_places=2, default=0)
+    feb = models.DecimalField(_("Feb"), max_digits=8, decimal_places=2, default=0)
+    mar = models.DecimalField(_("Mar"), max_digits=8, decimal_places=2, default=0)
+    apr = models.DecimalField(_("Apr"), max_digits=8, decimal_places=2, default=0)
+    may = models.DecimalField(_("May"), max_digits=8, decimal_places=2, default=0)
+    jun = models.DecimalField(_("Jun"), max_digits=8, decimal_places=2, default=0)
+    jul = models.DecimalField(_("Jul"), max_digits=8, decimal_places=2, default=0)
+    aug = models.DecimalField(_("Aug"), max_digits=8, decimal_places=2, default=0)
+    sep = models.DecimalField(_("Sep"), max_digits=8, decimal_places=2, default=0)
+    oct = models.DecimalField(_("Oct"), max_digits=8, decimal_places=2, default=0)
+    nov = models.DecimalField(_("Nov"), max_digits=8, decimal_places=2, default=0)
+    dec = models.DecimalField(_("Dec"), max_digits=8, decimal_places=2, default=0)
+    ID_DIRECT_COST = (
+        ('Y', 'Yes'),
+        ('N', 'NO'),
+    )
+    is_direct_cost = models.CharField(_("Is Direct Cost"), choices=ID_DIRECT_COST, max_length=1, default='N')
+
+    created_by = models.ForeignKey(User, verbose_name=_("Created by"), on_delete=models.SET_NULL, null=True)
+    created_on = models.DateField(_("Created on"), null=True)
+
+    def __str__(self):
+        return self.description
+    
+    def get_absolute_url(self):
+        return reverse("nanopay:non-payroll-expense-detail", kwargs={"pk": self.pk})
+    
+    def get_non_payroll_expense_subtotal(self):
+        return self.jan + self.feb + self.mar + self.apr + self.may + self.jun + self.jul + self.aug + self.sep + self.oct + self.nov + self.dec
+    
+    class Meta:
+        ordering = ['non_payroll_expense_year', 'non_payroll_expense_reforecasting', 'allocation']

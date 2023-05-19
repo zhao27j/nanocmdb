@@ -25,6 +25,7 @@
         <th>Party B</th>
         <th>Project</th>
         <th>Type</th>
+        <th>Non Payroll Expense</th>
         <th>Total amount</th>
         <th>Total months</th>
         <th>Remaining</th>
@@ -36,8 +37,15 @@
         <td><small>{{ contract.get_party_b_display }}</small></td>
         <td><small>{{ contract.get_prjct }}</small></td>
         <td><small>{{ contract.get_type_display }}</small></td>
+        <td><small>{{ contract.non_payroll_expense }}</small></td>
         <td>¥<small>{{ contract.get_total_amount.amount__sum|floatformat:"2g" }}</small></td>
-        <td><small>{{ contract.get_duration_in_month }}</small> 🈷️</td>
+        <td>
+          {% if contract.get_duration_in_month == 'pay-as-you-go' %}
+          <small>{{ contract.get_duration_in_month }}</small>
+          {% else %}
+          <small>{{ contract.get_duration_in_month }}</small>🈷️
+          {% endif %}
+        </td>
         <td>
           {% if contract.get_time_remaining_in_percent == 'pay-as-you-go' %}
           <small>{{ contract.get_time_remaining_in_percent }}</small>

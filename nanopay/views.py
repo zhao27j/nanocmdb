@@ -17,7 +17,7 @@ from django.utils import timezone
 from django.views import generic
 from django.views.generic.edit import CreateView
 
-from .models import Contract, PaymentTerm, LegalEntity
+from .models import Contract, PaymentTerm, NonPayrollExpense
 from .forms import NewContractForm, NewPaymentTermForm
 
 # Create your views here.
@@ -50,9 +50,10 @@ def new_payment_term(request, pk):
                     PaymentTerm.objects.create(pay_day=pay_day, plan=new_payment_term_plan, recurring=1, amount=form.cleaned_data['amount'], contract=form.cleaned_data['contract'],)
                     recurring += 1
 
-            new_payment_term = form.save()
+            new_payment_term = form.save(commit=False)
             new_payment_term.recurring = 1
-            new_payment_term.contract = contract
+            # new_payment_term.contract = contract
+            new_payment_term.save()
 
             contract.activityhistory_set.create(
                 description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] '
@@ -98,6 +99,8 @@ def new_contract(request):
             new_contract.briefing = form.cleaned_data['briefing']
             
             new_contract.type = form.cleaned_data['type']
+            new_contract.non_payroll_expense = get_object_or_404(NonPayrollExpense, description=form.cleaned_data['non_payroll_expense'])
+
             new_contract.startup = form.cleaned_data['startup']
             new_contract.endup = form.cleaned_data['endup']
             new_contract.scanned_copy = form.cleaned_data['scanned_copy']
@@ -120,11 +123,17 @@ def new_contract(request):
     else: # if this is a GET (or any other method) create the default form.
         startup = datetime.date.today()
         endup = datetime.date.today() + datetime.timedelta(weeks=12)
+        non_payroll_expenses = NonPayrollExpense.objects.all()
+        
         form = NewContractForm(
             initial={
                 'startup': startup,
                 'endup': endup,
                 })
+        return render(request, 'nanopay/contract_new.html', {
+            'form': form,
+            'non_payroll_expenses': non_payroll_expenses,
+            })
 
     return render(request, 'nanopay/contract_new.html', {'form': form,})
 

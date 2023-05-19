@@ -1,12 +1,18 @@
 from django.contrib import admin
 
-from .models import Contract, PaymentTerm, LegalEntity, Prjct
+from .models import PaymentRequest, NonPayrollExpense, PaymentTerm, Contract, LegalEntity, Prjct
 
 # Register your models here.
 
-class PaymentTermInline(admin.TabularInline):
-    '''Tabular Inline View for '''
+@admin.register(NonPayrollExpense)
+class NonPayrollExpenseAdmin(admin.ModelAdmin):
+    list_display = ['non_payroll_expense_year', 'non_payroll_expense_reforecasting', 
+                    'originating_sub_region', 'functional_department', 'global_gl_account', 
+                    'vendor', 'global_expense_tracking_id', 'currency', 'allocation', 'description', 
+                    'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
+class PaymentTermInline(admin.TabularInline):
+    # Tabular Inline View for
     model = PaymentTerm
     # min_num = 3
     # max_num = 20
@@ -23,7 +29,8 @@ class ContractAdmin(admin.ModelAdmin):
 class LegalEntityAdmin(admin.ModelAdmin):
     search_fields = ['name', ]
 
-# admin.site.register(Contract)
 admin.site.register(PaymentTerm)
+# admin.site.register(Contract)
 # admin.site.register(LegalEntity)
 admin.site.register(Prjct)
+admin.site.register(PaymentRequest)

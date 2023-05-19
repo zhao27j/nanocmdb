@@ -6,13 +6,17 @@ import pathlib
 from typing import Any, Dict
 
 from django import forms
-from django.forms import ModelForm, TextInput, Select, NumberInput, modelformset_factory
+from django.forms import TextInput, Select, NumberInput, modelformset_factory
 
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404
 
 from .models import Contract, LegalEntity, PaymentTerm
+
+class NewPaymentRequestForm(forms.Form):
+
+    pass
 
 class NewPaymentTermForm(forms.ModelForm):
     def clean(self):
@@ -65,6 +69,81 @@ class NewPaymentTermForm(forms.ModelForm):
         }
 
 
+class NewContractForm(forms.Form):
+    briefing = forms.CharField(required=True, widget=forms.TextInput(attrs={"placeholder": "briefing the main purpose of the contract ...", "class": "form-control",}))
+    
+    party_a_list = forms.ModelMultipleChoiceField(required=True, queryset=None, widget=forms.SelectMultiple(attrs={"class": "form-select",}))
+    party_b_list = forms.ModelMultipleChoiceField(required=True, queryset=None, widget=forms.SelectMultiple(attrs={"class": "form-select",}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["party_a_list"].queryset = LegalEntity.objects.filter(type='I')
+        self.fields["party_b_list"].queryset = LegalEntity.objects.filter(type='E')
+    
+    non_payroll_expense = forms.CharField(required=True, max_length=100, widget=TextInput(attrs={
+        "list": "non_payroll_expenses",
+        "class": "form-control",
+    }))
+
+    CONTRACT_TYPE = (
+        ('M', 'Maintenance'),
+        ('N', 'New'),
+        ('R', 'Rental'),
+        # ('E', 'Expired'),
+    )
+    type = forms.ChoiceField(required=True, initial='M', choices=CONTRACT_TYPE, widget=forms.Select(attrs={"class": "form-control",}))
+
+    startup = forms.DateField(widget=forms.TextInput(attrs={"type": "date", "class": "form-control",}), required=True, )
+    endup = forms.DateField(widget=forms.TextInput(attrs={"type": "date", "class": "form-control",}), required=False)
+    
+    # scanned_copy = MultipleFileField(required=True)
+    scanned_copy = forms.FileField(required=True, widget=forms.ClearableFileInput(attrs={
+        # "multiple": True,
+        "class": "form-control",
+        }))
+    
+    """
+    def clean_scanned_copy(self):
+        data = self.cleaned_data["scanned_copy"]
+        if pathlib.Path(data.name).suffix != '.pdf':
+            raise ValidationError(_('the Only acceptable format is .pdf for Scanned Copy'))
+        else:
+            pass
+        return data
+    """
+
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        briefing = cleaned_data.get('briefing')
+        contracts = Contract.objects.filter(briefing=briefing.strip())
+        if contracts:
+            raise ValidationError(_("contract with the same Briefing already exists"))
+
+        startup = cleaned_data.get("startup")
+        endup = cleaned_data.get("endup")
+        if endup and endup < startup:
+            raise ValidationError(_("the End date should NOT be later than the Start date"))
+
+        scanned_copy = cleaned_data.get("scanned_copy")
+        # scanned_copy_ext = pathlib.Path(scanned_copy.name).suffix
+        if not pathlib.Path(scanned_copy.name).suffix in ['.pdf', ]:
+            raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
+        
+        if not scanned_copy.content_type == 'application/pdf':
+            raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
+
+        # return super().clean()
+
+
+"""
+
+class PaymentTermFrom(ModelForm):
+    class Meta:
+        model = PaymentTerm
+        fields = ["pay_day", "plan", "amount", ]
+
+
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
 
@@ -83,67 +162,6 @@ class MultipleFileField(forms.FileField):
         return result
 
 
-class NewContractForm(forms.Form):
-    briefing = forms.CharField(required=True, widget=forms.TextInput(attrs={"placeholder": "Briefing", "class": "form-control",}))
-    
-    party_a_list = forms.ModelMultipleChoiceField(required=True, queryset=None, widget=forms.SelectMultiple(attrs={"class": "form-select",}))
-    party_b_list = forms.ModelMultipleChoiceField(required=True, queryset=None, widget=forms.SelectMultiple(attrs={"class": "form-select",}))
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["party_a_list"].queryset = LegalEntity.objects.filter(type='I')
-        self.fields["party_b_list"].queryset = LegalEntity.objects.filter(type='E')
-    
-    CONTRACT_TYPE = (
-        ('M', 'Maintenance'),
-        ('N', 'New'),
-        ('R', 'Rental'),
-        # ('E', 'Expired'),
-    )
-    type = forms.ChoiceField(required=True, initial='M', choices=CONTRACT_TYPE, widget=forms.Select(attrs={"class": "form-control",}))
-
-    startup = forms.DateField(required=True, widget=forms.TextInput(attrs={"type": "date", "class": "form-control",}))
-    endup = forms.DateField(required=True, widget=forms.TextInput(attrs={"type": "date", "class": "form-control",}))
-    
-    # scanned_copy = MultipleFileField(required=True)
-    scanned_copy = forms.FileField(required=True, widget=forms.ClearableFileInput(attrs={
-        # "multiple": True,
-        "class": "form-control",
-        }))
-    """
-    def clean_scanned_copy(self):
-        data = self.cleaned_data["scanned_copy"]
-        if pathlib.Path(data.name).suffix != '.pdf':
-            raise ValidationError(_('the Only acceptable format is .pdf for Scanned Copy'))
-        else:
-            pass
-        return data
-    """
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        briefing = cleaned_data.get('briefing')
-        contracts = Contract.objects.filter(briefing=briefing)
-        if contracts:
-            raise ValidationError(_("contract with the same Briefing already exists"))
-        
-        startup = cleaned_data.get("startup")
-        endup = cleaned_data.get("endup")
-        if endup < startup:
-            raise ValidationError(_("the End date should NOT be later than the Start date"))
-
-        scanned_copy = cleaned_data.get("scanned_copy")
-        # scanned_copy_ext = pathlib.Path(scanned_copy.name).suffix
-        if not pathlib.Path(scanned_copy.name).suffix in ['.pdf', ]:
-            raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
-        
-        if not scanned_copy.content_type == 'application/pdf':
-            raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
-
-        # return super().clean()
-
-
 PaymentTermFormSet = modelformset_factory(
     PaymentTerm,
     fields=[
@@ -151,9 +169,5 @@ PaymentTermFormSet = modelformset_factory(
     ],
     extra=1
 )
-
-
-class PaymentTermFrom(ModelForm):
-    class Meta:
-        model = PaymentTerm
-        fields = ["pay_day", "plan", "amount", ]
+        
+"""

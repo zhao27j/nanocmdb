@@ -29,10 +29,20 @@
       <td><div class="fieldWrapper"><label for="{{ form.party_b_list.id_for_label }} ">To</label></div></td>
       <td><div class="fieldWrapper">{{ form.party_b_list.errors }} {{ form.party_b_list }}</div></td>
     </tr>
-
     <tr>
+      <td><div class="fieldWrapper"><label for="{{ form.non_payroll_expense.id_for_label }} ">Non Payroll Expense</label></div></td>
+      <td >
+        <div class="fieldWrapper">
+          {{ form.non_payroll_expense.errors }}{{ form.non_payroll_expense }}
+          <datalist id="non_payroll_expenses">
+            {% for non_payroll_expense in non_payroll_expenses %}
+              <option value="{{ non_payroll_expense.description }}"></option>
+            {% endfor %}
+          </datalist>
+        </div>
+      </td>
       <td><div class="fieldWrapper"><label for="{{ form.type.id_for_label }} ">Type</label></div></td>
-      <td colspan="3"><div class="fieldWrapper">{{ form.type.errors }}{{ form.type }}</div></td>
+      <td ><div class="fieldWrapper">{{ form.type.errors }}{{ form.type }}</div></td>
     </tr>
 
     <tr>
@@ -52,17 +62,13 @@
       </td>
     </tr>
     <tr>
-      <td colspan="4">
-        <div class="fieldWrapper">
-          {{ form.scanned_copy.errors }}
-          {{ form.scanned_copy }}
-        </div>
+      <td colspan="4"><div class="fieldWrapper"> {{ form.scanned_copy.errors }} {{ form.scanned_copy }}</div>
       </td>
     </tr>
   </table>
   <input type="submit" value="add" class="btn btn-outline-primary d-inline-flex align-items-center"/>
 </form>
 {% else %}
-    <p>You're not the authorized IT staff</p>
+<p>You're not the authorized IT staff</p>
 {% endif %}
 {% endblock page_content %}
