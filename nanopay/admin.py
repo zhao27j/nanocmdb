@@ -11,6 +11,10 @@ class NonPayrollExpenseAdmin(admin.ModelAdmin):
                     'vendor', 'global_expense_tracking_id', 'currency', 'allocation', 'description', 
                     'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
+@admin.register(PaymentRequest)
+class PaymentRequestAdmin(admin.ModelAdmin):
+    list_display = ['id', 'status', 'amount', 'non_payroll_expense', 'requested_on', 'requested_by', 'IT_reviewed_on', 'IT_reviewed_by']
+
 class PaymentTermInline(admin.TabularInline):
     # Tabular Inline View for
     model = PaymentTerm
@@ -33,4 +37,4 @@ admin.site.register(PaymentTerm)
 # admin.site.register(Contract)
 # admin.site.register(LegalEntity)
 admin.site.register(Prjct)
-admin.site.register(PaymentRequest)
+# admin.site.register(PaymentRequest)

@@ -31,8 +31,9 @@
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">PR Mgmt</a>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="{% url 'nanopay:contract-new' %}">New Contract</a></li>
-                <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="{% url 'nanopay:contract-list' %}">All Contracts</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'nanopay:payment-request-list' %}">Payment Requests</a></li>
               </ul>
             </li>
             {% endif %}

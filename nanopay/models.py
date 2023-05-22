@@ -13,40 +13,40 @@ from django.db.models import Sum
 
 def invoice_scanned_copy_path(instance, filename):
     file_name_base, file_name_ext = os.path.splitext(filename)
-    file_name = str(instance.request_id) + '_invoice uploaded by_' + instance.requested_by.username + '_' + file_name_base  + file_name_ext
-    file_path = 'uploads/payment_request/' + str(instance.requested_on.year)
+    file_name = str(instance.id) + '_invoice uploaded by_' + instance.requested_by.username + '_' + file_name_base  + file_name_ext
+    file_path = 'uploads/payment_request/' + str(datetime.date.today().year)
     full_file_name = os.path.join(file_path, file_name)
 
     return full_file_name
 
 
 class PaymentRequest(models.Model):
-    request_id = models.UUIDField(_("Request ID"), primary_key=True, default=uuid.uuid4, help_text='Unique ID for the particular request')
+    id = models.UUIDField(_("Request ID"), primary_key=True, default=uuid.uuid4, help_text='Unique ID for the particular request')
     REQUEST_STATUS = (
         ('I', 'Initialized'),
         ('A', 'Approved'),
     )
     status = models.CharField(_("Request status"), choices=REQUEST_STATUS, default='I', max_length=1)
     payment_term = models.ForeignKey("nanopay.PaymentTerm", verbose_name=_("Payment Term"), on_delete=models.SET_NULL, null=True, blank=True)
-    # non_payroll_expense = models.ForeignKey("nanopay.NonPayrollExpense", verbose_name=_("Non Payroll Expense"), on_delete=models.SET_NULL, null=True, blank=True)
+    non_payroll_expense = models.ForeignKey("nanopay.NonPayrollExpense", verbose_name=_("Non Payroll Expense"), on_delete=models.SET_NULL, null=True, blank=True)
     amount = models.DecimalField(_("Invoice Amount"), max_digits=8, decimal_places=2, null=True)
-    scanned_copy = models.FileField(_("Scanned Copy of Invoice"), upload_to=invoice_scanned_copy_path, max_length=200, null=True, blank=True)
+    scanned_copy = models.FileField(_("Scanned Copy of Invoice"), upload_to=invoice_scanned_copy_path, max_length=256, null=True, blank=True)
     # paper_form = models.FileField(_("Paper Form"), upload_to=None, max_length=100)
 
     requested_by = models.ForeignKey(User, verbose_name=_("Requested by"), related_name='+', on_delete=models.SET_NULL, null=True)
-    requested_on = models.DateField(_("Requested on"), null=True)
-    approved_by = models.ForeignKey(User, verbose_name=_("Approved by"), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
-    approved_on = models.DateField(_("Approved on"), blank=True, null=True)
+    requested_on = models.DateField(_("Requested on"), auto_now_add=True, null=True)
+    IT_reviewed_by = models.ForeignKey(User, verbose_name=_("IT reviewed by"), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
+    IT_reviewed_on = models.DateField(_("IT reviewed on"), blank=True, null=True)
 
     def __str__(self):
         # return '%s Scrapping Request %s by %s on %s, Approved by %s on %s' % (self.case_id, self.status, self.requested_by, str(self.requested_on), self.approved_by, str(self.approved_on))
-        return str(self.request_id)
+        return str(self.id)
 
     def get_absolute_url(self):
         return reverse("nanopay:payment-request-detail", kwargs={"pk": self.pk})
 
     class Meta:
-        ordering = ['requested_on', ]
+        ordering = ['-status', 'requested_on', ]
 
 
 class PaymentTerm(models.Model):
@@ -62,7 +62,7 @@ class PaymentTerm(models.Model):
     recurring = models.DecimalField(_("Recurring"), max_digits=2, decimal_places=0, default=1)
     amount = models.FloatField(_("Amount"))
     # paid = models.BooleanField(_("Paid"), default=False)
-    paid_on = models.DateField(_("Paid on"), null=True, blank=True)
+    applied_on = models.DateField(_("Applied on"), null=True, blank=True)
     contract = models.ForeignKey("nanopay.Contract", verbose_name=_("Contract"), on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
@@ -102,7 +102,7 @@ class Contract(models.Model):
     scanned_copy = models.FileField(_("Scanned Copy"),
                                     # upload_to='contract_scanned_copy/%Y/',
                                     upload_to=contract_scanned_copy_path,
-                                    max_length=100, null=True, blank=True)
+                                    max_length=256, null=True, blank=True)
     
     non_payroll_expense = models.ForeignKey("nanopay.NonPayrollExpense", verbose_name=_("Non Payroll Expense"), on_delete=models.SET_NULL, null=True, blank=True)
     assets = models.ManyToManyField("nanoassets.Instance", verbose_name=_("Assets associated with"), blank=True)
@@ -229,7 +229,7 @@ class NonPayrollExpense(models.Model):
     is_direct_cost = models.CharField(_("Is Direct Cost"), choices=ID_DIRECT_COST, max_length=1, default='N')
 
     created_by = models.ForeignKey(User, verbose_name=_("Created by"), on_delete=models.SET_NULL, null=True)
-    created_on = models.DateField(_("Created on"), null=True)
+    created_on = models.DateField(_("Created on"), auto_now_add=True, null=True)
 
     def __str__(self):
         return self.description

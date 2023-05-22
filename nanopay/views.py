@@ -17,10 +17,57 @@ from django.utils import timezone
 from django.views import generic
 from django.views.generic.edit import CreateView
 
-from .models import Contract, PaymentTerm, NonPayrollExpense
-from .forms import NewContractForm, NewPaymentTermForm
+from .models import Contract, PaymentTerm, PaymentRequest, NonPayrollExpense
+from .forms import NewContractForm, NewPaymentTermForm, NewPaymentRequestForm
 
 # Create your views here.
+
+class PaymentRequestDetailView(LoginRequiredMixin, generic.DetailView):
+    model = PaymentRequest
+
+class PaymentRequestListView(LoginRequiredMixin, generic.ListView):
+    model = PaymentRequest
+    template_name = 'nanopay/payment_request_list.html'
+    paginate_by = 10
+
+@login_required
+def new_payment_request(request, pk):
+    payment_term = get_object_or_404(PaymentTerm, pk=pk)
+    times = str(PaymentRequest.objects.filter(payment_term=payment_term).count() + 1) + ' / ' + str(PaymentTerm.objects.filter(contract=payment_term.contract).count())
+    if request.method == 'POST':
+        form = NewPaymentRequestForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_payment_request = PaymentRequest()
+            new_payment_request.payment_term = payment_term
+            new_payment_request.non_payroll_expense = get_object_or_404(NonPayrollExpense, description=form.cleaned_data['non_payroll_expense'])
+            new_payment_request.amount = form.cleaned_data.get('amount')
+            new_payment_request.scanned_copy = form.cleaned_data['scanned_copy']
+            new_payment_request.requested_by = request.user
+
+            new_payment_request.save()
+
+            payment_term.contract.activityhistory_set.create(
+                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 
+                'the ( ' + times + ' ) Payment Request [ ' + str(new_payment_request.id) + ' ] was submitted by ' + request.user.get_full_name()
+                )
+            
+            messages.info(request, 'the ( ' + times + ' ) Payment Request [ ' + str(new_payment_request.id) + ' ] was submitted by ' + request.user.get_full_name())
+    else:
+        non_payroll_expenses = NonPayrollExpense.objects.all()
+        
+        form = NewPaymentRequestForm(
+            initial={
+
+            })
+        return render(request, 'nanopay/payment_request_new.html', {
+            'form': form,
+            'non_payroll_expenses': non_payroll_expenses,
+            'payment_term': payment_term,
+            'times': times,
+            })
+
+    return render(request, 'nanopay/payment_request_new.html', {'form': form,})
+
 
 @login_required
 def new_payment_term(request, pk):

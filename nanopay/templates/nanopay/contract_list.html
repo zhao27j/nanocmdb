@@ -25,9 +25,9 @@
         <th>Party B</th>
         <th>Project</th>
         <th>Type</th>
-        <th>Non Payroll Expense</th>
-        <th>Total amount</th>
-        <th>Total months</th>
+        <th>non Payroll Expense</th>
+        <th>Amount</th>
+        <th>Duration</th>
         <th>Remaining</th>
       </tr>
       {% for contract in contract_list %}
@@ -38,17 +38,17 @@
         <td><small>{{ contract.get_prjct }}</small></td>
         <td><small>{{ contract.get_type_display }}</small></td>
         <td><small>{{ contract.non_payroll_expense }}</small></td>
-        <td>¥<small>{{ contract.get_total_amount.amount__sum|floatformat:"2g" }}</small></td>
+        <td><small>¥{{ contract.get_total_amount.amount__sum|floatformat:"2g" }}</small></td>
         <td>
           {% if contract.get_duration_in_month == 'pay-as-you-go' %}
-          <small>{{ contract.get_duration_in_month }}</small>
+          <small>[{{ contract.get_duration_in_month }}]</small>
           {% else %}
-          <small>{{ contract.get_duration_in_month }}</small>🈷️
+          <small>{{ contract.get_duration_in_month }}</small> 🈷️
           {% endif %}
         </td>
         <td>
           {% if contract.get_time_remaining_in_percent == 'pay-as-you-go' %}
-          <small>{{ contract.get_time_remaining_in_percent }}</small>
+          <small>[{{ contract.get_time_remaining_in_percent }}]</small>
           {% elif contract.get_time_remaining_in_percent > 0 %}
           <div class="progress" role="progressbar" aria-label="Info example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
             <div class="progress-bar bg-info" style="width: {{ contract.get_time_remaining_in_percent }}%">{{ contract.get_time_remaining_in_percent }}%</div>

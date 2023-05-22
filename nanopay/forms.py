@@ -6,33 +6,67 @@ import pathlib
 from typing import Any, Dict
 
 from django import forms
-from django.forms import TextInput, Select, NumberInput, modelformset_factory
+from django.forms import TextInput, Select, NumberInput, ClearableFileInput, modelformset_factory
 
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404
 
-from .models import Contract, LegalEntity, PaymentTerm
+from .models import Contract, LegalEntity, PaymentTerm, PaymentRequest
 
 class NewPaymentRequestForm(forms.Form):
+    non_payroll_expense = forms.CharField(required=True, max_length=128, widget=TextInput(attrs={
+        "list": "non_payroll_expenses",
+        "class": "form-control",
+    }))
 
-    pass
+    amount = forms.DecimalField(required=True, max_digits=8, decimal_places=2, widget=NumberInput(attrs={
+        "class": "form-control",
+        "placeholder": "the amount presented on the invoice"
+        }))
+    scanned_copy = forms.FileField(required=True, help_text=".pdf is acceptable Only", 
+                                   widget=ClearableFileInput(attrs={"class": "form-control",}))
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        amount = cleaned_data.get('amount')
+        if amount <= 0:
+            raise ValidationError(_("amount must be a positive number"))
+
+        scanned_copy = cleaned_data.get('scanned_copy')
+        # scanned_copy_ext = pathlib.Path(scanned_copy.name).suffix
+        if not pathlib.Path(scanned_copy.name).suffix in ['.pdf', ]:
+            raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
+        
+        if not scanned_copy.content_type == 'application/pdf':
+            raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
+
+        # return super().clean()
+
+        
 
 class NewPaymentTermForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
-        contract = cleaned_data.get("contract")
+        
+        contract = cleaned_data.get('contract')
+        
         pay_day = cleaned_data.get('pay_day')
-        plan = cleaned_data.get('plan')
-        recurring = abs(cleaned_data.get('recurring'))
         if pay_day < contract.startup:
             raise ValidationError(_("the scheduled Pay date should NOT be later than the Start date defined in the Contract"))
         
+        recurring = abs(cleaned_data.get('recurring'))
         if recurring == 0:
             raise ValidationError(_("the value of Recurring must be > 0"))
 
+        plan = cleaned_data.get('plan')
         if plan == 'C' and recurring != 1:
             raise ValidationError(_("the Recurring for Custom plan must be = 1 "))
+        
+        amount = cleaned_data.get('amount')
+        if amount <= 0:
+            raise ValidationError(_("amount must be a positive number"))
         
         # return super().clean()
     

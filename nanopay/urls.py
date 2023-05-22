@@ -14,4 +14,7 @@ urlpatterns = [
 
 urlpatterns += {
     path('payment_term/<int:pk>/new/', views.new_payment_term, name='payment-term-new'),
+    path('payment_request/<int:pk>/new/', views.new_payment_request, name='payment-request-new'),
+    path('payment_requests', views.PaymentRequestListView.as_view(), name='payment-request-list'),
+    path('payment/<pk>/detail/', views.PaymentRequestDetailView.as_view(), name='payment-request-detail'),
 }
