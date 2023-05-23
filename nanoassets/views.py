@@ -38,9 +38,9 @@ def InstanceScrappingRequestApproved(request, pk):
             scrappedInstance.status = 'SCRAPPED'
             scrappedInstance.save()
 
-        reviewer_emails = []
+        IT_reviewer_emails = []
         for reviewer in User.objects.filter(groups__name='IT Reviewer'):
-            reviewer_emails.append(reviewer.email)
+            IT_reviewer_emails.append(reviewer.email)
 
         message = get_template("nanoassets/instance_scrapping_request_approved_email.html").render({
             'protocol': 'http',
@@ -54,7 +54,7 @@ def InstanceScrappingRequestApproved(request, pk):
             body=message,
             from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
             to=[scrapRequest.requested_by.email],
-            cc=reviewer_emails,
+            cc=IT_reviewer_emails,
             # reply_to=[EMAIL_ADMIN],
             # connection=
         )
@@ -97,9 +97,9 @@ def InstanceBulkUpd(request):
                     selected_instance.scrap_request = new_scrap_request
                     selected_instance.save()
 
-                reviewer_emails = []
+                IT_reviewer_emails = []
                 for reviewer in User.objects.filter(groups__name='IT Reviewer'):
-                    reviewer_emails.append(reviewer.email)
+                    IT_reviewer_emails.append(reviewer.email)
 
                 message = get_template("nanoassets/instance_scrapping_request_email.html").render({
                     'protocol': 'http',
@@ -107,11 +107,10 @@ def InstanceBulkUpd(request):
                     'new_scrap_request': new_scrap_request,
                 })
                 mail = EmailMessage(
-                    subject='ITS express - Please approve - scrapping IT assets requested by ' +
-                    new_scrap_request.requested_by.get_full_name(),
+                    subject='ITS express - Please approve - scrapping IT assets requested by ' + new_scrap_request.requested_by.get_full_name(),
                     body=message,
                     from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
-                    to=reviewer_emails,
+                    to=IT_reviewer_emails,
                     cc=[request.user.email],
                     # reply_to=[EMAIL_ADMIN],
                     # connection=

@@ -4,15 +4,18 @@ import pathlib
 from typing import Any, Dict
 
 from django.core.files import File
+from django.core.mail import EmailMessage
+from django.utils import timezone
 
 from django.http import FileResponse, Http404
+from django.template.loader import get_template
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 
 from django.contrib import messages
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.utils import timezone
 
 from django.views import generic
 from django.views.generic.edit import CreateView
@@ -22,48 +25,131 @@ from .forms import NewContractForm, NewPaymentTermForm, NewPaymentRequestForm
 
 # Create your views here.
 
+def payment_request_approved(request, pk):
+    payment_request = get_object_or_404(PaymentRequest, pk=pk)
+    payment_request.status = 'A'
+    payment_request.IT_reviewed_by = request.user
+    payment_request.IT_reviewed_on = datetime.date.today()
+    payment_request.save()
+
+    payment_request.payment_term.contract.activityhistory_set.create(
+        description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 
+        'the Payment Request [ ' + str(payment_request.id) + ' ] was approved by ' + request.user.get_full_name()
+        )
+    
+    messages.info(request, 'the Approval decision for the Payment Request [ ' + str(payment_request.id) + ' ] was sent')
+
+    message = get_template("nanopay/payment_request_approved_email.html").render({
+        'protocol': 'http',
+        'domain': '127.0.0.1:8000',
+        'payment_request': payment_request,
+    })
+    mail = EmailMessage(
+        subject='ITS express - Please noticed - Payment Request approved by ' + payment_request.requested_by.get_full_name(),
+        body=message,
+        from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
+        to=[payment_request.requested_by.email],
+        cc=[request.user.email],
+        # reply_to=[EMAIL_ADMIN],
+        # connection=
+    )
+    mail.content_subtype = "html"
+    mail.send()
+
+    # return redirect('nanopay:contract-detail', pk=payment_request.payment_term.contract.pk) # redirect to a new URL:
+    return redirect('nanopay:payment-request-list')
+
+
 class PaymentRequestDetailView(LoginRequiredMixin, generic.DetailView):
     model = PaymentRequest
+
+
+@login_required
+def payment_request_detail_invoice_scanned_copy(request, pk):
+    payment_request = get_object_or_404(PaymentRequest, pk=pk)
+    invoice_scanned_copy_path = payment_request.scanned_copy.name
+    try:
+        invoice_scanned_copy = open(invoice_scanned_copy_path, 'rb')
+        return FileResponse(invoice_scanned_copy, content_type='application/pdf')
+    except FileNotFoundError:
+        raise Http404
+
 
 class PaymentRequestListView(LoginRequiredMixin, generic.ListView):
     model = PaymentRequest
     template_name = 'nanopay/payment_request_list.html'
     paginate_by = 10
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
 @login_required
-def new_payment_request(request, pk):
+def payment_request_new(request, pk):
     payment_term = get_object_or_404(PaymentTerm, pk=pk)
-    times = str(PaymentRequest.objects.filter(payment_term=payment_term).count() + 1) + ' / ' + str(PaymentTerm.objects.filter(contract=payment_term.contract).count())
+    # times = str(PaymentRequest.objects.filter(payment_term=payment_term).count() + 1) + '/' + str(PaymentTerm.objects.filter(contract=payment_term.contract).count())
     if request.method == 'POST':
         form = NewPaymentRequestForm(request.POST, request.FILES)
         if form.is_valid():
-            new_payment_request = PaymentRequest()
-            new_payment_request.payment_term = payment_term
-            new_payment_request.non_payroll_expense = get_object_or_404(NonPayrollExpense, description=form.cleaned_data['non_payroll_expense'])
-            new_payment_request.amount = form.cleaned_data.get('amount')
+            new_payment_request = PaymentRequest.objects.create(
+                requested_by=request.user,
+                payment_term=payment_term,
+                # times=times,
+                non_payroll_expense=get_object_or_404(NonPayrollExpense, description=form.cleaned_data['non_payroll_expense']),
+                amount=form.cleaned_data.get('amount'),
+                )
             new_payment_request.scanned_copy = form.cleaned_data['scanned_copy']
-            new_payment_request.requested_by = request.user
-
+            
             new_payment_request.save()
+
+            payment_term.applied_on = new_payment_request.requested_on
+            payment_term.save()
 
             payment_term.contract.activityhistory_set.create(
                 description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 
-                'the ( ' + times + ' ) Payment Request [ ' + str(new_payment_request.id) + ' ] was submitted by ' + request.user.get_full_name()
+                'the Payment Request [ ' + str(new_payment_request.id) + ' ] was submitted by ' + request.user.get_full_name()
                 )
             
-            messages.info(request, 'the ( ' + times + ' ) Payment Request [ ' + str(new_payment_request.id) + ' ] was submitted by ' + request.user.get_full_name())
+            messages.info(request, 'the notification for the Payment Request [ ' + str(new_payment_request.id) + ' ] was sent')
+
+            IT_reviewer_emails = []
+            for reviewer in User.objects.filter(groups__name='IT Reviewer'):
+                IT_reviewer_emails.append(reviewer.email)
+
+            message = get_template("nanopay/payment_request_new_email.html").render({
+                'protocol': 'http',
+                'domain': '127.0.0.1:8000',
+                'new_payment_request': new_payment_request,
+            })
+            mail = EmailMessage(
+                subject='ITS express - Please approve - Payment Request submitted by ' + new_payment_request.requested_by.get_full_name(),
+                body=message,
+                from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
+                to=IT_reviewer_emails,
+                cc=[request.user.email],
+                # reply_to=[EMAIL_ADMIN],
+                # connection=
+            )
+            mail.content_subtype = "html"
+            mail.send()
+
+            return redirect('nanopay:contract-detail', pk=payment_term.contract.pk) # redirect to a new URL:
+            # return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面 (在此不适合)
+            # return redirect(request.path) # 重定向 至 当前 页面 (在此不适合)
     else:
         non_payroll_expenses = NonPayrollExpense.objects.all()
         
         form = NewPaymentRequestForm(
             initial={
+                'amount': payment_term.amount,
 
             })
         return render(request, 'nanopay/payment_request_new.html', {
             'form': form,
             'non_payroll_expenses': non_payroll_expenses,
             'payment_term': payment_term,
-            'times': times,
+            # 'times': times,
             })
 
     return render(request, 'nanopay/payment_request_new.html', {'form': form,})
@@ -117,7 +203,7 @@ def new_payment_term(request, pk):
     else: # if this is a GET (or any other method) create the default form.
         pay_day = contract.startup + datetime.timedelta(weeks=4.33333)
         form = NewPaymentTermForm(initial={
-            'pay_day': pay_day, 
+            'pay_day': pay_day,
             'contract': contract,
             })
 
