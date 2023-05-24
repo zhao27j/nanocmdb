@@ -28,7 +28,6 @@ class PaymentRequest(models.Model):
     )
     status = models.CharField(_("Request status"), choices=REQUEST_STATUS, default='I', max_length=1)
     payment_term = models.ForeignKey("nanopay.PaymentTerm", verbose_name=_("Payment Term"), on_delete=models.SET_NULL, null=True, blank=True)
-    # times = models.CharField(_("Times of Payment"), max_length=8, null=True, blank=True)
     non_payroll_expense = models.ForeignKey("nanopay.NonPayrollExpense", verbose_name=_("Non Payroll Expense"), on_delete=models.SET_NULL, null=True, blank=True)
     amount = models.DecimalField(_("Invoice Amount"), max_digits=8, decimal_places=2, null=True)
     scanned_copy = models.FileField(_("Scanned Copy of Invoice"), upload_to=invoice_scanned_copy_path, max_length=256, null=True, blank=True)
@@ -62,7 +61,6 @@ class PaymentTerm(models.Model):
     plan = models.CharField(_("Plan"), choices=PAYMENT_PLAN, default='M', max_length=1)
     recurring = models.DecimalField(_("Recurring"), max_digits=2, decimal_places=0, default=1)
     amount = models.FloatField(_("Amount"))
-    # paid = models.BooleanField(_("Paid"), default=False)
     applied_on = models.DateField(_("Applied on"), null=True, blank=True)
     contract = models.ForeignKey("nanopay.Contract", verbose_name=_("Contract"), on_delete=models.SET_NULL, null=True)
 
@@ -120,7 +118,7 @@ class Contract(models.Model):
          if self.endup:
             return (self.endup.year - self.startup.year) * 12 + (self.endup.month - self.startup.month)
          else:
-             return 'pay-as-you-go'
+             return 'NA'
     
     def get_time_passed_in_month(self):
             return round((datetime.date.today() - self.startup).days / 30)
@@ -193,6 +191,7 @@ class Prjct(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class NonPayrollExpense(models.Model):
     non_payroll_expense_year = models.DecimalField(_("Budget Year"), max_digits=4, decimal_places=0, default=datetime.datetime.now().year)

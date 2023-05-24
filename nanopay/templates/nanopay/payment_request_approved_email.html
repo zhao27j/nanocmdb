@@ -43,8 +43,8 @@
         <td><small>{{ payment_request.payment_term.contract.get_party_b_display }}</small></td>
       </tr>
       <tr>
-        <td><small>Applied Amount vs. Contract Amount :</small></td>
-        <td><small>¥ {{ payment_request.payment_term.contract.get_total_amount_applied.amount__sum|floatformat:"2g" }} / {{ payment_request.payment_term.contract.get_total_amount.amount__sum|floatformat:"2g" }}</small></td>
+        <td><small>Amount :</small></td>
+        <td><small>￥ {{ payment_request.payment_term.contract.get_total_amount.amount__sum|floatformat:"2g" }} (¥ {{ payment_request.payment_term.contract.get_total_amount_applied.amount__sum|floatformat:"2g" }} applied)</small></td>
         <td><small>Duration :</small></td>
         <td>
           <small>{{ payment_request.payment_term.contract.get_time_passed_in_month }}</small> / 
@@ -64,7 +64,7 @@
         <td><small>{{ payment_request.non_payroll_expense }}</small></td>
       </tr>
       <tr>
-        <td><small><b>Sub total for {{ payment_request.non_payroll_expense.non_payroll_expense_year }} :</b></small></td>
+        <td><small><b>sub Total for {{ payment_request.non_payroll_expense.non_payroll_expense_year }} :</b></small></td>
         <td><small>￥{{ payment_request.non_payroll_expense.get_non_payroll_expense_subtotal|floatformat:"2g" }}</small></td>
       </tr>
     </table>
@@ -73,7 +73,7 @@
       <tr><td colspan="4"><h3>Invoice</h3></td></tr>
       <tr>
         <td><small><b>Amount :</b></small></td>
-        <td><small>￥{{ payment_request.amount|floatformat:"2g" }}</small></td>
+        <td><small>￥ {{ payment_request.amount|floatformat:"2g" }}</small></td>
       </tr>
     </table>
     <br />

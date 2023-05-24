@@ -25,6 +25,7 @@ from .forms import NewContractForm, NewPaymentTermForm, NewPaymentRequestForm
 
 # Create your views here.
 
+@login_required
 def payment_request_approved(request, pk):
     payment_request = get_object_or_404(PaymentRequest, pk=pk)
     payment_request.status = 'A'
@@ -88,7 +89,7 @@ class PaymentRequestListView(LoginRequiredMixin, generic.ListView):
 @login_required
 def payment_request_new(request, pk):
     payment_term = get_object_or_404(PaymentTerm, pk=pk)
-    # times = str(PaymentRequest.objects.filter(payment_term=payment_term).count() + 1) + '/' + str(PaymentTerm.objects.filter(contract=payment_term.contract).count())
+    non_payroll_expenses = NonPayrollExpense.objects.all()
     if request.method == 'POST':
         form = NewPaymentRequestForm(request.POST, request.FILES)
         if form.is_valid():
@@ -138,21 +139,16 @@ def payment_request_new(request, pk):
             # return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面 (在此不适合)
             # return redirect(request.path) # 重定向 至 当前 页面 (在此不适合)
     else:
-        non_payroll_expenses = NonPayrollExpense.objects.all()
-        
         form = NewPaymentRequestForm(
             initial={
                 'amount': payment_term.amount,
-
-            })
-        return render(request, 'nanopay/payment_request_new.html', {
-            'form': form,
-            'non_payroll_expenses': non_payroll_expenses,
-            'payment_term': payment_term,
-            # 'times': times,
             })
 
-    return render(request, 'nanopay/payment_request_new.html', {'form': form,})
+    return render(request, 'nanopay/payment_request_new.html', {
+        'form': form,
+        'non_payroll_expenses': non_payroll_expenses,
+        'payment_term': payment_term,
+        })
 
 
 @login_required
@@ -232,7 +228,7 @@ def new_contract(request):
             new_contract.briefing = form.cleaned_data['briefing']
             
             new_contract.type = form.cleaned_data['type']
-            new_contract.non_payroll_expense = get_object_or_404(NonPayrollExpense, description=form.cleaned_data['non_payroll_expense'])
+            # new_contract.non_payroll_expense = get_object_or_404(NonPayrollExpense, description=form.cleaned_data['non_payroll_expense'])
 
             new_contract.startup = form.cleaned_data['startup']
             new_contract.endup = form.cleaned_data['endup']
@@ -256,7 +252,7 @@ def new_contract(request):
     else: # if this is a GET (or any other method) create the default form.
         startup = datetime.date.today()
         endup = datetime.date.today() + datetime.timedelta(weeks=12)
-        non_payroll_expenses = NonPayrollExpense.objects.all()
+        # non_payroll_expenses = NonPayrollExpense.objects.all()
         
         form = NewContractForm(
             initial={
@@ -265,7 +261,7 @@ def new_contract(request):
                 })
         return render(request, 'nanopay/contract_new.html', {
             'form': form,
-            'non_payroll_expenses': non_payroll_expenses,
+            # 'non_payroll_expenses': non_payroll_expenses,
             })
 
     return render(request, 'nanopay/contract_new.html', {'form': form,})
@@ -275,6 +271,25 @@ class ContractListView(LoginRequiredMixin, generic.ListView):
     model = Contract
     # paginate_by = 10
 
+    """
+    def get_queryset(self):
+        return super().get_queryset()
+    """
+
 
 class ContractDetailView(LoginRequiredMixin, generic.DetailView):
     model = Contract
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.object.paymentterm_set.all():
+            payment_term = self.object.paymentterm_set.all().first()
+            if payment_term.paymentrequest_set.all():
+                payment_request = payment_term.paymentrequest_set.all().first()
+                non_payroll_expense = payment_request.non_payroll_expense
+                context["non_payroll_expense"] = non_payroll_expense
+            else:
+                context["non_payroll_expense"] = '[yet associated]'
+        else:
+            context["non_payroll_expense"] = '[yet associated]'
+        return context

@@ -29,7 +29,7 @@
       <td><div class="fieldWrapper"><label for="{{ form.party_b_list.id_for_label }} "><small>Party B</small></label></div></td>
       <td><div class="fieldWrapper">{{ form.party_b_list.errors }} {{ form.party_b_list }}</div></td>
     </tr>
-    <tr>
+    <!-- <tr>
       <td><div class="fieldWrapper"><label for="{{ form.non_payroll_expense.id_for_label }} "><small>non Payroll Expense</small></label></div></td>
       <td >
         <div class="fieldWrapper">
@@ -41,10 +41,7 @@
           </datalist>
         </div>
       </td>
-      <td><div class="fieldWrapper"><label for="{{ form.type.id_for_label }} "><small>Type</small></label></div></td>
-      <td ><div class="fieldWrapper">{{ form.type.errors }}{{ form.type }}</div></td>
-    </tr>
-
+    </tr> -->
     <tr>
       <td><div class="fieldWrapper"><label for="{{ form.startup.id_for_label }} "><small>From</small></label></div></td>
       <td><div class="fieldWrapper"> {{ form.startup.errors }} {{ form.startup }}</div></td>
@@ -52,10 +49,12 @@
       <td><div class="fieldWrapper">{{ form.endup.errors }} {{ form.endup }}</div></td>
     </tr>
     <tr>
-      <td colspan="4"><div class="fieldWrapper"> {{ form.scanned_copy.errors }} {{ form.scanned_copy }}</div></td>
+      <td><div class="fieldWrapper"><label for="{{ form.type.id_for_label }} "><small>Type</small></label></div></td>
+      <td ><div class="fieldWrapper">{{ form.type.errors }}{{ form.type }}</div></td>
+      <td colspan="2"><div class="fieldWrapper"> {{ form.scanned_copy.errors }} {{ form.scanned_copy }}</div></td>
     </tr>
   </table>
-  <input type="submit" value="add" class="btn btn-outline-primary d-inline-flex align-items-center"/>
+  <input type="submit" value="new" class="btn btn-outline-primary d-inline-flex align-items-center"/>
 </form>
 {% else %}
 <p>You're not the authorized IT staff</p>

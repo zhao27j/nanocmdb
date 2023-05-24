@@ -12,7 +12,7 @@ from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404
 
-from .models import Contract, LegalEntity, PaymentTerm, PaymentRequest
+from .models import Contract, LegalEntity, PaymentTerm, PaymentRequest, NonPayrollExpense
 
 class NewPaymentRequestForm(forms.Form):
     non_payroll_expense = forms.CharField(required=True, max_length=128, widget=TextInput(attrs={
@@ -30,12 +30,17 @@ class NewPaymentRequestForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
 
+        non_payroll_expense_description = cleaned_data.get('non_payroll_expense').strip()
+        if not NonPayrollExpense.objects.filter(description=non_payroll_expense_description):
+            raise ValidationError(_("invalid non Payroll Expense"))
+
         amount = cleaned_data.get('amount')
         if amount <= 0:
-            raise ValidationError(_("amount must be a positive number"))
+            raise ValidationError(_("amount of Invoice must be a positive number"))
 
         scanned_copy = cleaned_data.get('scanned_copy')
-        # scanned_copy_ext = pathlib.Path(scanned_copy.name).suffix
+        if len(pathlib.Path(scanned_copy.name).name) > 128:
+            raise ValidationError(_("the full file name uploaded is great than 128"))
         if not pathlib.Path(scanned_copy.name).suffix in ['.pdf', ]:
             raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
         
@@ -44,7 +49,6 @@ class NewPaymentRequestForm(forms.Form):
 
         # return super().clean()
 
-        
 
 class NewPaymentTermForm(forms.ModelForm):
     def clean(self):
@@ -104,7 +108,10 @@ class NewPaymentTermForm(forms.ModelForm):
 
 
 class NewContractForm(forms.Form):
-    briefing = forms.CharField(required=True, widget=forms.TextInput(attrs={"placeholder": "briefing the main purpose of the contract ...", "class": "form-control",}))
+    briefing = forms.CharField(required=True, widget=forms.TextInput(attrs={
+        "placeholder": "briefing the purpose of the New contract here which must be Unique ...",
+        "class": "form-control",
+        }))
     
     party_a_list = forms.ModelMultipleChoiceField(required=True, queryset=None, widget=forms.SelectMultiple(attrs={"class": "form-select",}))
     party_b_list = forms.ModelMultipleChoiceField(required=True, queryset=None, widget=forms.SelectMultiple(attrs={"class": "form-select",}))
@@ -149,10 +156,10 @@ class NewContractForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
         
-        briefing = cleaned_data.get('briefing')
+        briefing = cleaned_data.get('briefing').strip()
         contracts = Contract.objects.filter(briefing=briefing.strip())
         if contracts:
-            raise ValidationError(_("contract with the same Briefing already exists"))
+            raise ValidationError(_("contract with the Briefing already exists"))
 
         startup = cleaned_data.get("startup")
         endup = cleaned_data.get("endup")
@@ -160,7 +167,8 @@ class NewContractForm(forms.Form):
             raise ValidationError(_("the End date should NOT be later than the Start date"))
 
         scanned_copy = cleaned_data.get("scanned_copy")
-        # scanned_copy_ext = pathlib.Path(scanned_copy.name).suffix
+        if len(pathlib.Path(scanned_copy.name).name) > 128:
+            raise ValidationError(_("the full file name uploaded is great than 128"))
         if not pathlib.Path(scanned_copy.name).suffix in ['.pdf', ]:
             raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
         
