@@ -31,7 +31,11 @@
       {% for payment_request in paymentrequest_list %}
       <tr>
         <td><input type="checkbox" name="payment_request" id="payment_request{{ forloop.counter }}" value="{{ payment_request.pk }}"/></td>
-        <td><small>{{ payment_request.get_status_display }}</small></td>
+        <td>
+          <a href="{% url 'nanopay:paper-form' payment_request.pk %}">
+            <small>{{ payment_request.get_status_display }}</small>
+          </a>
+        </td>
         <td>
           <small>￥{{ payment_request.amount|floatformat:"2g" }}</small>
           <a href="{% url 'nanopay:payment-request-detail-invoice-scanned-copy' payment_request.pk %}">

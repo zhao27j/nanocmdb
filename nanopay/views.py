@@ -1,14 +1,16 @@
+from io import BytesIO
 import datetime
 import pathlib
 
 from typing import Any, Dict
+from xhtml2pdf import pisa
 
 from django.core.files import File
 from django.core.mail import EmailMessage
 from django.utils import timezone
 
-from django.http import FileResponse, Http404
-from django.template.loader import get_template
+from django.http import HttpResponse, Http404, FileResponse
+from django.template.loader import get_template, render_to_string
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 
@@ -25,12 +27,107 @@ from .forms import NewContractForm, NewPaymentTermForm, NewPaymentRequestForm
 
 # Create your views here.
 
+def html_2_pdf(request, pk):
+    payment_request = get_object_or_404(PaymentRequest, pk=pk)
+    context = {
+        "payer": payment_request.payment_term.contract.get_party_a_display(),
+        "date_of_request": payment_request.requested_on,
+        "payment_due_date": '',
+        "contract_amount": payment_request.payment_term.contract.get_total_amount(),
+        "contract_accumulated_payment_excluded_this_request": payment_request.payment_term.contract.get_total_amount_applied(),
+        "included_in_the_budget_yes": '✔️',
+        "included_in_the_budget_no": '☐',
+        "budget_dept_code_budget_originator": payment_request.non_payroll_expense.functional_department,
+        "budget_expense_category_major_and_minor": payment_request.non_payroll_expense.global_gl_account,
+        "total_budget_amount_in_gbs_minor_category": payment_request.non_payroll_expense.get_non_payroll_expense_subtotal(),
+        "accumulated_payment_excluded_this_request": '',
+        "remaining_budget_after_this_payment": '',
+        "job_code": payment_request.non_payroll_expense.global_expense_tracking_id,
+        "item_1_description": payment_request.non_payroll_expense.description,
+        "item_1_amount": payment_request.amount,
+        "item_1_allocation_code": payment_request.non_payroll_expense.allocation,
+        "item_1_allocation_percentage": '100%',
+        "item_1_allocated_amount": payment_request.amount,
+        "total_amount": payment_request.amount,
+        "total_allocated_amount": payment_request.amount,
+        "transfer_petty_cash": "☐",
+        "transfer_check": "☐",
+        "transfer_wire": "✔️",
+        "payee": payment_request.payment_term.contract.get_party_b_display(),
+        "bank_information_deposit": '中国银行上海分行鞍山路支行',
+        "bank_information_deposit_account": '433864745236',
+    }
+
+    template_path = "nanopay/payment_request_paper_form.html" # find the template and render it.
+    template = get_template(template_path)
+    # context = {'myvar': 'this is your template context'}
+    # html = template.render(context)
+    html = render_to_string(template_path, context)
+    io_bytes = BytesIO()
+    # write_to_file = open('uploads/payment_request/paper_form.pdf', 'w+b')
+    # result = pisa.CreatePDF(html.encode("UTF-8"), dest=write_to_file)
+    # write_to_file.close()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), io_bytes)
+    
+    if not pdf.err:
+        return HttpResponse(io_bytes.getvalue(), content_type='application/pdf')
+    else:
+        return HttpResponse(pdf.err)
+
+    """
+    response = HttpResponse(content_type='application/pdf') # Create a Django response object, and specify content_type as pdf
+    response['Content-Disposition'] = 'attachment; filename="paper_form.pdf"'
+    pisa_status = pisa.CreatePDF( # create a pdf
+       html, 
+       dest=response, 
+       # dest=BytesIO(),
+       # link_callback=link_callback,
+       )
+
+    if pisa_status.err: # if error then show some funny view
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    
+    return response
+    """
+
 @login_required
 def payment_request_approved(request, pk):
     payment_request = get_object_or_404(PaymentRequest, pk=pk)
     payment_request.status = 'A'
     payment_request.IT_reviewed_by = request.user
     payment_request.IT_reviewed_on = datetime.date.today()
+
+    context = {
+        "payer": payment_request.payment_term.contract.get_party_a_display(),
+        "date_of_request": payment_request.requested_on,
+        "payment_due_date": '',
+        "contract_amount": payment_request.payment_term.contract.get_total_amount(),
+        "contract_accumulated_payment_excluded_this_request": payment_request.payment_term.contract.get_total_amount_applied(),
+        "included_in_the_budget_yes": '✔️',
+        "included_in_the_budget_no": '☐',
+        "budget_dept_code_budget_originator": payment_request.non_payroll_expense.functional_department,
+        "budget_expense_category_major_and_minor": payment_request.non_payroll_expense.global_gl_account,
+        "total_budget_amount_in_gbs_minor_category": payment_request.non_payroll_expense.get_non_payroll_expense_subtotal(),
+        "accumulated_payment_excluded_this_request": '',
+        "remaining_budget_after_this_payment": '',
+        "job_code": payment_request.non_payroll_expense.global_expense_tracking_id,
+        "item_1_description": payment_request.non_payroll_expense.description,
+        "item_1_amount": payment_request.amount,
+        "item_1_allocation_code": payment_request.non_payroll_expense.allocation,
+        "item_1_allocation_percentage": '100%',
+        "item_1_allocated_amount": payment_request.amount,
+        "total_amount": payment_request.amount,
+        "total_allocated_amount": payment_request.amount,
+        "transfer_petty_cash": "☐",
+        "transfer_check": "☐",
+        "transfer_wire": "✔️",
+        "payee": payment_request.payment_term.contract.get_party_b_display(),
+        "bank_information_deposit": '中国银行上海分行鞍山路支行',
+        "bank_information_deposit_account": '433864745236',
+    }
+
+    payment_request.paper_form = render_pdf_view(context)
+
     payment_request.save()
 
     payment_request.payment_term.contract.activityhistory_set.create(
