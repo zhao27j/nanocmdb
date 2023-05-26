@@ -3,7 +3,6 @@ import datetime
 import pathlib
 
 from typing import Any, Dict
-from xhtml2pdf import pisa
 
 from django.core.files import File
 from django.core.mail import EmailMessage
@@ -22,73 +21,59 @@ from django.contrib.auth.decorators import login_required
 from django.views import generic
 from django.views.generic.edit import CreateView
 
-from .models import Contract, PaymentTerm, PaymentRequest, NonPayrollExpense
+from .models import LegalEntity, Contract, PaymentTerm, PaymentRequest, NonPayrollExpense
 from .forms import NewContractForm, NewPaymentTermForm, NewPaymentRequestForm
 
 # Create your views here.
 
-def html_2_pdf(request, pk):
+def payment_request_paper_form(request, pk):
     payment_request = get_object_or_404(PaymentRequest, pk=pk)
+
+    # contract = payment_request.payment_term.contract
+    contract_accumulated_payment_excluded_this_request = 0
+    accumulated_payment_excluded_this_request = 0
+    for paymentTerm in PaymentTerm.objects.filter(contract=payment_request.payment_term.contract):
+        if paymentTerm.paymentrequest_set.all():
+            for payment_req in paymentTerm.paymentrequest_set.all():
+                if paymentTerm.applied_on < payment_request.requested_on:
+                    contract_accumulated_payment_excluded_this_request += payment_req.amount
+                    if paymentTerm.applied_on.year == payment_request.non_payroll_expense.non_payroll_expense_year:
+                        accumulated_payment_excluded_this_request += payment_req.amount
+
     context = {
         "payer": payment_request.payment_term.contract.get_party_a_display(),
         "date_of_request": payment_request.requested_on,
         "payment_due_date": '',
-        "contract_amount": payment_request.payment_term.contract.get_total_amount(),
-        "contract_accumulated_payment_excluded_this_request": payment_request.payment_term.contract.get_total_amount_applied(),
+        "contract_amount": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.payment_term.contract.get_total_amount()['amount__sum']),
+        # "contract_accumulated_payment_excluded_this_request": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.payment_term.contract.get_total_amount_applied()['amount__sum']),
+        "contract_accumulated_payment_excluded_this_request": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(contract_accumulated_payment_excluded_this_request),
         "included_in_the_budget_yes": '✔️',
         "included_in_the_budget_no": '☐',
         "budget_dept_code_budget_originator": payment_request.non_payroll_expense.functional_department,
         "budget_expense_category_major_and_minor": payment_request.non_payroll_expense.global_gl_account,
-        "total_budget_amount_in_gbs_minor_category": payment_request.non_payroll_expense.get_non_payroll_expense_subtotal(),
-        "accumulated_payment_excluded_this_request": '',
+        "total_budget_amount_in_gbs_minor_category": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.non_payroll_expense.get_non_payroll_expense_subtotal()),
+        "accumulated_payment_excluded_this_request": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(accumulated_payment_excluded_this_request),
         "remaining_budget_after_this_payment": '',
         "job_code": payment_request.non_payroll_expense.global_expense_tracking_id,
         "item_1_description": payment_request.non_payroll_expense.description,
-        "item_1_amount": payment_request.amount,
+        "item_1_amount": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.amount),
         "item_1_allocation_code": payment_request.non_payroll_expense.allocation,
         "item_1_allocation_percentage": '100%',
-        "item_1_allocated_amount": payment_request.amount,
-        "total_amount": payment_request.amount,
-        "total_allocated_amount": payment_request.amount,
+        "item_1_allocated_amount": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.amount),
+        "total_amount": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.amount),
+        "total_allocated_amount": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.amount),
         "transfer_petty_cash": "☐",
         "transfer_check": "☐",
         "transfer_wire": "✔️",
         "payee": payment_request.payment_term.contract.get_party_b_display(),
-        "bank_information_deposit": '中国银行上海分行鞍山路支行',
-        "bank_information_deposit_account": '433864745236',
+        "bank_information_deposit": payment_request.payment_term.contract.party_b_list.first().deposit_bank,
+        "bank_information_deposit_account": payment_request.payment_term.contract.party_b_list.first().deposit_bank_account,
     }
+    path = "nanopay/payment_request_paper_form.html" # find the template and render it.
+    template = get_template(path)
+    html = template.render(context)
+    return HttpResponse(html)
 
-    template_path = "nanopay/payment_request_paper_form.html" # find the template and render it.
-    template = get_template(template_path)
-    # context = {'myvar': 'this is your template context'}
-    # html = template.render(context)
-    html = render_to_string(template_path, context)
-    io_bytes = BytesIO()
-    # write_to_file = open('uploads/payment_request/paper_form.pdf', 'w+b')
-    # result = pisa.CreatePDF(html.encode("UTF-8"), dest=write_to_file)
-    # write_to_file.close()
-    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), io_bytes)
-    
-    if not pdf.err:
-        return HttpResponse(io_bytes.getvalue(), content_type='application/pdf')
-    else:
-        return HttpResponse(pdf.err)
-
-    """
-    response = HttpResponse(content_type='application/pdf') # Create a Django response object, and specify content_type as pdf
-    response['Content-Disposition'] = 'attachment; filename="paper_form.pdf"'
-    pisa_status = pisa.CreatePDF( # create a pdf
-       html, 
-       dest=response, 
-       # dest=BytesIO(),
-       # link_callback=link_callback,
-       )
-
-    if pisa_status.err: # if error then show some funny view
-       return HttpResponse('We had some errors <pre>' + html + '</pre>')
-    
-    return response
-    """
 
 @login_required
 def payment_request_approved(request, pk):
@@ -96,37 +81,6 @@ def payment_request_approved(request, pk):
     payment_request.status = 'A'
     payment_request.IT_reviewed_by = request.user
     payment_request.IT_reviewed_on = datetime.date.today()
-
-    context = {
-        "payer": payment_request.payment_term.contract.get_party_a_display(),
-        "date_of_request": payment_request.requested_on,
-        "payment_due_date": '',
-        "contract_amount": payment_request.payment_term.contract.get_total_amount(),
-        "contract_accumulated_payment_excluded_this_request": payment_request.payment_term.contract.get_total_amount_applied(),
-        "included_in_the_budget_yes": '✔️',
-        "included_in_the_budget_no": '☐',
-        "budget_dept_code_budget_originator": payment_request.non_payroll_expense.functional_department,
-        "budget_expense_category_major_and_minor": payment_request.non_payroll_expense.global_gl_account,
-        "total_budget_amount_in_gbs_minor_category": payment_request.non_payroll_expense.get_non_payroll_expense_subtotal(),
-        "accumulated_payment_excluded_this_request": '',
-        "remaining_budget_after_this_payment": '',
-        "job_code": payment_request.non_payroll_expense.global_expense_tracking_id,
-        "item_1_description": payment_request.non_payroll_expense.description,
-        "item_1_amount": payment_request.amount,
-        "item_1_allocation_code": payment_request.non_payroll_expense.allocation,
-        "item_1_allocation_percentage": '100%',
-        "item_1_allocated_amount": payment_request.amount,
-        "total_amount": payment_request.amount,
-        "total_allocated_amount": payment_request.amount,
-        "transfer_petty_cash": "☐",
-        "transfer_check": "☐",
-        "transfer_wire": "✔️",
-        "payee": payment_request.payment_term.contract.get_party_b_display(),
-        "bank_information_deposit": '中国银行上海分行鞍山路支行',
-        "bank_information_deposit_account": '433864745236',
-    }
-
-    payment_request.paper_form = render_pdf_view(context)
 
     payment_request.save()
 
@@ -236,9 +190,17 @@ def payment_request_new(request, pk):
             # return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面 (在此不适合)
             # return redirect(request.path) # 重定向 至 当前 页面 (在此不适合)
     else:
+        payment_term_last = PaymentTerm.objects.filter(contract=payment_term.contract).order_by("applied_on").last()
+        
+        # payment_request_last = PaymentRequest.objects.filter(payment_term__pk=payment_term.pk).order_by("requested_on").last()
+        if payment_term_last:
+            non_payroll_expense_last = payment_term_last.paymentrequest_set.first().non_payroll_expense
+        else:
+            non_payroll_expense_last = ""
         form = NewPaymentRequestForm(
             initial={
                 'amount': payment_term.amount,
+                'non_payroll_expense': non_payroll_expense_last,
             })
 
     return render(request, 'nanopay/payment_request_new.html', {

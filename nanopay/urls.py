@@ -15,7 +15,7 @@ urlpatterns = [
 urlpatterns += {
     path('payment_term/<int:pk>/new/', views.new_payment_term, name='payment-term-new'),
 
-    path('payment_request/<pk>/paper_form/', views.html_2_pdf, name='paper-form'),
+    path('payment_request/<pk>/paper_form/', views.payment_request_paper_form, name='paper-form'),
 
     path('payment_request/<pk>/approved/', views.payment_request_approved, name='payment-request-approved'),
     path('payment_request/<int:pk>/new/', views.payment_request_new, name='payment-request-new'),

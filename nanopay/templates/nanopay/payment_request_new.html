@@ -70,7 +70,7 @@
           {{ form.non_payroll_expense.errors }}{{ form.non_payroll_expense }}
           <datalist id="non_payroll_expenses">
             {% for non_payroll_expense in non_payroll_expenses %}
-              <option value="{{ non_payroll_expense.description }}"></option>
+              <option value="{{ non_payroll_expense }}"></option>
             {% endfor %}
           </datalist>
         </div>

@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='paymentrequest',
             name='paper_form',
-            field=models.FileField(blank=True, max_length=256, null=True, upload_to=nanopay.models.paper_form_path, verbose_name='Paper Form'),
+            field=models.FileField(blank=True, max_length=256, null=True, upload_to=None, verbose_name='Paper Form'),
         ),
     ]

@@ -25,7 +25,8 @@
         <th><small>Invoice Amount</small></th>
         <th><small>Contract</small></th>
         <th><small>non Payroll Expense</small></th>
-        <th><small>Request by</small></th>
+        <th><small>on</small></th>
+        <th><small>by</small></th>
         <th><small>IT reviewed by</small></th>
       </tr>
       {% for payment_request in paymentrequest_list %}
@@ -50,7 +51,8 @@
           <small>{{ payment_request.payment_term.contract }}</small>
           </a>
         </td>
-        <td><small>{{ payment_request.non_payroll_expense }}</small></td>
+        <td class="w-25"><small>{{ payment_request.non_payroll_expense }}</small></td>
+        <td><small>{{ payment_request.requested_on }}</small></td>
         <td><small>{{ payment_request.requested_by.get_full_name }}</small></td>
         <td>
           {% if payment_request.IT_reviewed_by %}
