@@ -162,18 +162,18 @@ class Contract(models.Model):
 
 
 class LegalEntity(models.Model):
-    name = models.CharField(_("Legal Entity Name"), max_length=50)
+    name = models.CharField(_("主体名称"), max_length=50)
     ENTITY_TYPE = (
         ('I', 'Internal'),
         ('E', 'External'),
     )
-    type = models.CharField(_("Legal Entity Type"), choices=ENTITY_TYPE, default='E', max_length=1)
+    type = models.CharField(_("主体类型"), choices=ENTITY_TYPE, default='E', max_length=1)
     prjct = models.ForeignKey("nanopay.Prjct", verbose_name=_("Project Name"), on_delete=models.SET_NULL, null=True, blank=True)
     deposit_bank = models.CharField(_("开户行"), max_length=50, null=True)
     deposit_bank_account = models.CharField(_("开户行账号"), max_length=25, null=True)
     tax_number = models.CharField(_("纳税人识别号"), max_length=25, null=True, blank=True)
-    reg_addr = models.CharField(_("注册/工作地址"), max_length=50, null=True)
-    reg_phone = models.CharField(_("注册/工作电话"), max_length=15, null=True)
+    reg_addr = models.CharField(_("注册地址"), max_length=50, null=True)
+    reg_phone = models.CharField(_("注册电话"), max_length=15, null=True)
 
     def __str__(self):
         # return "%s, %s (%s)" % (self.type, self.name, self.prjct)
