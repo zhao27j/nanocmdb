@@ -60,13 +60,13 @@ class NewPaymentTermForm(forms.ModelForm):
         if pay_day < contract.startup:
             raise ValidationError(_("the scheduled Pay date should NOT be later than the Start date defined in the Contract"))
         
-        recurring = abs(cleaned_data.get('recurring'))
-        if recurring == 0:
+        recurring = cleaned_data.get('recurring')
+        if recurring <= 0:
             raise ValidationError(_("the value of Recurring must be > 0"))
 
         plan = cleaned_data.get('plan')
         if plan == 'C' and recurring != 1:
-            raise ValidationError(_("the Recurring for Custom plan must be = 1 "))
+            raise ValidationError(_("the Recurring for plan Custom must be = 1 "))
         
         amount = cleaned_data.get('amount')
         if amount <= 0:

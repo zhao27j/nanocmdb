@@ -12,5 +12,4 @@ templatetags/__pycache__/*pyc
 *jpeg
 *pdf
 *xlsx
-.DS_Store
-
+*DS_Store

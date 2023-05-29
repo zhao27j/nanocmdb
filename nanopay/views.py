@@ -140,6 +140,10 @@ class PaymentRequestListView(LoginRequiredMixin, generic.ListView):
 @login_required
 def payment_request_new(request, pk):
     payment_term = get_object_or_404(PaymentTerm, pk=pk)
+    if payment_term.contract.assets.first() == None:
+        messages.info(request, 'please associated IT Assets with the Contract [ ' + payment_term.contract.briefing + ' ]')
+        # return redirect(request.path) # 重定向 至 当前 页面 (不合适)
+        return redirect('nanopay:contract-detail', pk=payment_term.contract.pk)
     non_payroll_expenses = NonPayrollExpense.objects.all()
     if request.method == 'POST':
         form = NewPaymentRequestForm(request.POST, request.FILES)
@@ -188,7 +192,6 @@ def payment_request_new(request, pk):
 
             return redirect('nanopay:contract-detail', pk=payment_term.contract.pk) # redirect to a new URL:
             # return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面 (在此不适合)
-            # return redirect(request.path) # 重定向 至 当前 页面 (在此不适合)
     else:
         payment_term_last = PaymentTerm.objects.filter(contract=payment_term.contract).order_by("applied_on").last()
         
@@ -245,13 +248,17 @@ def new_payment_term(request, pk):
 
             contract.activityhistory_set.create(
                 description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] '
-                  + 'one ' + new_payment_term.get_plan_display()
-                    + ' Payment Term scheduled on ' + str(new_payment_term.pay_day)
+                  + str(new_payment_term_recurring) + ' x ' + new_payment_term.get_plan_display()
+                    + ' Payment Term scheduled since ' + str(new_payment_term.pay_day)
                       + ' in amount ' + str(new_payment_term.amount)
-                        + ' was added by ' + request.user.get_full_name()
+                        + ' were added by ' + request.user.get_full_name()
                 )
             
-            messages.info(request, str(new_payment_term_recurring) + ' x Payment Terms for the Contract [ ' + contract.briefing + ' ] were added by ' + request.user.get_full_name())
+            messages.info(request, 
+                          str(new_payment_term_recurring) + ' x ' + new_payment_term.get_plan_display()
+                            + 'Payment Terms for the Contract [ ' + contract.briefing
+                              + ' ] were added by ' + request.user.get_full_name()
+                              )
 
             return redirect('nanopay:contract-detail', pk=pk) # redirect to a new URL:
 
