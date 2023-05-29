@@ -71,7 +71,7 @@ class PaymentTerm(models.Model):
         return reverse('nanopay:payment-term-detail', kwargs={'pk': self.pk})
     
     class Meta:
-        ordering = ['pay_day']
+        ordering = ['contract', 'pay_day']
 
 
 def contract_scanned_copy_path(instance, filename):

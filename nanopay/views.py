@@ -228,17 +228,29 @@ def new_payment_term(request, pk):
             if new_payment_term_plan != 'C' and new_payment_term_recurring > 1:
                 pay_day = form.cleaned_data['pay_day']
                 recurring = 1
+                recurring_added = recurring
                 while recurring < new_payment_term_recurring:
                     if new_payment_term_plan == 'M':
-                        pay_day += datetime.timedelta(weeks=(4.33333))
+                        if contract.endup or (pay_day + datetime.timedelta(weeks=(4.333333333))).year < datetime.date.today().year + 1:
+                            pay_day += datetime.timedelta(weeks=(4.333333333))
+                            PaymentTerm.objects.create(pay_day=pay_day, plan=new_payment_term_plan, recurring=1, amount=form.cleaned_data['amount'], contract=form.cleaned_data['contract'],)
+                            recurring_added += 1
                     elif new_payment_term_plan == 'Q':
-                        pay_day += datetime.timedelta(weeks=(13))
+                        if contract.endup or (pay_day + datetime.timedelta(weeks=(13))).year < datetime.date.today().year + 1:
+                            pay_day += datetime.timedelta(weeks=(13))
+                            PaymentTerm.objects.create(pay_day=pay_day, plan=new_payment_term_plan, recurring=1, amount=form.cleaned_data['amount'], contract=form.cleaned_data['contract'],)
+                            recurring_added += 1
                     elif new_payment_term_plan == 'S':
-                        pay_day += datetime.timedelta(weeks=(26))
+                        if contract.endup or (pay_day + datetime.timedelta(weeks=(26))).year < datetime.date.today().year + 1:
+                            pay_day += datetime.timedelta(weeks=(26))
+                            PaymentTerm.objects.create(pay_day=pay_day, plan=new_payment_term_plan, recurring=1, amount=form.cleaned_data['amount'], contract=form.cleaned_data['contract'],)
+                            recurring_added += 1
                     elif new_payment_term_plan == 'A':
-                        pay_day += datetime.timedelta(weeks=(52))
+                        if contract.endup or (pay_day + datetime.timedelta(weeks=(52))).year < datetime.date.today().year + 1:
+                            pay_day += datetime.timedelta(weeks=(52))
+                            PaymentTerm.objects.create(pay_day=pay_day, plan=new_payment_term_plan, recurring=1, amount=form.cleaned_data['amount'], contract=form.cleaned_data['contract'],)
+                            recurring_added += 1
                     
-                    PaymentTerm.objects.create(pay_day=pay_day, plan=new_payment_term_plan, recurring=1, amount=form.cleaned_data['amount'], contract=form.cleaned_data['contract'],)
                     recurring += 1
 
             new_payment_term = form.save(commit=False)
@@ -248,14 +260,14 @@ def new_payment_term(request, pk):
 
             contract.activityhistory_set.create(
                 description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] '
-                  + str(new_payment_term_recurring) + ' x ' + new_payment_term.get_plan_display()
+                  + str(recurring_added) + ' x ' + new_payment_term.get_plan_display()
                     + ' Payment Term scheduled since ' + str(new_payment_term.pay_day)
                       + ' in amount ' + str(new_payment_term.amount)
                         + ' were added by ' + request.user.get_full_name()
                 )
             
             messages.info(request, 
-                          str(new_payment_term_recurring) + ' x ' + new_payment_term.get_plan_display()
+                          str(recurring_added) + ' x ' + new_payment_term.get_plan_display()
                             + 'Payment Terms for the Contract [ ' + contract.briefing
                               + ' ] were added by ' + request.user.get_full_name()
                               )

@@ -154,7 +154,7 @@ def InstanceBulkUpd(request):
                             description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
                             'Associated with the Contract [ ' + contract_selected.briefing + ' ] by ' + request.user.get_full_name())
                         selected_instance.save()
-                    messages.info(request, 'the selected IT Assets were Associated with the Contract [ ' + request.POST['contract_selected']) + ' ]'
+                    messages.info(request, 'the selected IT Assets were Associated with the Contract [ ' + request.POST['contract_selected'] + ' ]')
                     
             return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
         else:
