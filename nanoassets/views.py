@@ -165,7 +165,7 @@ def InstanceBulkUpd(request):
 
 class InstanceSearchResultsListView(generic.ListView):
     model = Instance
-    template_name = 'nanoassets/instance_search_results.html'
+    template_name = 'nanoassets/instance_list_search_results.html'
     paginate_by = 25
 
     def get_queryset(self):
@@ -267,12 +267,10 @@ class InstanceOwnerUpdate(LoginRequiredMixin, UpdateView):
         assign_to = self.request.POST['assign_to'].strip()
         if assign_to == 'admin':
             form.instance.owner = original_instance.owner
-            messages.warning(
-                self.request, 'the IT Assets [ ' + original_instance.serial_number + ' ] can NOT be assigned to ' + assign_to)
+            messages.warning(self.request, 'the IT Assets [ ' + original_instance.serial_number + ' ] can NOT be assigned to ' + assign_to)
         elif assign_to == '' and original_instance.owner == None:
             form.instance.owner = original_instance.owner
-            messages.warning(
-                self.request, 'the ownership of IT Assets [ ' + original_instance.serial_number + ' ] got Nothing to change')
+            messages.warning(self.request, 'the ownership of IT Assets [ ' + original_instance.serial_number + ' ] got Nothing to change')
         elif assign_to == '' and original_instance.owner:
             form.instance.status = 'AVAILABLE'  # self.object.status = 'AVAILABLE'
             self.object.activityhistory_set.create(
@@ -289,12 +287,10 @@ class InstanceOwnerUpdate(LoginRequiredMixin, UpdateView):
             if not original_instance.owner:
                 if not form.instance.owner:
                     form.instance.owner = original_instance.owner
-                    messages.warning(
-                        self.request, 'the IT Assets [ ' + original_instance.serial_number + ' ] can NOT be assigned to ' + assign_to)
-                elif assign_to == original_instance.owner.username:
+                    messages.warning(self.request, 'the IT Assets [ ' + original_instance.serial_number + ' ] can NOT be assigned to ' + assign_to)
+                elif assign_to == "":
                     form.instance.owner = original_instance.owner
-                    messages.warning(
-                        self.request, 'the ownership of IT Assets [ ' + original_instance.serial_number + ' ] got Nothing to change')
+                    messages.warning(self.request, 'the ownership of IT Assets [ ' + original_instance.serial_number + ' ] got Nothing to change')
                 else:
                     form.instance.status = 'inUSE'  # self.object.status = 'inUSE'
                     self.object.activityhistory_set.create(

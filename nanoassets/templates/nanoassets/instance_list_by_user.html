@@ -1,35 +1,15 @@
 {% extends 'base.html' %}
 {% block page_content %}
-  <p class="h3">My IT Assets</p>
-  {% if instance_list %}
-    <table class="table table-striped table-hover">
-      <tr>
-        <th></th>
-        <th>Serial #</th>
-        <th>Model / Type</th>
-        <th>Status</th>
-      </tr>
-      {% for instance in instance_list %}
-        <tr>
-          <td>
-            <input type="checkbox"
-                   name="instance"
-                   id="instance{{ forloop.counter }}"
-                   value="{{ instance.pk }}"/>
-          </td>
-          <td>
-            <label for="instance{{ forloop.counter }}">
-              <a href="{% url 'nanoassets:instance-detail' instance.pk %}"><small>{{ instance.serial_number }}</small></a>
-            </label>
-          </td>
-          <td>
-            <em><small>{{ instance.model_type }}</small></em>
-          </td>
-          <td><small>{{ instance.get_status_display }}</small></td>
-        </tr>
-      {% endfor %}
-    </table>
-  {% else %}
-    <p class="lead">You don't have any IT assets !</p>
-  {% endif %}
+
+{% include 'base_messages.html' %}
+
+<p class="h3">My IT Assets</p>
+  
+{% if instance_list %}
+
+{% include 'base_instance_list.html' with instances=instance_list %}
+  
+{% else %}
+<p class="lead">You don't have any IT assets !</p>
+{% endif %}
 {% endblock page_content %}
