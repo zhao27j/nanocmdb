@@ -132,7 +132,8 @@ class Contract(models.Model):
             return 'pay-as-you-go'
 
     def get_total_amount(self):
-        return self.paymentterm_set.aggregate(Sum('amount'))
+        if self.endup:
+            return self.paymentterm_set.aggregate(Sum('amount'))
     
     def get_total_amount_applied(self):
         return self.paymentterm_set.filter(applied_on__isnull=False).aggregate(Sum('amount'))

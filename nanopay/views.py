@@ -30,7 +30,6 @@ from .forms import NewContractForm, NewPaymentTermForm, NewPaymentRequestForm
 def payment_request_paper_form(request, pk):
     payment_request = get_object_or_404(PaymentRequest, pk=pk)
 
-    # contract = payment_request.payment_term.contract
     contract_accumulated_payment_excluded_this_request = 0
     accumulated_payment_excluded_this_request = 0
     for paymentTerm in PaymentTerm.objects.filter(contract=payment_request.payment_term.contract):
