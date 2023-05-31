@@ -135,9 +135,9 @@ class NewContractForm(forms.Form):
         "class": "form-control",
         }))
     
-    briefing = forms.CharField(required=True, max_length=70, widget=forms.TextInput(attrs={
+    briefing = forms.CharField(required=True, max_length=72, widget=forms.TextInput(attrs={
         "list": "briefing",
-        "placeholder": "please give a Unique briefing for the New contract here ...",
+        "placeholder": "please give a Unique briefing for the New contract here within 72 characters",
         "class": "form-control",
         }))
     
