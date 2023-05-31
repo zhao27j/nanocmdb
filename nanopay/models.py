@@ -103,7 +103,7 @@ class Contract(models.Model):
                                     upload_to=contract_scanned_copy_path,
                                     max_length=256, null=True, blank=True)
     
-    non_payroll_expense = models.ForeignKey("nanopay.NonPayrollExpense", verbose_name=_("Non Payroll Expense"), on_delete=models.SET_NULL, null=True, blank=True)
+    # non_payroll_expense = models.ForeignKey("nanopay.NonPayrollExpense", verbose_name=_("Non Payroll Expense"), on_delete=models.SET_NULL, null=True, blank=True)
     assets = models.ManyToManyField("nanoassets.Instance", verbose_name=_("Assets associated with"), blank=True)
     
     created_by = models.ForeignKey(User, verbose_name=_("Created by"), on_delete=models.SET_NULL, null=True)

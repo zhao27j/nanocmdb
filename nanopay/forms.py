@@ -108,11 +108,6 @@ class NewPaymentTermForm(forms.ModelForm):
 
 
 class NewContractForm(forms.Form):
-    briefing = forms.CharField(required=True, widget=forms.TextInput(attrs={
-        "placeholder": "briefing the purpose of the New contract here which must be Unique ...",
-        "class": "form-control",
-        }))
-    
     party_a_list = forms.ModelMultipleChoiceField(required=True, queryset=None, widget=forms.SelectMultiple(attrs={"class": "form-select",}))
     party_b_list = forms.ModelMultipleChoiceField(required=True, queryset=None, widget=forms.SelectMultiple(attrs={"class": "form-select",}))
 
@@ -121,10 +116,7 @@ class NewContractForm(forms.Form):
         self.fields["party_a_list"].queryset = LegalEntity.objects.filter(type='I')
         self.fields["party_b_list"].queryset = LegalEntity.objects.filter(type='E')
     
-    non_payroll_expense = forms.CharField(required=True, max_length=100, widget=TextInput(attrs={
-        "list": "non_payroll_expenses",
-        "class": "form-control",
-    }))
+    # non_payroll_expense = forms.CharField(required=True, max_length=100, widget=TextInput(attrs={"list": "non_payroll_expenses", "class": "form-control",}))
 
     CONTRACT_TYPE = (
         ('M', 'Maintenance'),
@@ -140,6 +132,12 @@ class NewContractForm(forms.Form):
     # scanned_copy = MultipleFileField(required=True)
     scanned_copy = forms.FileField(required=True, widget=forms.ClearableFileInput(attrs={
         # "multiple": True,
+        "class": "form-control",
+        }))
+    
+    briefing = forms.CharField(required=True, max_length=70, widget=forms.TextInput(attrs={
+        "list": "briefing",
+        "placeholder": "please give a Unique briefing for the New contract here ...",
         "class": "form-control",
         }))
     

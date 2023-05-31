@@ -26,6 +26,7 @@ from .forms import NewContractForm, NewPaymentTermForm, NewPaymentRequestForm
 
 # Create your views here.
 
+@login_required
 def payment_request_paper_form(request, pk):
     payment_request = get_object_or_404(PaymentRequest, pk=pk)
 
@@ -330,7 +331,7 @@ def new_contract(request):
     else: # if this is a GET (or any other method) create the default form.
         startup = datetime.date.today()
         endup = datetime.date.today() + datetime.timedelta(weeks=12)
-        # non_payroll_expenses = NonPayrollExpense.objects.all()
+        non_payroll_expenses = NonPayrollExpense.objects.filter(non_payroll_expense_year=datetime.date.today().year)
         
         form = NewContractForm(
             initial={
@@ -339,7 +340,7 @@ def new_contract(request):
                 })
         return render(request, 'nanopay/contract_new.html', {
             'form': form,
-            # 'non_payroll_expenses': non_payroll_expenses,
+            'non_payroll_expenses': non_payroll_expenses,
             })
 
     return render(request, 'nanopay/contract_new.html', {'form': form,})
