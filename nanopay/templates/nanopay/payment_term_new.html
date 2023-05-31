@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
+{% load auth_extras %}
 {% block page_content %}
+
+{% include 'base_messages.html' %}
+
 {% if form.non_field_errors %}
   {% for message in form.non_field_errors %}
     <div class="container-fluid">
@@ -12,6 +16,7 @@
     </div>
   {% endfor %}
 {% endif %}
+
 <h3>New Payment Term</h3>
 <form action="" method="post">
   {% csrf_token %}
@@ -40,4 +45,5 @@
   </table>
   <input type="submit" value="add" class="btn btn-outline-primary d-inline-flex align-items-center"/>
 </form>
+
 {% endblock page_content %}

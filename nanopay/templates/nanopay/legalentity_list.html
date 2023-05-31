@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load auth_extras %}
+{% block page_content %}
+
+{% include 'base_messages.html' %}
+
+<h3>All Legal Entities</h3>
+<table class="table table-striped table-hover fw-light">
+    <tr>
+      <th><small><small>Name</small></th>
+      <th><small>Type</small></th>
+      <th><small>Project</small></th>
+      <th><small>Bank</small></th>
+      <th><small>Bank Account</small></th>
+      <th><small>Tax #</small></th>
+      <th><small>Reg. Addr.</small></th>
+      <th><small>Reg. Phone#</small></th>
+    </tr>
+    {% for legal_entity in object_list %}
+    <tr>
+      <td>
+        <a href="{% url 'nanopay:legal-entity-update' legal_entity.pk %}">
+          <small>{{ legal_entity.name }}</small>
+        </a>
+      </td>
+      <td><small>{{ legal_entity.get_type_display }}</small></td>
+      <td><small>{{ legal_entity.prjct }}</small></td>
+      <td><small>{{ legal_entity.deposit_bank|truncatechars:8 }}</small></td>
+      <td><small>{{ legal_entity.deposit_bank_account|truncatechars:8 }}</small></td>
+      <td><small>{{ legal_entity.tax_number|truncatechars:8 }}</small></td>
+      <td><small>{{ legal_entity.reg_addr|truncatechars:8 }}</small></td>
+      <td><small>{{ legal_entity.reg_phone|truncatechars:8 }}</small></td>
+    {% endfor %}
+  </table>
+
+{% endblock page_content %}

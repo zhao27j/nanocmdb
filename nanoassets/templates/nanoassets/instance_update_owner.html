@@ -1,23 +1,28 @@
 {% extends 'base.html' %}
+{% load auth_extras %}
 {% block page_content %}
-  <p>Serial Number: <b></small>{{ instance.serial_number }} </small></b></p>
-  <p>Model / Type: <b><small>{{ instance.model_type }} </small></b></p>
-  <p>Status: <b><small>{{ instance.get_status_display }} </small></b></p>
-  <p>Hostname: <b><small>{{ instance.configuragion }} </small></b></p>
-  <p>Owner: <b><small>{{ instance.owner.get_full_name }} </small></b></p>
-  <p>Site: <b><small>{{ instance.branchSite }} </small></b></p>
-  <form action="" method="post">
-    {% csrf_token %}
-    <table class="table">
-      <input type="text" list="owners" id="owner" name="assign_to" autocomplete="off" size="30" placeholder="leave this empty for Returning back" />
-      <datalist id="owners">
-        {% for owner in owners %}
-          <option value="{{ owner.username }}"></option>
-        {% endfor %}
-      </datalist>
-    </table>
-    <div class="d-grid gap-2 d-md-block">
-      <input type="submit" value="update" class="btn btn-outline-primary d-inline-flex align-items-center" />
-    </div>
-  </form>
+
+{% include 'base_messages.html' %}
+
+<p>Serial Number: <b></small>{{ instance.serial_number }} </small></b></p>
+<p>Model / Type: <b><small>{{ instance.model_type }} </small></b></p>
+<p>Status: <b><small>{{ instance.get_status_display }} </small></b></p>
+<p>Hostname: <b><small>{{ instance.configuragion }} </small></b></p>
+<p>Owner: <b><small>{{ instance.owner.get_full_name }} </small></b></p>
+<p>Site: <b><small>{{ instance.branchSite }} </small></b></p>
+<form action="" method="post">
+  {% csrf_token %}
+  <table class="table">
+    <input type="text" list="owners" id="owner" name="assign_to" autocomplete="off" size="30" placeholder="leave this empty for Returning back" />
+    <datalist id="owners">
+      {% for owner in owners %}
+        <option value="{{ owner.username }}"></option>
+      {% endfor %}
+    </datalist>
+  </table>
+  <div class="d-grid gap-2 d-md-block">
+    <input type="submit" value="update" class="btn btn-outline-primary d-inline-flex align-items-center" />
+  </div>
+</form>
+
 {% endblock page_content %}

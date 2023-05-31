@@ -19,7 +19,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 
 from django.views import generic
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 
 from .models import LegalEntity, Contract, PaymentTerm, PaymentRequest, NonPayrollExpense
 from .forms import NewContractForm, NewPaymentTermForm, NewPaymentRequestForm
@@ -372,3 +372,20 @@ class ContractDetailView(LoginRequiredMixin, generic.DetailView):
         else:
             context["non_payroll_expense"] = '[yet associated]'
         return context
+
+
+class LegalEntityUpdateView(LoginRequiredMixin, UpdateView):
+    model = LegalEntity
+    fields = '__all__'
+    success_url = reverse_lazy('nanopay:legal-entity-list')
+
+
+class LegalEntityCreateView(LoginRequiredMixin, CreateView):
+    model = LegalEntity
+    fields = '__all__'
+    # template_name = "TEMPLATE_NAME"
+    success_url = reverse_lazy('nanopay:legal-entity-list')
+
+
+class LegalEntityListView(LoginRequiredMixin, generic.ListView):
+    model = LegalEntity

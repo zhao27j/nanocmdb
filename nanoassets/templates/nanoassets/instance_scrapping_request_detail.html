@@ -1,43 +1,46 @@
 {% extends 'base.html' %}
-<!-- {% load auth_extras %} -->
+{% load auth_extras %}
 {% block page_content %}
-    <form action="{% url 'nanoassets:instance-scrapping-request-approved' scraprequest.pk %}"
-          method="post">
-        {% csrf_token %}
-        <p class="h5" name="case_id">Case ID : {{ scraprequest.case_id }}</p>
-        <small>
-            Requested by {{ scraprequest.requested_by.get_full_name }} on {{ scraprequest.requested_on }}
-            {% if scraprequest.approved_by %}
-                approved by {{ scraprequest.approved_by.get_full_name }} on {{ scraprequest.approved_on }}
-            {% endif %}
-        </small>
-        {% if request.user|has_group:"IT Reviewer" %}
-            {% if scraprequest.status == 'I' %}
-                <div class="d-grid gap-2 d-md-block">
-                    <input type="submit" class="btn btn-outline-primary d-inline-flex align-items-center" value="Approve"/>
-                </div>
-            {% endif %}
-        {% endif %}
-        <div>
-            <p class="lead">Scrapping IT Asset List</p>
-            <table class="table table-striped table-hover">
-                <tr>
-                    <th>Serial #</th>
-                    <th>Model / Type</th>
-                    <th>Status</th>
-                    <th>Owner</th>
-                    <th>EOL</th>
-                </tr>
-                {% for instance in scraprequest.instance_set.all %}
-                    <tr>
-                        <td><small>{{ instance.serial_number }}<small></td>
-                        <td><em><small>{{ instance.model_type }}<small></em></td>
-                        <td><small>{{ instance.get_status_display }}<small></td>
-                        <td><small>{{ instance.owner }}<small></td>
-                        <td><small>{{ instance.eol_date }}<small></td>
-                    </tr>
-                {% endfor %}
-            </table>
-        </div>
-    </form>
+
+{% include 'base_messages.html' %}
+
+<form action="{% url 'nanoassets:instance-scrapping-request-approved' scraprequest.pk %}" method="post">
+  {% csrf_token %}
+  <p class="h5" name="case_id">Case ID : {{ scraprequest.case_id }}</p>
+  <small>
+    Requested by {{ scraprequest.requested_by.get_full_name }} on {{ scraprequest.requested_on }}
+    {% if scraprequest.approved_by %}
+    approved by {{ scraprequest.approved_by.get_full_name }} on {{ scraprequest.approved_on }}
+    {% endif %}
+  </small>
+  {% if request.user|has_group:"IT Reviewer" %}
+    {% if scraprequest.status == 'I' %}
+    <div class="d-grid gap-2 d-md-block">
+      <input type="submit" class="btn btn-outline-primary d-inline-flex align-items-center" value="Approve"/>
+    </div>
+    {% endif %}
+  {% endif %}
+  <div>
+    <p class="lead">Scrapping IT Asset List</p>
+    <table class="table table-striped table-hover">
+      <tr>
+        <th>Serial #</th>
+        <th>Model / Type</th>
+        <th>Status</th>
+        <th>Owner</th>
+        <th>EOL</th>
+      </tr>
+      {% for instance in scraprequest.instance_set.all %}
+      <tr>
+        <td><small>{{ instance.serial_number }}<small></td>
+        <td><em><small>{{ instance.model_type }}<small></em></td>
+        <td><small>{{ instance.get_status_display }}<small></td>
+        <td><small>{{ instance.owner }}<small></td>
+        <td><small>{{ instance.eol_date }}<small></td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</form>
+
 {% endblock page_content %}

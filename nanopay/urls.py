@@ -4,7 +4,14 @@ from . import views
 
 
 app_name = 'nanopay'
+
 urlpatterns = [
+    path('legal_entity/<int:pk>/update/', views.LegalEntityUpdateView.as_view(), name='legal-entity-update'),
+    path('legal_entity/new/', views.LegalEntityCreateView.as_view(), name='legal-entity-new'),
+    path('legal_entities', views.LegalEntityListView.as_view(), name='legal-entity-list'),
+]
+
+urlpatterns += [
     path('', views.ContractListView.as_view(), name='contract-list'),
     path('contract/<int:pk>/detail/', views.ContractDetailView.as_view(), name='contract-detail'),
     path('contract/<int:pk>/detail/scanned_copy/', views.contract_detail_scanned_copy, name='contract-detail-scanned-copy'),

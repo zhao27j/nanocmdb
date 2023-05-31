@@ -22,7 +22,6 @@ urlpatterns += [
 ]
 
 urlpatterns += [
-    path('instances/', views.InstanceListView.as_view(), name='instance-list'),
     path('', views.InstanceByUserListView.as_view(), name='my-instance-list'),
     path('supported_instances/', views.InstanceByTechListView.as_view(), name='supported-instance-list'),
     path('instance/<pk>/detail/', views.InstanceDetailView.as_view(), name='instance-detail'),

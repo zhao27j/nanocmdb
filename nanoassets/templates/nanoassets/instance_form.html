@@ -1,10 +1,15 @@
 {% extends 'base.html' %}
+{% load auth_extras %}
 {% block page_content %}
-  <form action="" method="post">
-    {% csrf_token %}
-    <table class="table">
-      {{ form.as_p }}
-    </table>
-    <input type="submit" value="add" />
-  </form>
+
+{% include 'base_messages.html' %}
+
+<form action="" method="post">
+  {% csrf_token %}
+  <table class="table">
+    {{ form.as_p }}
+  </table>
+  <input type="submit" value="add" />
+</form>
+
 {% endblock page_content %}

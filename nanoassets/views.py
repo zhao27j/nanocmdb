@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
-# from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.conf import settings
@@ -25,7 +25,7 @@ from nanopay.models import Contract
 
 # Create your views here.
 
-
+@login_required
 def InstanceScrappingRequestApproved(request, pk):
     if request.method == 'POST':
         scrapRequest = get_object_or_404(ScrapRequest, pk=pk)
@@ -77,6 +77,7 @@ class InstanceScrappingRequestListView(LoginRequiredMixin, generic.ListView):
     # paginate_by = 10
 
 
+@login_required
 def InstanceBulkUpd(request):
     if request.method == 'POST':
         if request.POST.getlist('instance'):
@@ -163,10 +164,10 @@ def InstanceBulkUpd(request):
             return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
 
 
-class InstanceSearchResultsListView(generic.ListView):
+class InstanceSearchResultsListView(LoginRequiredMixin, generic.ListView):
     model = Instance
     template_name = 'nanoassets/instance_list_search_results.html'
-    paginate_by = 25
+    paginate_by = 32
 
     def get_queryset(self):
         queries = tuple(self.request.GET.get('q').split(','))
@@ -215,6 +216,7 @@ class InstanceSearchResultsListView(generic.ListView):
         return context
 
 
+@login_required
 def InstanceInRepair(request, pk):
     # 测试 组 权限 user.groups.filter(name__in=['group1', 'group2']).exists()
     if request.user.groups.filter(name='IT China').exists:
@@ -319,7 +321,7 @@ class InstanceOwnerUpdate(LoginRequiredMixin, UpdateView):
 class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
     model = Instance
     template_name = 'nanoassets/instance_list_by_tech.html'
-    paginate_by = 25
+    paginate_by = 32
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -353,10 +355,6 @@ class InstanceDetailView(LoginRequiredMixin, generic.DetailView):
     model = Instance
 
 
-class InstanceListView(LoginRequiredMixin, generic.ListView):
-    model = Instance
-    paginate_by = 15
-
-
+@login_required
 def index(request):
     return render(request, "index.html", {})

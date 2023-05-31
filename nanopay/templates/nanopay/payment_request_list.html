@@ -1,18 +1,9 @@
 {% extends 'base.html' %}
 {% load auth_extras %}
 {% block page_content %}
-{% if messages %}
-  {% for message in messages %}
-  <div class="container-fluid">
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-      <div>{{ message }}</div>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-        <!-- <span aria-hidden="True">&times;</span> -->
-      </button>
-    </div>
-  </div>
-  {% endfor %}
-{% endif %}
+
+{% include 'base_messages.html' %}
+
 <div class="container mt-3">
   <h3>All Payment Requests</h3>
   {% if user|has_group:"IT China" and request.user.is_staff %}
@@ -27,15 +18,15 @@
         <th><small>non Payroll Expense</small></th>
         <th><small>on</small></th>
         <th><small>by</small></th>
+        {% if  request.user|has_group:"IT Reviewer" %}
         <th><small>IT reviewed by</small></th>
+        {% endif %}
       </tr>
       {% for payment_request in paymentrequest_list %}
       <tr>
         <td><input type="checkbox" name="payment_request" id="payment_request{{ forloop.counter }}" value="{{ payment_request.pk }}"/></td>
         <td>
-          <a href="{% url 'nanopay:paper-form' payment_request.pk %}">
-            <small>{{ payment_request.get_status_display }}</small>
-          </a>
+          <a href="{% url 'nanopay:paper-form' payment_request.pk %}"><small>{{ payment_request.get_status_display }}</small></a>
         </td>
         <td>
           <small>￥{{ payment_request.amount|floatformat:"2g" }}</small>
@@ -54,15 +45,15 @@
         <td class="w-25"><small>{{ payment_request.non_payroll_expense }}</small></td>
         <td><small>{{ payment_request.requested_on }}</small></td>
         <td><small>{{ payment_request.requested_by.get_full_name }}</small></td>
+        {% if request.user|has_group:"IT Reviewer" %}
         <td>
           {% if payment_request.IT_reviewed_by %}
           <small>{{ payment_request.IT_reviewed_by.get_full_name }}</small>
-          {% elif  request.user|has_group:"IT Reviewer" %}
-          <a href="{% url 'nanopay:payment-request-approved' payment_request.pk %}"><small>Approve</small></a>
           {% else %}
-          
+          <a href="{% url 'nanopay:payment-request-approved' payment_request.pk %}"><small>Approve</small></a>
           {% endif %}
         </td>
+        {% endif %}
       </tr>
       {% endfor %}
     </table>
@@ -71,4 +62,5 @@
     <p>You're not the authorized IT staff</p>
   {% endif %}
 </div>
+
 {% endblock page_content %}
