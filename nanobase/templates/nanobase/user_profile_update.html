@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load auth_extras %}
+{% block page_content %}
+
+{% include 'base_messages.html' %}
+
+{% if form.non_field_errors %}
+  {% for message in form.non_field_errors %}
+  <div class="container-fluid">
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <div>{{ message }}</div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+        <!-- <span aria-hidden="True">&times;</span> -->
+      </button>
+    </div>
+  </div>
+  {% endfor %}
+{% endif %}
+
+<h3 class="text-secondary">User Profile Update</h3>
+
+<form action="" method="post">
+  {% csrf_token %}
+  Username: {{ user.username }}
+  {{ user.firstname }}
+  {{ user.lastname }}
+
+  
+</form>
+
+{% endblock page_content %}

@@ -24,6 +24,10 @@ urlpatterns = [
 ]
 
 urlpatterns += [
+    path('', include('nanobase.urls')),
+]
+
+urlpatterns += [
     path('', include('nanoassets.urls')),
 ]
 

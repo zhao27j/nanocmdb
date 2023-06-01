@@ -214,7 +214,7 @@ def payment_request_new(request, pk):
 
 
 @login_required
-def new_payment_term(request, pk):
+def payment_term_new(request, pk):
     contract = get_object_or_404(Contract, pk=pk)
     if request.method == 'POST': # if this is a POST request then process the Form data
         post = request.POST.copy()
@@ -296,7 +296,7 @@ def contract_detail_scanned_copy(request, pk):
 
 
 @login_required
-def new_contract(request):
+def contract_new(request):
     if request.method == 'POST': # if this is a POST request then process the Form data
         form = NewContractForm(request.POST, request.FILES) # create a form instance and populate it with data from the request (binding):
         if form.is_valid(): # check if the form is valid:

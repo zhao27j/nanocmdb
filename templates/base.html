@@ -50,7 +50,7 @@
               {% if user.is_authenticated %}
               <li>
                 <span class="nav-link">
-                  😎 {{ user.get_full_name|truncatechars:8 }}
+                  😎 <a href="{% url 'nanobase:user-profile-update' user.id %}">{{ user.get_full_name|truncatechars:8 }}</a>
                   {% if user|has_group:"IT China" %}
                     (IT staff)
                   {% else %}
