@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    "nanobase.apps.NanobaseConfig",
     "nanoassets.apps.NanoassetsConfig",
     "nanopay.apps.NanopayConfig",
 

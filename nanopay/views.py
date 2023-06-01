@@ -196,7 +196,7 @@ def payment_request_new(request, pk):
         payment_term_last = PaymentTerm.objects.filter(contract=payment_term.contract).order_by("applied_on").last()
         
         # payment_request_last = PaymentRequest.objects.filter(payment_term__pk=payment_term.pk).order_by("requested_on").last()
-        if payment_term_last:
+        if payment_term_last.paymentrequest_set.first():
             non_payroll_expense_last = payment_term_last.paymentrequest_set.first().non_payroll_expense
         else:
             non_payroll_expense_last = ""
