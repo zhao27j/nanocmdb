@@ -20,7 +20,8 @@ from django.utils import timezone
 
 from django.db.models import Q
 
-from .models import Instance, ScrapRequest, branchSite
+from .forms import NewInstanceForm
+from .models import ModelType, Instance, ScrapRequest, branchSite
 from nanopay.models import Contract
 
 # Create your views here.
@@ -353,6 +354,61 @@ class InstanceByUserListView(LoginRequiredMixin, generic.ListView):
 
 class InstanceDetailView(LoginRequiredMixin, generic.DetailView):
     model = Instance
+
+
+@login_required
+def InstanceNew(request):
+    model_type_list = []
+    for model_type in ModelType.objects.all():
+        model_type_list.append('%s ( %s )' % (model_type.name, model_type.manufacturer))
+
+    owner_list = []
+    for owner in User.objects.all():
+        if owner.username != 'admin':
+            owner_list.append('%s ( %s )' % (owner.get_full_name(), owner.username))
+        
+    branchsite_list = branchSite.objects.all()
+
+    contract_list = Contract.objects.all()
+    
+    if request.method == 'POST':
+        form = NewInstanceForm(request.POST)
+        if form.is_valid():
+            new_instance = Instance()
+            new_instance.serial_number = form.cleaned_data['serial_number'].strip()
+            new_instance.model_type = get_object_or_404(ModelType, name=form.cleaned_data['model_type'].split("(")[0].strip())
+            new_instance.owner = get_object_or_404(User, username=form.cleaned_data['owner'].strip(")").split("(")[-1].strip())
+            new_instance.status = form.cleaned_data['status'].strip()
+            new_instance.branchSite = get_object_or_404(branchSite, name=form.cleaned_data['branchSite'].strip())
+
+            new_instance.save()
+
+            new_instance.activityhistory_set.create(
+                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'a New IT Assets was added by ' + request.user.get_full_name()
+                )
+            
+            contract_associated_with = get_object_or_404(Contract, briefing=form.cleaned_data['contract'].strip())
+            contract_associated_with.assets.add(new_instance)
+
+            contract_associated_with.activityhistory_set.create(
+                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 
+                'a New IT Assets [ ' + new_instance.serial_number + ' ] was associated with this Contract by ' + request.user.get_full_name()
+                )
+
+
+            messages.info(request, 'the New IT Assets [ ' + form.cleaned_data['serial_number'] + ' ] was added by ' + request.user.get_full_name())
+
+            return redirect('nanoassets:instance-detail', pk=new_instance.pk) # redirect to a new URL:
+    else:
+        form = NewInstanceForm()
+    
+    return render(request, 'nanoassets/instance_new.html', {
+        'form': form,
+        'model_type_list': model_type_list,
+        'owner_list': owner_list,
+        'branchsite_list': branchsite_list,
+        'contract_list': contract_list
+        })
 
 
 @login_required

@@ -85,7 +85,7 @@ def contract_scanned_copy_path(instance, filename):
 
 
 class Contract(models.Model):
-    briefing = models.CharField(_("Briefing"), unique=True, max_length=50, null=True)
+    briefing = models.CharField(_("Briefing"), unique=True, max_length=64, null=True)
     party_a_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("Party A"), related_name='partyas')
     party_b_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("Party B"), related_name='partybs')
     CONTRACT_TYPE = (
@@ -163,18 +163,18 @@ class Contract(models.Model):
 
 
 class LegalEntity(models.Model):
-    name = models.CharField(_("主体名称"), max_length=50)
+    name = models.CharField(_("主体名称"), max_length=64)
     ENTITY_TYPE = (
         ('I', 'Internal'),
         ('E', 'External'),
     )
     type = models.CharField(_("主体类型"), choices=ENTITY_TYPE, default='E', max_length=1)
     prjct = models.ForeignKey("nanopay.Prjct", verbose_name=_("Project Name"), on_delete=models.SET_NULL, null=True, blank=True)
-    deposit_bank = models.CharField(_("开户行"), max_length=50, null=True)
-    deposit_bank_account = models.CharField(_("开户行账号"), max_length=25, null=True)
-    tax_number = models.CharField(_("纳税人识别号"), max_length=25, null=True, blank=True)
-    reg_addr = models.CharField(_("注册地址"), max_length=50, null=True)
-    reg_phone = models.CharField(_("注册电话"), max_length=15, null=True)
+    deposit_bank = models.CharField(_("开户行"), max_length=64, null=True)
+    deposit_bank_account = models.CharField(_("开户行账号"), max_length=32, null=True)
+    tax_number = models.CharField(_("纳税人识别号"), max_length=32, null=True, blank=True)
+    reg_addr = models.CharField(_("注册地址"), max_length=64, null=True)
+    reg_phone = models.CharField(_("注册电话"), max_length=16, null=True)
 
     def __str__(self):
         # return "%s, %s (%s)" % (self.type, self.name, self.prjct)
@@ -188,7 +188,7 @@ class LegalEntity(models.Model):
 
 
 class Prjct(models.Model):
-    name = models.CharField(_("Project Name"), max_length=20)
+    name = models.CharField(_("Project Name"), max_length=16)
 
     def __str__(self):
         return self.name

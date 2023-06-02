@@ -24,8 +24,8 @@ class NewPaymentRequestForm(forms.Form):
         "class": "form-control",
         "placeholder": "the amount presented on the invoice"
         }))
-    scanned_copy = forms.FileField(required=True, help_text=".pdf is acceptable Only", 
-                                   widget=ClearableFileInput(attrs={"class": "form-control",}))
+    scanned_copy = forms.FileField(required=True, help_text=".pdf is acceptable Only", widget=ClearableFileInput(attrs={
+        "class": "form-control",}))
 
     def clean(self):
         cleaned_data = super().clean()

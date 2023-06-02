@@ -17,15 +17,37 @@
   {% endfor %}
 {% endif %}
 
-<h3 class="text-secondary">User Profile Update</h3>
-
 <form action="" method="post">
   {% csrf_token %}
-  Username: {{ user.username }}
-  {{ user.firstname }}
-  {{ user.lastname }}
 
-  
+  <div class="card mb-3" ">
+    <div class="row g-0">
+      <div class="col-md-4">
+        <img src="..." class="img-fluid rounded-start" alt="...">
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h3 class="card-title text-body-secondary">Profile - {{ user.get_full_name }}</h3>
+          <p class="card-text">...</p>
+          <p class="card-text"><small class="text-body-secondary">...</small></p>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><b>Username : </b> {{ user.username }}</li>
+          <li class="list-group-item"><b>Email : </b> {{ user.email }}</li>
+          <li class="list-group-item">
+            <span class="fieldWrapper">
+              <label for="{{ form.cellphone.id_for_label }}"><b>Cellphone : </b></label>
+            </span>
+            <span class="fieldWrapper">{{ form.plan.errors }}{{ form.cellphone }}</span>
+          </li>
+        </ul>
+        <div class="card-body">
+          <input type="submit" value="update" class="btn btn-outline-primary d-inline-flex align-items-center"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </form>
 
 {% endblock page_content %}

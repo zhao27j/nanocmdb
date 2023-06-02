@@ -28,7 +28,7 @@ class ActivityHistory(models.Model):
 
 
 class Configuragion(models.Model):
-    hostname = models.CharField(_("Hostname"), max_length=36, primary_key=True, default=uuid.uuid4, help_text='Hostname')
+    hostname = models.CharField(_("Hostname"), max_length=32, primary_key=True, default=uuid.uuid4, help_text='Hostname')
 
     def __str__(self):
         return self.hostname
@@ -38,13 +38,13 @@ class Configuragion(models.Model):
 
 
 class branchSite(models.Model):
-    name = models.CharField(_("Site / Branch Office Name"), max_length=50, null=True)
+    name = models.CharField(_("Site / Branch Office Name"), max_length=64, null=True)
     # project = models.ForeignKey("nanoassets.Model", verbose_name=_("Affiliated with a project"), on_delete=models.SET_NULL, blank=True, null=True)
 
     country = models.ForeignKey("cities_light.Country", verbose_name=_("Country"), on_delete=models.SET_NULL, null=True)
     region = ChainedForeignKey("cities_light.Region", chained_field='country', chained_model_field='country', show_all=False, auto_choose=True, sort=True, null=True)
     city = ChainedForeignKey('cities_light.City', chained_field='region', chained_model_field='region', show_all=False, auto_choose=True, sort=True, null=True)
-    addr = models.CharField(_("Site Address"), max_length=255, null=True)
+    addr = models.CharField(_("Site Address"), max_length=256, null=True)
     postal = models.PositiveIntegerField(_("Postal code"), null=True)
 
     onSiteTech = models.ManyToManyField(User, verbose_name=_("Onsite IT Support"), limit_choices_to={
@@ -85,7 +85,7 @@ class ScrapRequest(models.Model):
 
 
 class Instance(models.Model):
-    serial_number = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, help_text='enter serial #')
+    serial_number = models.CharField(_("Serial #"), primary_key=True, max_length=32, default=uuid.uuid4, help_text='enter serial #')
     model_type = models.ForeignKey("nanoassets.ModelType", verbose_name=_("Model / Type"), on_delete=models.SET_NULL, null=True, blank=True)
     owner = models.ForeignKey(User, verbose_name=_("Owner"), on_delete=models.SET_NULL, null=True, blank=True)
     INSTANCE_STATUS = (
@@ -96,7 +96,7 @@ class Instance(models.Model):
         ('buyBACK', 'BuyBack'),
         ('reUSE', 'Reuse'),
     )
-    status = models.CharField(max_length=15, choices=INSTANCE_STATUS,default='Available', help_text='Asset availability')
+    status = models.CharField(_("Status"), max_length=16, choices=INSTANCE_STATUS,default='Available', help_text='Asset availability')
 
     configuragion = models.ForeignKey("nanoassets.Configuragion", verbose_name=_("Configuragion"), on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -126,7 +126,7 @@ class Instance(models.Model):
 
 
 class ModelType(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=16)
     manufacturer = models.ForeignKey("Manufacturer", on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
@@ -137,7 +137,7 @@ class ModelType(models.Model):
 
 
 class Manufacturer(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=16)
 
     def __str__(self):
         return self.name

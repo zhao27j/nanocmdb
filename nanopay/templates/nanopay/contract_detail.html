@@ -14,8 +14,12 @@
           </button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="assets-tab" data-bs-toggle="tab" data-bs-target="#assets-tab-pane" type="button" role="tab" aria-controls="assets-tab-pane" aria-selected="false">
-            ( {{ contract.assets.all.count }} ) IT Assets associated with
+          <button class="nav-link position-relative" id="assets-tab" data-bs-toggle="tab" data-bs-target="#assets-tab-pane" type="button" role="tab" aria-controls="assets-tab-pane" aria-selected="false">
+            IT Assets associated with
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {{ contract.assets.all.count }}
+              <span class="visually-hidden">IT Assets associated with</span>
+            </span>
           </button>
         </li>
         <li class="nav-item" role="presentation">
