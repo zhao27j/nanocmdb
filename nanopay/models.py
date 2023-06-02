@@ -176,6 +176,13 @@ class LegalEntity(models.Model):
     reg_addr = models.CharField(_("注册地址"), max_length=64, null=True)
     reg_phone = models.CharField(_("注册电话"), max_length=16, null=True)
 
+    external_contacts = models.ManyToManyField(User, verbose_name=_("Contacts"), limit_choices_to={
+        # "is_staff": True
+        'groups__name': 'External Contacts'
+    },)
+
+    postal_addr = models.CharField(_("Postal Address"), max_length=64)
+
     def __str__(self):
         # return "%s, %s (%s)" % (self.type, self.name, self.prjct)
         return self.name
