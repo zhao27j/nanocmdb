@@ -1,7 +1,13 @@
 from django.contrib import admin
 
-from .models import UserProfile
+from .models import UserProfile, SubCategory
 
 # Register your models here.
 
-admin.site.register(UserProfile)
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'title', 'dept', 'work_phone', 'postal_addr', 'cellphone', 'legal_entity']
+    
+
+# admin.site.register(UserProfile)
+admin.site.register(SubCategory)

@@ -27,15 +27,15 @@ class PaymentRequest(models.Model):
         ('A', 'Approved'),
     )
     status = models.CharField(_("Request status"), choices=REQUEST_STATUS, default='I', max_length=1)
-    payment_term = models.ForeignKey("nanopay.PaymentTerm", verbose_name=_("Payment Term"), on_delete=models.SET_NULL, null=True, blank=True)
-    non_payroll_expense = models.ForeignKey("nanopay.NonPayrollExpense", verbose_name=_("Non Payroll Expense"), on_delete=models.SET_NULL, null=True, blank=True)
+    payment_term = models.ForeignKey("nanopay.PaymentTerm", verbose_name=(_("Payment Term")), on_delete=models.SET_NULL, null=True, blank=True)
+    non_payroll_expense = models.ForeignKey("nanopay.NonPayrollExpense", verbose_name=(_("Non Payroll Expense")), on_delete=models.SET_NULL, null=True, blank=True)
     amount = models.DecimalField(_("Invoice Amount"), max_digits=8, decimal_places=2, null=True)
     scanned_copy = models.FileField(_("Scanned Copy of Invoice"), upload_to=invoice_scanned_copy_path, max_length=256, null=True, blank=True)
     # paper_form = models.FileField(_("Paper Form"), upload_to=paper_form_path, max_length=256, null=True, blank=True)
 
-    requested_by = models.ForeignKey(User, verbose_name=_("Requested by"), related_name='+', on_delete=models.SET_NULL, null=True)
+    requested_by = models.ForeignKey(User, verbose_name=(_("Requested by")), related_name='+', on_delete=models.SET_NULL, null=True)
     requested_on = models.DateField(_("Requested on"), auto_now_add=True, null=True)
-    IT_reviewed_by = models.ForeignKey(User, verbose_name=_("IT reviewed by"), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
+    IT_reviewed_by = models.ForeignKey(User, verbose_name=(_("IT reviewed by")), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
     IT_reviewed_on = models.DateField(_("IT reviewed on"), blank=True, null=True)
 
     def __str__(self):
@@ -62,7 +62,7 @@ class PaymentTerm(models.Model):
     recurring = models.DecimalField(_("Recurring"), max_digits=2, decimal_places=0, default=1)
     amount = models.FloatField(_("Amount"))
     applied_on = models.DateField(_("Applied on"), null=True, blank=True)
-    contract = models.ForeignKey("nanopay.Contract", verbose_name=_("Contract"), on_delete=models.SET_NULL, null=True)
+    contract = models.ForeignKey("nanopay.Contract", verbose_name=(_("Contract")), on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return "%s, %s" % (self.pay_day, self.amount)
@@ -86,8 +86,8 @@ def contract_scanned_copy_path(instance, filename):
 
 class Contract(models.Model):
     briefing = models.CharField(_("Briefing"), unique=True, max_length=64, null=True)
-    party_a_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("Party A"), related_name='partyas')
-    party_b_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=_("Party B"), related_name='partybs')
+    party_a_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=(_("Party A")), related_name='partyas')
+    party_b_list = models.ManyToManyField("nanopay.LegalEntity", verbose_name=(_("Party B")), related_name='partybs')
     CONTRACT_TYPE = (
         ('M', 'Maintenance'),
         ('N', 'New'),
@@ -103,10 +103,9 @@ class Contract(models.Model):
                                     upload_to=contract_scanned_copy_path,
                                     max_length=256, null=True, blank=True)
     
-    # non_payroll_expense = models.ForeignKey("nanopay.NonPayrollExpense", verbose_name=_("Non Payroll Expense"), on_delete=models.SET_NULL, null=True, blank=True)
-    assets = models.ManyToManyField("nanoassets.Instance", verbose_name=_("Assets associated with"), blank=True)
+    assets = models.ManyToManyField("nanoassets.Instance", verbose_name=(_("Assets associated with")), blank=True)
     
-    created_by = models.ForeignKey(User, verbose_name=_("Created by"), on_delete=models.SET_NULL, null=True)
+    created_by = models.ForeignKey(User, verbose_name=(_("Created by")), on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.briefing
@@ -163,25 +162,22 @@ class Contract(models.Model):
 
 
 class LegalEntity(models.Model):
-    name = models.CharField(_("主体名称"), max_length=64)
+    name = models.CharField(_("主体名称"), max_length=128, unique=True)
     ENTITY_TYPE = (
         ('I', 'Internal'),
         ('E', 'External'),
     )
     type = models.CharField(_("主体类型"), choices=ENTITY_TYPE, default='E', max_length=1)
-    prjct = models.ForeignKey("nanopay.Prjct", verbose_name=_("Project Name"), on_delete=models.SET_NULL, null=True, blank=True)
-    deposit_bank = models.CharField(_("开户行"), max_length=64, null=True)
-    deposit_bank_account = models.CharField(_("开户行账号"), max_length=32, null=True)
+    prjct = models.ForeignKey("nanopay.Prjct", verbose_name=(_("Project Name")), on_delete=models.SET_NULL, null=True, blank=True)
+    deposit_bank = models.CharField(_("开户行"), max_length=64, null=True, blank=True)
+    deposit_bank_account = models.CharField(_("开户行账号"), max_length=32, null=True, blank=True)
     tax_number = models.CharField(_("纳税人识别号"), max_length=32, null=True, blank=True)
-    reg_addr = models.CharField(_("注册地址"), max_length=64, null=True)
-    reg_phone = models.CharField(_("注册电话"), max_length=16, null=True)
+    reg_addr = models.CharField(_("注册地址"), max_length=64, null=True, blank=True)
+    reg_phone = models.CharField(_("注册电话"), max_length=16, null=True, blank=True)
+    
+    postal_addr = models.CharField(_("Postal Address"), max_length=256, null=True, blank=True)
 
-    external_contacts = models.ManyToManyField(User, verbose_name=_("Contacts"), limit_choices_to={
-        # "is_staff": True
-        'groups__name': 'External Contacts'
-    },)
-
-    postal_addr = models.CharField(_("Postal Address"), max_length=64)
+    # external_contacts = models.ManyToManyField(User, verbose_name=(_("Contacts")), limit_choices_to={"is_staff": True' groups__name': 'External Contacts'}),)
 
     def __str__(self):
         # return "%s, %s (%s)" % (self.type, self.name, self.prjct)
@@ -195,7 +191,7 @@ class LegalEntity(models.Model):
 
 
 class Prjct(models.Model):
-    name = models.CharField(_("Project Name"), max_length=16)
+    name = models.CharField(_("Project Name"), max_length=16, unique=True)
 
     def __str__(self):
         return self.name
@@ -242,7 +238,7 @@ class NonPayrollExpense(models.Model):
     )
     is_direct_cost = models.CharField(_("Is Direct Cost"), choices=ID_DIRECT_COST, max_length=1, default='N')
 
-    created_by = models.ForeignKey(User, verbose_name=_("Created by"), on_delete=models.SET_NULL, null=True)
+    created_by = models.ForeignKey(User, verbose_name=(_("Created by")), on_delete=models.SET_NULL, null=True)
     created_on = models.DateField(_("Created on"), auto_now_add=True, null=True)
 
     def __str__(self):

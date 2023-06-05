@@ -115,8 +115,9 @@ class NewContractForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["party_a_list"].queryset = LegalEntity.objects.filter(type='I')
         self.fields["party_b_list"].queryset = LegalEntity.objects.filter(type='E')
-    
-    # non_payroll_expense = forms.CharField(required=True, max_length=100, widget=TextInput(attrs={"list": "non_payroll_expenses", "class": "form-control",}))
+
+    startup = forms.DateField(widget=forms.TextInput(attrs={"type": "date", "class": "form-control",}), required=True, )
+    endup = forms.DateField(widget=forms.TextInput(attrs={"type": "date", "class": "form-control",}), required=False)
 
     CONTRACT_TYPE = (
         ('M', 'Maintenance'),
@@ -126,18 +127,17 @@ class NewContractForm(forms.Form):
     )
     type = forms.ChoiceField(required=True, initial='M', choices=CONTRACT_TYPE, widget=forms.Select(attrs={"class": "form-control",}))
 
-    startup = forms.DateField(widget=forms.TextInput(attrs={"type": "date", "class": "form-control",}), required=True, )
-    endup = forms.DateField(widget=forms.TextInput(attrs={"type": "date", "class": "form-control",}), required=False)
+
+
+    briefing = forms.CharField(required=True, max_length=72, widget=forms.TextInput(attrs={
+        "list": "briefing",
+        "placeholder": "please give a Unique briefing for the New contract here within 72 characters",
+        "class": "form-control",
+        }))
     
     # scanned_copy = MultipleFileField(required=True)
     scanned_copy = forms.FileField(required=True, widget=forms.ClearableFileInput(attrs={
         # "multiple": True,
-        "class": "form-control",
-        }))
-    
-    briefing = forms.CharField(required=True, max_length=72, widget=forms.TextInput(attrs={
-        "list": "briefing",
-        "placeholder": "please give a Unique briefing for the New contract here within 72 characters",
         "class": "form-control",
         }))
     

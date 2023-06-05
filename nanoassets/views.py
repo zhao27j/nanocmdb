@@ -364,7 +364,7 @@ def InstanceNew(request):
 
     owner_list = []
     for owner in User.objects.all():
-        if owner.username != 'admin':
+        if owner.username != 'admin' and 'tishmanspeyer.com' in owner.email:
             owner_list.append('%s ( %s )' % (owner.get_full_name(), owner.username))
         
     branchsite_list = branchSite.objects.all()

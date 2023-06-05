@@ -20,7 +20,12 @@ def user_profile_update(request, pk):
     else:
         form = UserProfileUpdateForm(
             initial={
+                'dept': request.user.userprofile.dept,
+                'title': request.user.userprofile.title,
+                'work_phone': request.user.userprofile.work_phone,
+                'postal_addr': request.user.userprofile.postal_addr,
                 'cellphone': request.user.userprofile.cellphone,
+                'legal_entity': request.user.userprofile.legal_entity,
             }
         )
 

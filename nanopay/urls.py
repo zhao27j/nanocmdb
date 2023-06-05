@@ -8,6 +8,7 @@ app_name = 'nanopay'
 urlpatterns = [
     path('legal_entity/<int:pk>/update/', views.LegalEntityUpdateView.as_view(), name='legal-entity-update'),
     path('legal_entity/new/', views.LegalEntityCreateView.as_view(), name='legal-entity-new'),
+    path('legal_entity/<int:pk>/detail/', views.LegalEntityDetailView.as_view(), name='legalentity-detail'),
     path('legal_entities', views.LegalEntityListView.as_view(), name='legal-entity-list'),
 ]
 

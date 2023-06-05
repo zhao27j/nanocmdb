@@ -352,6 +352,11 @@ class ContractListView(LoginRequiredMixin, generic.ListView):
     """
     def get_queryset(self):
         return super().get_queryset()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return context
     """
 
 
@@ -384,6 +389,17 @@ class LegalEntityCreateView(LoginRequiredMixin, CreateView):
     fields = '__all__'
     # template_name = "TEMPLATE_NAME"
     success_url = reverse_lazy('nanopay:legal-entity-list')
+
+
+class LegalEntityDetailView(LoginRequiredMixin, generic.DetailView):
+    model = LegalEntity
+    """
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        contacts = self.object.userprofile_set.all()
+        context["contacts"] = contacts
+        return context
+    """
 
 
 class LegalEntityListView(LoginRequiredMixin, generic.ListView):

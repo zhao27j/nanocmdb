@@ -28,17 +28,45 @@
       <div class="col-md-8">
         <div class="card-body">
           <h3 class="card-title text-body-secondary">Profile - {{ user.get_full_name }}</h3>
+          <p class="card-text"><small class="text-body-secondary">{{ user.userprofile.legal_entity }}</small></p>
           <p class="card-text">...</p>
-          <p class="card-text"><small class="text-body-secondary">...</small></p>
         </div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><b>Username : </b> {{ user.username }}</li>
-          <li class="list-group-item"><b>Email : </b> {{ user.email }}</li>
           <li class="list-group-item">
-            <span class="fieldWrapper">
-              <label for="{{ form.cellphone.id_for_label }}"><b>Cellphone : </b></label>
-            </span>
-            <span class="fieldWrapper">{{ form.plan.errors }}{{ form.cellphone }}</span>
+            <div class="row">
+              <div class="col"><b>Username : </b> {{ user.username }}</div>
+              <div class="col"><b>Email : </b> {{ user.email }}</div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col">
+                <span class="fieldWrapper"><label for="{{ form.title.id_for_label }}"><b>Title : </b></label></span>
+                <span class="fieldWrapper">{{ form.title.errors }}{{ form.title }}</span>
+              </div>
+              <div class="col">
+                <span class="fieldWrapper"><label for="{{ form.dept.id_for_label }}"><b>Dept : </b></label></span>
+                <span class="fieldWrapper">{{ form.dept.errors }}{{ form.dept }}</span>
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col">
+                <span class="fieldWrapper"><label for="{{ form.work_phone.id_for_label }}"><b>Work Phone # : </b></label></span>
+                <span class="fieldWrapper">{{ form.work_phone.errors }}{{ form.work_phone }}</span>
+              </div>
+              <div class="col">
+                <span class="fieldWrapper"><label for="{{ form.cellphone.id_for_label }}"><b>Cellphone # : </b></label></span>
+                <span class="fieldWrapper">{{ form.cellphone.errors }}{{ form.cellphone }}</span>
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="col">
+              <span class="fieldWrapper"><label for="{{ form.postal_addr.id_for_label }}"><b>Postal Address : </b></label></span>
+              <span class="fieldWrapper">{{ form.postal_addr.errors }}{{ form.postal_addr }}</span>
+            </div>
           </li>
         </ul>
         <div class="card-body">

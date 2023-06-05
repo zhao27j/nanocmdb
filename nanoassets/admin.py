@@ -28,9 +28,12 @@ class InstanceAdmin(ImportExportModelAdmin):
     list_filter = ['model_type', 'status', 'branchSite']
     search_fields = ['serial_number', 'model_type__name','status', 'owner__username', 'eol_date']
 
+@admin.register(ModelType)
+class ModelTypeAdmin(admin.ModelAdmin):
+    list_display = ['sub_category', 'manufacturer', 'name', ]
 
 # admin.site.register(Instance, InstanceAdmin)
-admin.site.register(ModelType)
+# admin.site.register(ModelType)
 admin.site.register(Manufacturer)
 # admin.site.register(ScrapRequest)
 # admin.site.register(branchSite)
