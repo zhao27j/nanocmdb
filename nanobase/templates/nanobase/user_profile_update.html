@@ -40,14 +40,8 @@
           </li>
           <li class="list-group-item">
             <div class="row">
-              <div class="col">
-                <span class="fieldWrapper"><label for="{{ form.title.id_for_label }}"><b>Title : </b></label></span>
-                <span class="fieldWrapper">{{ form.title.errors }}{{ form.title }}</span>
-              </div>
-              <div class="col">
-                <span class="fieldWrapper"><label for="{{ form.dept.id_for_label }}"><b>Dept : </b></label></span>
-                <span class="fieldWrapper">{{ form.dept.errors }}{{ form.dept }}</span>
-              </div>
+              <div class="col"><b>Department : </b> {{ user.userprofile.dept }}</div>
+              <div class="col"><b>Title : </b> {{ user.userprofile.title }}</div>
             </div>
           </li>
           <li class="list-group-item">

@@ -4,6 +4,7 @@
   <tr>
     <th></th>
     <th><small><small>Serial #</small></th>
+    <th><small><small>Sub Catagory</small></th>
     <th><small>Model / Type</small></th>
     <th><small>Hostname</small></th>
     <th><small>Status</small></th>
@@ -25,6 +26,7 @@
         <a href="{% url 'nanoassets:instance-detail' instance.pk %}"><small>{{ instance.serial_number }}</small></a>
       </label>
     </td>
+    <td><small>{{ instance.model_type.sub_category }}</small></td>
     <td>
       {% if user|has_group:"IT China" %}
       <a href="{% url 'nanoassets:instance-in-repair' instance.pk %}">

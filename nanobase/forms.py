@@ -22,15 +22,15 @@ class UserProfileUpdateForm(forms.ModelForm):
         model = UserProfile
 
         fields = [
-            # 'avatar',
-            'dept', 'title', 'work_phone', 'postal_addr', 'cellphone',
+            # 'avatar', 'dept', 'title', 
+            'work_phone', 'postal_addr', 'cellphone',
             ]
         
         widgets = {
             # "avatar": forms.ImageField(attrs={'class': 'form-control-file',}),
-            "dept": forms.TextInput(attrs={'class': 'form-control',}),
-            "title": forms.TextInput(attrs={'class': 'form-control',}),
-            "work_phone": forms.TextInput(attrs={'class': 'form-control',}),
+            # "dept": forms.TextInput(attrs={'class': 'form-control',}),
+            # "title": forms.TextInput(attrs={'class': 'form-control',}),
+            "work_phone": forms.NumberInput(attrs={'class': 'form-control',}),
             "postal_addr": forms.TextInput(attrs={'class': 'form-control',}),
-            "cellphone": forms.TextInput(attrs={'class': 'form-control',}),
+            "cellphone": forms.NumberInput(attrs={'class': 'form-control',}),
         }
