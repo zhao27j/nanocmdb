@@ -4,21 +4,20 @@
 
 {% include 'base_messages.html' %}
 
-<div class="container mt-3">
-  <p class="h3">search results</p>
-  {% if user|has_group:"IT China" %}
-    {% if instance_list %}
-    <form action="{% url 'nanoassets:instance-bulk-upd' %}" method="post">
-      {% csrf_token %}
-      {% include 'base_instance_list_tools.html' %}
-      {% include 'base_instance_list.html' with instances=instance_list %}
-    </form>
-    {% else %}
-    <p class="lead">No IT assets are under your support !</p>
-    {% endif %}
+<p class="h3">search results</p>
+{% if user|has_group:"IT China" %}
+  {% if instance_list %}
+  <form action="{% url 'nanoassets:instance-bulk-upd' %}" method="post">
+    {% csrf_token %}
+    {% include 'base_instance_list_tools.html' %}
+    {% include 'base_instance_list.html' with instances=instance_list %}
+  </form>
   {% else %}
-    <p class="lead">You're not the authorized IT staff</p>
+  <p class="lead">No IT assets are under your support !</p>
   {% endif %}
-</div>
+{% else %}
+  <p class="lead">You're not the authorized IT staff</p>
+{% endif %}
+
 
 {% endblock page_content %}

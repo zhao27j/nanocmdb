@@ -16,7 +16,7 @@
   <tr>
     <td><input type="checkbox" name="contract" id="contract{{ forloop.counter }}" value="{{ contract.pk }}"/></td>
     <td>
-      <a href="{% url 'nanopay:contract-detail' contract.pk %}" class="btn btn-link position-relative text-start" style="width: 16rem;">
+      <a href="{% url 'nanopay:contract-detail' contract.pk %}" class="btn btn-link position-relative text-start">
         <small>{{ contract.briefing }}</small>
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
           {{ contract.assets.all.count }}

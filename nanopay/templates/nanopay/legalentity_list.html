@@ -25,11 +25,11 @@
       </td>
       <td><small>{{ legal_entity.get_type_display }}</small></td>
       <td><small>{{ legal_entity.prjct }}</small></td>
-      <td><small>{{ legal_entity.deposit_bank|truncatechars:8 }}</small></td>
-      <td><small>{{ legal_entity.deposit_bank_account|truncatechars:8 }}</small></td>
-      <td><small>{{ legal_entity.tax_number|truncatechars:8 }}</small></td>
-      <td><small>{{ legal_entity.reg_addr|truncatechars:8 }}</small></td>
-      <td><small>{{ legal_entity.reg_phone|truncatechars:8 }}</small></td>
+      <td><small>{{ legal_entity.deposit_bank|truncatechars:16 }}</small></td>
+      <td><small>{{ legal_entity.deposit_bank_account|truncatechars:16 }}</small></td>
+      <td><small>{{ legal_entity.tax_number|truncatechars:16 }}</small></td>
+      <td><small>{{ legal_entity.reg_addr|truncatechars:16 }}</small></td>
+      <td><small>{{ legal_entity.reg_phone|truncatechars:16 }}</small></td>
     {% endfor %}
   </table>
 
