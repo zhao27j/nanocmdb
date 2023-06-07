@@ -43,7 +43,7 @@
           <li class="list-group-item">
             <b>Owner:</b> 
             <a href="{% url 'nanoassets:instance-owner-upd' instance.pk %}">
-              <small>{{ instance.owner.get_full_name }}</small>
+              {% if instance.owner %}<small>{{ instance.owner.get_full_name }}</small>{% else %}🈳{% endif %}
             </a>
           </li>
           <li class="list-group-item"><em>...</em></li>
