@@ -4,24 +4,77 @@
 
 {% include 'base_messages.html' %}
 
-<p>Serial Number: <b></small>{{ instance.serial_number }} </small></b></p>
-<p>Model / Type: <b><small>{{ instance.model_type }} </small></b></p>
-<p>Status: <b><small>{{ instance.get_status_display }} </small></b></p>
-<p>Hostname: <b><small>{{ instance.configuragion }} </small></b></p>
-<p>Owner: <b><small>{{ instance.owner.get_full_name }} </small></b></p>
-<p>Site: <b><small>{{ instance.branchSite }} </small></b></p>
+{% if form.non_field_errors %}
+  {% for message in form.non_field_errors %}
+  <div class="container-fluid">
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <div>{{ message }}</div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+        <!-- <span aria-hidden="True">&times;</span> -->
+      </button>
+    </div>
+  </div>
+  {% endfor %}
+{% endif %}
+
 <form action="" method="post">
   {% csrf_token %}
-  <table class="table">
-    <input type="text" list="owners" id="owner" name="assign_to" autocomplete="off" size="30" placeholder="leave this empty for Returning back" />
-    <datalist id="owners">
-      {% for owner in owners %}
-        <option value="{{ owner.username }}"></option>
-      {% endfor %}
-    </datalist>
-  </table>
-  <div class="d-grid gap-2 d-md-block">
-    <input type="submit" value="update" class="btn btn-outline-primary d-inline-flex align-items-center" />
+
+  <div class="card mb-3" ">
+    <div class="row g-0">
+      <div class="col-md-4">
+        <img src="..." class="img-fluid rounded-start" alt="...">
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h3 class="card-title text-body-secondary">{{ instance.model_type }} - {{ instance.serial_number }}</h3>
+          <p class="card-text"><small class="text-body-secondary">{{ instance.get_status_display }}</small></p>
+          <p class="card-text">...</p>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            <div class="row">
+              
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col"><b>Sub-Category : </b> {{ instance.model_type.sub_category }}</div>
+              <div class="col"><b>Hostname : </b> {{ instance.configuragion }}</div>
+            </div>
+          </li>
+          
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col"><b>Site : </b> {{ instance.branchSite }}</div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col"><b>Current Owner : </b>
+                {% if instance.owner %}<small>{{ instance.owner.get_full_name }}</small>{% else %}🈳{% endif %}
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col-2"><b>Re-assign to : </b></div>
+              <div class="col fieldWrapper">
+                {{ form.owner.errors }} {{ form.owner }}
+                <datalist id="owner_list">
+                  {% for owner in owner_list %}
+                  <option value="{{ owner }}"></option>
+                  {% endfor %}
+                </datalist>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <div class="card-body">
+          <input type="submit" value="update" class="btn btn-outline-primary d-inline-flex align-items-center" />
+        </div>
+      </div>
+    </div>
   </div>
 </form>
 

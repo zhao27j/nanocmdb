@@ -12,6 +12,25 @@ from django.forms import TextInput, Select
 from .models import Instance, ModelType, branchSite
 from nanopay.models import Contract
 
+class InstnaceOwnerUpdateForm(forms.Form):
+    owner = forms.CharField(max_length=64, required=False, widget=TextInput(attrs={
+        'class': 'form-control',
+        'list': 'owner_list',
+    }))
+
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        owner = cleaned_data.get('owner').strip(")").split("(")[-1].strip().lower()
+
+        if owner != '' and not User.objects.filter(username=owner):
+            raise ValidationError(_('owner selected does NOT exist'))
+
+        if owner == 'admin':
+            raise ValidationError(_('can NOT be assigned to [ admin ]'))
+        
+
 class NewInstanceForm(forms.Form):
     serial_number = forms.CharField(max_length=32, required=True, widget=TextInput(attrs={'class': 'form-control',}))
     model_type = forms.CharField(label='Model / Type', max_length=32, required=True, widget=TextInput(attrs={

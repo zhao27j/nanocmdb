@@ -37,27 +37,28 @@
   <div class="card-body">
     <div class="tab-content" id="myTabContent">
       <div class="tab-pane fade show active" id="assets-tab-pane" role="tabpanel" aria-labelledby="assets-tab" tabindex="0">
-        <h5 class="card-title">{{ instance.model_type }} - {{ instance.serial_number }}</h5>
+        <h5 class="card-title text-body-secondary">{{ instance.model_type }} - {{ instance.serial_number }}</h5>
         <ul class="list-group list-group-flush">
+          <li class="list-group-item"><b>Status:</b> <small>{{ instance.get_status_display }}</small></li>
           <li class="list-group-item">
-            <b>Owner:</b> <small>{{ instance.owner.get_full_name }}</small>
-          </li>
-          <li class="list-group-item">
-            <b>Status:</b> <small>{{ instance.get_status_display }}</small>
+            <b>Owner:</b> 
+            <a href="{% url 'nanoassets:instance-owner-upd' instance.pk %}">
+              <small>{{ instance.owner.get_full_name }}</small>
+            </a>
           </li>
           <li class="list-group-item"><em>...</em></li>
         </ul>
       </div>
       <div class="tab-pane fade" id="configuration-tab-pane" role="tabpanel" aria-labelledby="configuration-tab" tabindex="0">
-        <h5 class="card-title">{{ instance.configuragion.hostname }}</h5>
+        <h5 class="card-title text-body-secondary">{{ instance.configuragion.hostname }}</h5>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><em>...</em></li>
+          <li class="list-group-item"><b>Sub Category:</b> <small>{{ instance.model_type.sub_category }}</small></li>
           <li class="list-group-item"><em>...</em></li>
           <li class="list-group-item"><em>...</em></li>
         </ul>
       </div>
       <div class="tab-pane fade" id="site-tab-pane" role="tabpanel" aria-labelledby="site-tab" tabindex="0">
-        <h5 class="card-title">{{ instance.branchSite.name }}</h5>
+        <h5 class="card-title text-body-secondary">{{ instance.branchSite.name }}</h5>
         <ul class="list-group list-group-flush">
           <li class="list-group-item"><b>Address:</b> <small>{{ instance.branchSite.addr }}</small></li>
           <li class="list-group-item"><b>Location:</b> <small>{{ instance.branchSite.city }}</small></li>
@@ -78,7 +79,7 @@
       </div>
       {% if user|has_group:"IT China" and request.user.is_staff %}
       <div class="tab-pane fade" id="contract-tab-pane" role="tabpanel" aria-labelledby="contract-tab" tabindex="0">
-        <h5 class="card-title">Associated with ...</h5>
+        <h5 class="card-title text-body-secondary">Associated with ...</h5>
 
         {% include 'base_contract_list.html' with contracts=instance.contract_set.all %}
 

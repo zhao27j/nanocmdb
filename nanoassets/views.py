@@ -20,7 +20,7 @@ from django.utils import timezone
 
 from django.db.models import Q
 
-from .forms import NewInstanceForm
+from .forms import NewInstanceForm, InstnaceOwnerUpdateForm
 from .models import ModelType, Instance, ScrapRequest, branchSite
 from nanopay.models import Contract
 
@@ -181,6 +181,7 @@ class InstanceSearchResultsListView(LoginRequiredMixin, generic.ListView):
                 Q(serial_number__icontains=query) |
                 Q(model_type__name__icontains=query) |
                 Q(model_type__manufacturer__name__icontains=query) |
+                Q(model_type__sub_category__name__icontains=query) |
                 Q(status__icontains=query) |
                 Q(owner__username__icontains=query) |
                 Q(owner__first_name__icontains=query) |
@@ -250,73 +251,61 @@ def InstanceInRepair(request, pk):
     return redirect('nanoassets:supported-instance-list')
 
 
-class InstanceOwnerUpdate(LoginRequiredMixin, UpdateView):
-    model = Instance
-    fields = ['owner']  # fields = '__all__'
-    template_name = 'nanoassets/instance_update_owner.html'
-    success_url = reverse_lazy('nanoassets:supported-instance-list')
+@login_required
+def InstanceOwnerUpdate(request, pk):
+    owner_list = []
+    for owner in User.objects.all():
+        if owner.username != 'admin' and 'tishmanspeyer.com' in owner.email:
+            owner_list.append('%s ( %s )' % (owner.get_full_name(), owner.username))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        owners = []
-        for owner in User.objects.all():
-            if owner.username != 'admin':
-                owners.append(owner)
-        context['owners'] = owners
-        return context
+    instance = get_object_or_404(Instance, pk=pk)
 
-    def form_valid(self, form):
-        original_instance = get_object_or_404(Instance, pk=form.instance.pk)
-        assign_to = self.request.POST['assign_to'].strip()
-        if assign_to == 'admin':
-            form.instance.owner = original_instance.owner
-            messages.warning(self.request, 'the IT Assets [ ' + original_instance.serial_number + ' ] can NOT be assigned to ' + assign_to)
-        elif assign_to == '' and original_instance.owner == None:
-            form.instance.owner = original_instance.owner
-            messages.warning(self.request, 'the ownership of IT Assets [ ' + original_instance.serial_number + ' ] got Nothing to change')
-        elif assign_to == '' and original_instance.owner:
-            form.instance.status = 'AVAILABLE'  # self.object.status = 'AVAILABLE'
-            self.object.activityhistory_set.create(
-                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
-                'Returned from ' + original_instance.owner.username + ' by ' + self.request.user.get_full_name())
-            messages.info(self.request, 'the IT Assets [ ' + original_instance.serial_number +
-                          ' ] was Returned from ' + original_instance.owner.username)
-        else:
-            try:
-                form.instance.owner = User.objects.get(username=assign_to)
-            except User.DoesNotExist:
-                form.instance.owner = None
+    if request.method == 'POST': # if this is a POST request then process the Form data
+        form = InstnaceOwnerUpdateForm(request.POST) # create a form instance and populate it with data from the request (binding):
+        if form.is_valid(): # check if the form is valid:
+            # process the data in form.cleaned_data as required
+            re_assign_to = form.cleaned_data.get('owner').strip(")").split("(")[-1].strip().lower()
+            re_assign_to = get_object_or_404(User, username=re_assign_to) if re_assign_to != '' else re_assign_to
+            if re_assign_to == '' and instance.owner:
 
-            if not original_instance.owner:
-                if not form.instance.owner:
-                    form.instance.owner = original_instance.owner
-                    messages.warning(self.request, 'the IT Assets [ ' + original_instance.serial_number + ' ] can NOT be assigned to ' + assign_to)
-                elif assign_to == "":
-                    form.instance.owner = original_instance.owner
-                    messages.warning(self.request, 'the ownership of IT Assets [ ' + original_instance.serial_number + ' ] got Nothing to change')
-                else:
-                    form.instance.status = 'inUSE'  # self.object.status = 'inUSE'
-                    self.object.activityhistory_set.create(
-                        description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Assigned to ' + form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 ') + ' by ' + self.request.user.get_full_name())
-                    messages.info(self.request, 'the IT Assets [' + original_instance.serial_number + '] was Assign to ' +
-                                form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 '))
+                instance.activityhistory_set.create(
+                    description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
+                    'Returned from [ ' + instance.owner.get_full_name() + ' ] by ' + request.user.get_full_name())
+                messages.info(request, 'the IT Assets [ ' + instance.serial_number +
+                          ' ] was Returned from ' + instance.owner.username)
+
+                instance.status = 'AVAILABLE'
+                instance.owner = None
+                instance.save()
+
+                return redirect('nanoassets:instance-detail', pk=instance.pk)
+            
+            elif re_assign_to != '' and re_assign_to != instance.owner:
+
+                instance.activityhistory_set.create(
+                    description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 
+                    'Re-assigned to [ ' + re_assign_to.get_full_name() + ' ] from [ ' + 
+                    (instance.owner.get_full_name() if instance.owner else ' 🈳 ') + ' ] by ' + request.user.get_full_name())
+                messages.info(request, 'the IT Assets [ ' + instance.serial_number + ' ] was Re-assigned to ' +
+                                re_assign_to.get_full_name() + ' from ' + (instance.owner.get_full_name() if instance.owner else ' 🈳 '))
+
+                instance.status = 'inUSE'
+                instance.owner = re_assign_to
+                instance.save()
+
+                return redirect('nanoassets:instance-detail', pk=instance.pk)
+
             else:
-                if not form.instance.owner:
-                    form.instance.owner = original_instance.owner
-                    messages.warning(
-                        self.request, 'the IT Assets [ ' + original_instance.serial_number + ' ] can NOT be assigned to ' + assign_to)
-                elif assign_to == original_instance.owner.username:
-                    form.instance.owner = original_instance.owner
-                    messages.warning(
-                        self.request, 'the ownership of IT Assets [ ' + original_instance.serial_number + ' ] got Nothing to change')
-                else:
-                    form.instance.status = 'inUSE'  # self.object.status = 'inUSE'
-                    self.object.activityhistory_set.create(
-                        description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Assigned to ' + form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 ') + ' by ' + self.request.user.get_full_name())
-                    messages.info(self.request, 'the IT Assets [' + original_instance.serial_number + '] was Assign to ' +
-                                form.instance.owner.username + ' from ' + (original_instance.owner.username if original_instance.owner else ' 🈳 '))
+                messages.warning(request, 'the ownership of IT Assets [ ' + instance.serial_number + ' ] got Nothing to change')
 
-        return super().form_valid(form)
+    else: # if this is a GET (or any other method) create the default form.
+        form = InstnaceOwnerUpdateForm(initial={})
+
+    return render(request, 'nanoassets/instance_update_owner.html', {
+        'form': form,
+        'owner_list': owner_list,
+        'instance': instance,
+        })
 
 
 class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
