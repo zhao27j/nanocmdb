@@ -136,7 +136,7 @@ class NewContractForm(forms.Form):
         }))
     
     # scanned_copy = MultipleFileField(required=True)
-    scanned_copy = forms.FileField(required=True, widget=forms.ClearableFileInput(attrs={
+    scanned_copy = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={
         # "multiple": True,
         "class": "form-control",
         }))
