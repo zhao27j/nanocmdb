@@ -15,7 +15,7 @@ from django.shortcuts import get_object_or_404
 from .models import Contract, LegalEntity, PaymentTerm, PaymentRequest, NonPayrollExpense
 
 class NewPaymentRequestForm(forms.Form):
-    non_payroll_expense = forms.CharField(required=True, max_length=128, widget=TextInput(attrs={
+    non_payroll_expense = forms.CharField(required=True, max_length=256, widget=TextInput(attrs={
         "list": "non_payroll_expenses",
         "class": "form-control",
     }))
@@ -66,7 +66,7 @@ class NewPaymentTermForm(forms.ModelForm):
 
         plan = cleaned_data.get('plan')
         if plan == 'C' and recurring != 1:
-            raise ValidationError(_("the Recurring for plan Custom must be = 1 "))
+            raise ValidationError(_("the Recurring for Custom plan must be = 1 "))
         
         amount = cleaned_data.get('amount')
         if amount <= 0:

@@ -40,11 +40,15 @@ def payment_request_paper_form(request, pk):
                     if paymentTerm.applied_on.year == payment_request.non_payroll_expense.non_payroll_expense_year:
                         accumulated_payment_excluded_this_request += payment_req.amount
 
+    if payment_request.payment_term.contract.get_total_amount():
+        contract_amount = payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.payment_term.contract.get_total_amount()['amount__sum'])
+    else:
+        contract_amount = ''
     context = {
         "payer": payment_request.payment_term.contract.get_party_a_display(),
         "date_of_request": payment_request.requested_on,
         "payment_due_date": '',
-        "contract_amount": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.payment_term.contract.get_total_amount()['amount__sum']),
+        "contract_amount": contract_amount,
         # "contract_accumulated_payment_excluded_this_request": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.payment_term.contract.get_total_amount_applied()['amount__sum']),
         "contract_accumulated_payment_excluded_this_request": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(contract_accumulated_payment_excluded_this_request),
         "included_in_the_budget_yes": '✔️',
@@ -225,14 +229,14 @@ def payment_term_new(request, pk):
             # process the data in form.cleaned_data as required
             new_payment_term_plan = form.cleaned_data['plan']
             new_payment_term_recurring = form.cleaned_data['recurring']
-            if new_payment_term_plan != 'C' and new_payment_term_recurring > 1:
+            if new_payment_term_plan != 'C' and new_payment_term_recurring > 0:
                 pay_day = form.cleaned_data['pay_day']
                 recurring = 1
                 recurring_added = recurring
                 while recurring < new_payment_term_recurring:
                     if new_payment_term_plan == 'M':
-                        if contract.endup or (pay_day + datetime.timedelta(weeks=(4.333333333))).year < datetime.date.today().year + 1:
-                            pay_day += datetime.timedelta(weeks=(4.333333333))
+                        if contract.endup or (pay_day + datetime.timedelta(weeks=(4.333333333333333333))).year < datetime.date.today().year + 1:
+                            pay_day += datetime.timedelta(weeks=(4.333333333333333333))
                             PaymentTerm.objects.create(pay_day=pay_day, plan=new_payment_term_plan, recurring=1, amount=form.cleaned_data['amount'], contract=form.cleaned_data['contract'],)
                             recurring_added += 1
                     elif new_payment_term_plan == 'Q':
@@ -268,14 +272,17 @@ def payment_term_new(request, pk):
             
             messages.info(request, 
                           str(recurring_added) + ' x ' + new_payment_term.get_plan_display()
-                            + 'Payment Terms for the Contract [ ' + contract.briefing
+                            + ' Payment Terms for the Contract [ ' + contract.briefing
                               + ' ] were added by ' + request.user.get_full_name()
                               )
 
             return redirect('nanopay:contract-detail', pk=pk) # redirect to a new URL:
 
     else: # if this is a GET (or any other method) create the default form.
-        pay_day = contract.startup + datetime.timedelta(weeks=4.33333)
+        if PaymentTerm.objects.filter(contract=contract).order_by("pay_day").last():
+            pay_day = PaymentTerm.objects.filter(contract=contract).order_by("pay_day").last().pay_day + datetime.timedelta(weeks=4.333333333333333333)
+        else:
+            pay_day = contract.startup + datetime.timedelta(weeks=4.333333333333333333)
         form = NewPaymentTermForm(initial={
             'pay_day': pay_day,
             'contract': contract,
