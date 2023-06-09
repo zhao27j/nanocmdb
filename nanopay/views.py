@@ -285,14 +285,14 @@ def payment_term_new(request, pk):
 
             contract.activityhistory_set.create(
                 description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] '
-                  + str(recurring_added) + ' x ' + new_payment_term.get_plan_display()
+                  + str(new_payment_term_recurring) + ' x ' + new_payment_term.get_plan_display()
                     + ' Payment Term scheduled since ' + str(new_payment_term.pay_day)
                       + ' in amount ' + str(new_payment_term.amount)
                         + ' were added by ' + request.user.get_full_name()
                 )
             
             messages.info(request, 
-                          str(recurring_added) + ' x ' + new_payment_term.get_plan_display()
+                          str(new_payment_term_recurring) + ' x ' + new_payment_term.get_plan_display()
                             + ' Payment Terms for the Contract [ ' + contract.briefing
                               + ' ] were added by ' + request.user.get_full_name()
                               )

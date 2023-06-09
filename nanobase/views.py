@@ -7,6 +7,11 @@ from .forms import UserProfileUpdateForm
 # Create your views here.
 
 @login_required
+def user_create(request):
+    pass
+
+
+@login_required
 def user_profile_update(request, pk):
     if request.method == 'POST': # if this is a POST request then process the Form data
         form = UserProfileUpdateForm(
