@@ -250,5 +250,32 @@ class NonPayrollExpense(models.Model):
     def get_non_payroll_expense_subtotal(self):
         return self.jan + self.feb + self.mar + self.apr + self.may + self.jun + self.jul + self.aug + self.sep + self.oct + self.nov + self.dec
     
+    def get_non_payroll_expense_subtotal_ytm(self, currentMonth):
+        # currentMonth = datetime.date.today().month
+        if currentMonth == 1:
+            return 0
+        elif currentMonth == 2:
+            return self.jan
+        elif currentMonth == 3:
+            return self.jan + self.feb
+        elif currentMonth == 4:
+            return self.jan + self.feb + self.mar
+        elif currentMonth == 5:
+            return self.jan + self.feb + self.mar + self.apr
+        elif currentMonth == 6:
+            return self.jan + self.feb + self.mar + self.apr + self.may
+        elif currentMonth == 7:
+            return self.jan + self.feb + self.mar + self.apr + self.may + self.jun
+        elif currentMonth == 8:
+            return self.jan + self.feb + self.mar + self.apr + self.may + self.jun + self.jul
+        elif currentMonth == 9:
+            return self.jan + self.feb + self.mar + self.apr + self.may + self.jun + self.jul + self.aug
+        elif currentMonth == 10:
+            return self.jan + self.feb + self.mar + self.apr + self.may + self.jun + self.jul + self.aug + self.sep
+        elif currentMonth == 11:
+            return self.jan + self.feb + self.mar + self.apr + self.may + self.jun + self.jul + self.aug + self.sep + self.oct
+        elif currentMonth == 12:
+            return self.jan + self.feb + self.mar + self.apr + self.may + self.jun + self.jul + self.aug + self.sep + self.oct + self.nov
+
     class Meta:
         ordering = ['non_payroll_expense_year', 'non_payroll_expense_reforecasting', 'allocation']

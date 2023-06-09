@@ -29,43 +29,64 @@ from .forms import NewContractForm, NewPaymentTermForm, NewPaymentRequestForm
 @login_required
 def payment_request_paper_form(request, pk):
     payment_request = get_object_or_404(PaymentRequest, pk=pk)
+    payment_terms = PaymentTerm.objects.filter(contract=payment_request.payment_term.contract)
+    currency_type = payment_request.non_payroll_expense.get_currency_display()
+
+    if payment_request.payment_term.contract.get_total_amount():
+        contract_amount = currency_type + "{:,.2f}".format(payment_request.payment_term.contract.get_total_amount()['amount__sum'])
+    else:
+        contract_amount = '-'
 
     contract_accumulated_payment_excluded_this_request = 0
     accumulated_payment_excluded_this_request = 0
-    for paymentTerm in PaymentTerm.objects.filter(contract=payment_request.payment_term.contract):
+    accumulated_payment_excluded_this_request_count = 0
+
+    for paymentTerm in payment_terms:
         if paymentTerm.paymentrequest_set.all():
             for payment_req in paymentTerm.paymentrequest_set.all():
-                if paymentTerm.applied_on < payment_request.requested_on:
+                if paymentTerm.pay_day < payment_request.payment_term.pay_day:
                     contract_accumulated_payment_excluded_this_request += payment_req.amount
-                    if paymentTerm.applied_on.year == payment_request.non_payroll_expense.non_payroll_expense_year:
+                    if payment_request.requested_on.year == payment_req.non_payroll_expense.non_payroll_expense_year:
                         accumulated_payment_excluded_this_request += payment_req.amount
+                        accumulated_payment_excluded_this_request_count += 1
 
-    if payment_request.payment_term.contract.get_total_amount():
-        contract_amount = payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.payment_term.contract.get_total_amount()['amount__sum'])
+    if contract_accumulated_payment_excluded_this_request == 0:
+        contract_accumulated_payment_excluded_this_request = '-'
     else:
-        contract_amount = ''
+        contract_accumulated_payment_excluded_this_request = currency_type + "{:,.2f}".format(contract_accumulated_payment_excluded_this_request)
+    
+    if accumulated_payment_excluded_this_request == 0:
+        accumulated_payment_excluded_this_request = '-'
+        remaining_budget_after_this_payment = payment_request.non_payroll_expense.get_non_payroll_expense_subtotal()
+    else:
+        accumulated_payment_excluded_this_request = accumulated_payment_excluded_this_request
+        remaining_budget_after_this_payment = payment_request.non_payroll_expense.get_non_payroll_expense_subtotal() - payment_request.amount - accumulated_payment_excluded_this_request
+
+    if accumulated_payment_excluded_this_request_count < payment_request.payment_term.pay_day.month:
+        accumulated_payment_excluded_this_request = payment_request.non_payroll_expense.get_non_payroll_expense_subtotal_ytm(payment_request.payment_term.pay_day.month)
+        remaining_budget_after_this_payment = payment_request.non_payroll_expense.get_non_payroll_expense_subtotal() - payment_request.amount - accumulated_payment_excluded_this_request
+
     context = {
         "payer": payment_request.payment_term.contract.get_party_a_display(),
         "date_of_request": payment_request.requested_on,
         "payment_due_date": '',
         "contract_amount": contract_amount,
-        # "contract_accumulated_payment_excluded_this_request": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.payment_term.contract.get_total_amount_applied()['amount__sum']),
-        "contract_accumulated_payment_excluded_this_request": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(contract_accumulated_payment_excluded_this_request),
+        "contract_accumulated_payment_excluded_this_request": contract_accumulated_payment_excluded_this_request,
         "included_in_the_budget_yes": '✔️',
         "included_in_the_budget_no": '☐',
         "budget_dept_code_budget_originator": payment_request.non_payroll_expense.functional_department,
         "budget_expense_category_major_and_minor": payment_request.non_payroll_expense.global_gl_account,
-        "total_budget_amount_in_gbs_minor_category": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.non_payroll_expense.get_non_payroll_expense_subtotal()),
-        "accumulated_payment_excluded_this_request": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(accumulated_payment_excluded_this_request),
-        "remaining_budget_after_this_payment": '',
+        "total_budget_amount_in_gbs_minor_category": currency_type + "{:,.2f}".format(payment_request.non_payroll_expense.get_non_payroll_expense_subtotal()),
+        "accumulated_payment_excluded_this_request": currency_type + "{:,.2f}".format(accumulated_payment_excluded_this_request),
+        "remaining_budget_after_this_payment": currency_type + "{:,.2f}".format(remaining_budget_after_this_payment),
         "job_code": payment_request.non_payroll_expense.global_expense_tracking_id,
         "item_1_description": payment_request.non_payroll_expense.description,
-        "item_1_amount": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.amount),
+        "item_1_amount": currency_type + "{:,.2f}".format(payment_request.amount),
         "item_1_allocation_code": payment_request.non_payroll_expense.allocation,
         "item_1_allocation_percentage": '100%',
-        "item_1_allocated_amount": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.amount),
-        "total_amount": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.amount),
-        "total_allocated_amount": payment_request.non_payroll_expense.get_currency_display() + "{:,.2f}".format(payment_request.amount),
+        "item_1_allocated_amount": currency_type + "{:,.2f}".format(payment_request.amount),
+        "total_amount": currency_type + "{:,.2f}".format(payment_request.amount),
+        "total_allocated_amount": currency_type + "{:,.2f}".format(payment_request.amount),
         "transfer_petty_cash": "☐",
         "transfer_check": "☐",
         "transfer_wire": "✔️",
