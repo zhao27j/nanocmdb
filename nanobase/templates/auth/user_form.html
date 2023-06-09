@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load auth_extras %}
+{% block page_content %}
+
+{% include 'base_messages.html' %}
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="submit" value="Save">
+</form>
+
+{% endblock page_content %}

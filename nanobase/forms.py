@@ -1,12 +1,10 @@
+from typing import Any, Dict
 from django.utils.translation import gettext_lazy as _
 
 from django import forms
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 
-from django.contrib.auth.models import User
-
 from .models import UserProfile
-
 
 class UserProfileUpdateForm(forms.ModelForm):
     def clean(self):

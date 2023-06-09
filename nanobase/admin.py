@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import UserProfile, SubCategory
+from .models import UserProfile, UserDept, SubCategory
 
 # Register your models here.
 
@@ -11,3 +11,4 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 # admin.site.register(UserProfile)
 admin.site.register(SubCategory)
+admin.site.register(UserDept)

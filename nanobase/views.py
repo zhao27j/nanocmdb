@@ -1,14 +1,21 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse, reverse_lazy
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+
+from django.views.generic.edit import CreateView
 
 from .forms import UserProfileUpdateForm
 
 # Create your views here.
 
-@login_required
-def user_create(request):
-    pass
+class UserCreateView(LoginRequiredMixin, CreateView):
+    model = User
+    fields = ['username', 'first_name', 'last_name', 'email', ] # '__all__'
+    # template_name = "TEMPLATE_NAME"
+    success_url = reverse_lazy('nanoassets:supported-instance-list')
 
 
 @login_required
