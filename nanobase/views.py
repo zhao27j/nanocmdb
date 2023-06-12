@@ -7,9 +7,10 @@ from django.contrib.auth.models import User
 
 from django.views.generic.edit import CreateView
 
-from nanoassets.models import Instance
+from .models import UserDept
+from nanopay.models import LegalEntity
 
-from .forms import UserProfileUpdateForm
+from .forms import UserProfileUpdateForm, UserCreateForm
 
 # Create your views here.
 
@@ -19,6 +20,45 @@ class UserCreateView(LoginRequiredMixin, CreateView):
     # template_name = "TEMPLATE_NAME"
     success_url = reverse_lazy('nanoassets:supported-instance-list')
 
+@login_required
+def user_create(request):
+    dept_list = []
+    for dept in UserDept.objects.all():
+        dept_list.append(dept)
+
+    legal_entity_list = []
+    for legal_entity in LegalEntity.objects.all():
+        legal_entity_list.append(legal_entity)
+
+    if request.method == 'POST':
+        form = UserCreateForm(request.POST)
+        if form.is_valid():
+            new_user = User.objects.create_user(
+                username=form.cleaned_data.get('username').strip(),
+                first_name=form.cleaned_data.get('first_name').strip(),
+                last_name=form.cleaned_data.get('last_name').strip(),
+                email=form.cleaned_data.get('email').strip(),
+                )
+            # new_user.save()
+
+            new_user.userprofile.title = form.cleaned_data.get('title').strip() if form.cleaned_data.get('title') else ''
+            new_user.userprofile.dept = UserDept.objects.get(name=form.cleaned_data.get('dept').strip()) if form.cleaned_data.get('dept') else None
+            new_user.userprofile.work_phone = form.cleaned_data.get('work_phone')
+            new_user.userprofile.cellphone = form.cleaned_data.get('cellphone')
+            new_user.userprofile.postal_addr = form.cleaned_data.get('postal_addr').strip() if form.cleaned_data.get('postal_addr') else ''
+            new_user.userprofile.legal_entity = LegalEntity.objects.get(name=form.cleaned_data.get('legal_entity').strip()) if form.cleaned_data.get('legal_entity') else None
+            new_user.userprofile.save()
+
+            return redirect(to='/')
+
+    else:
+        form = UserCreateForm(initial={})
+
+    return render(request, 'nanobase/user_create.html', {
+        'form': form,
+        'dept_list': dept_list,
+        'legal_entity_list': legal_entity_list,
+        })
 
 @login_required
 def user_profile_update(request, pk):
