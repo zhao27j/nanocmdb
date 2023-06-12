@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 
 from django.views.generic.edit import CreateView
 
+from nanoassets.models import Instance
+
 from .forms import UserProfileUpdateForm
 
 # Create your views here.
@@ -42,3 +44,13 @@ def user_profile_update(request, pk):
         )
 
     return render(request, 'nanobase/user_profile_update.html', {'form': form})
+
+
+def data_migration_Hostname(request):
+    instances = Instance.objects.all()
+    for instance in instances:
+        if instance.configuragion:
+            instance.hostname = instance.configuragion.hostname
+            instance.save()
+
+    return redirect(request.path) # 重定向 至 当前 页面

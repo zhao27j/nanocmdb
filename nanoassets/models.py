@@ -98,6 +98,7 @@ class Instance(models.Model):
     )
     status = models.CharField(_("Status"), max_length=16, choices=INSTANCE_STATUS,default='Available', help_text='Asset availability')
 
+    hostname = models.CharField(_("Hostname"), max_length=64, null=True, blank=True)
     configuragion = models.ForeignKey("nanoassets.Configuragion", verbose_name=(_("Configuragion")), on_delete=models.SET_NULL, null=True, blank=True)
 
     scrap_request = models.ForeignKey("nanoassets.ScrapRequest", verbose_name=(_("Scrap Request")), on_delete=models.SET_NULL, null=True, blank=True)

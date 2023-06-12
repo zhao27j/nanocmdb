@@ -39,9 +39,9 @@
       <div class="tab-pane fade show active" id="assets-tab-pane" role="tabpanel" aria-labelledby="assets-tab" tabindex="0">
         <h5 class="card-title text-body-secondary">{{ instance.model_type }} - {{ instance.serial_number }}</h5>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><b>Status:</b> <small>{{ instance.get_status_display }}</small></li>
+          <li class="list-group-item"><b>Status :</b> <small>{{ instance.get_status_display }}</small></li>
           <li class="list-group-item">
-            <b>Owner:</b> 
+            <b>Owner :</b> 
             <a href="{% url 'nanoassets:instance-owner-upd' instance.pk %}">
               {% if instance.owner %}<small>{{ instance.owner.get_full_name }}</small>{% else %}🈳{% endif %}
             </a>
@@ -50,9 +50,14 @@
         </ul>
       </div>
       <div class="tab-pane fade" id="configuration-tab-pane" role="tabpanel" aria-labelledby="configuration-tab" tabindex="0">
-        <h5 class="card-title text-body-secondary">{{ instance.configuragion.hostname }}</h5>
+        <h5 class="card-title text-body-secondary">
+          <a href="{% url 'nanoassets:instance-hostname-upd' instance.pk %}">
+            {{ instance.configuragion.hostname }}
+          </a>
+        </h5>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><b>Sub Category:</b> <small>{{ instance.model_type.sub_category }}</small></li>
+          <li class="list-group-item"><b>Sub Category :</b> <small>{{ instance.model_type.sub_category }}</small></li>
+          <li class="list-group-item"><b>Model / Type :</b> <small>{{ instance.model_type }}</small></li>
           <li class="list-group-item"><em>...</em></li>
           <li class="list-group-item"><em>...</em></li>
         </ul>

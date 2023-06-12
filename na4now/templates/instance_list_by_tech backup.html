@@ -81,7 +81,7 @@
             </a>
             <small>{{ instance.model_type }}</small>
           </td>
-          <td><small>{{ instance.configuragion.hostname }}</small></td>
+          <td><small>{{ instance.hostname }}</small></td>
           <td><small>{{ instance.get_status_display }}</small></td>
           <td>
             <a href="{% url 'nanoassets:instance-owner-upd' instance.pk %}">

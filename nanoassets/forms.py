@@ -2,6 +2,8 @@ from typing import Any, Dict
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from django.shortcuts import get_object_or_404
+
 from django.contrib.auth.models import User
 
 from django import forms
@@ -11,6 +13,20 @@ from django.forms import TextInput, Select
 
 from .models import Instance, ModelType, branchSite
 from nanopay.models import Contract
+
+class InstanceHostnameUpdateForm(forms.Form):
+    hostname = forms.CharField(max_length=32, required=True, widget=TextInput(attrs={'class': 'form-control', }))
+
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        hostname = cleaned_data.get('hostname').strip()
+        if hostname == '':
+            raise ValidationError(_('invalid Hostname given'))
+        
+        if Instance.objects.filter(hostname=hostname):
+            raise ValidationError(_('the Hostname given does Exist'))
+
 
 class InstnaceOwnerUpdateForm(forms.Form):
     owner = forms.CharField(max_length=64, required=False, widget=TextInput(attrs={
