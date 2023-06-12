@@ -21,7 +21,7 @@ from django.utils import timezone
 from django.db.models import Q
 
 from .forms import NewInstanceForm, InstnaceOwnerUpdateForm, InstanceHostnameUpdateForm
-from .models import ModelType, Instance, Configuragion, ScrapRequest, branchSite
+from .models import ModelType, Instance, ScrapRequest, branchSite
 from nanopay.models import Contract
 
 # Create your views here.
@@ -187,7 +187,7 @@ class InstanceSearchResultsListView(LoginRequiredMixin, generic.ListView):
                 Q(owner__first_name__icontains=query) |
                 Q(owner__last_name__icontains=query) |
                 Q(owner__email__icontains=query) |
-                Q(configuragion__hostname__icontains=query) |
+                Q(hostname__icontains=query) |
                 Q(branchSite__name__icontains=query) |
                 Q(branchSite__city__name__icontains=query)
             )
@@ -252,7 +252,6 @@ def InstanceInRepair(request, pk):
 
 
 def InstanceHostnameUpdate(request, pk):
-    # configuragion = get_object_or_404(Configuragion, pk=pk)
     instance = get_object_or_404(Instance, pk=pk)
     if request.method == 'POST':
         form = InstanceHostnameUpdateForm(request.POST)
@@ -262,20 +261,17 @@ def InstanceHostnameUpdate(request, pk):
             instance.activityhistory_set.create(
                 description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
                 'the Hostname of IT Assets [ ' + instance.serial_number + 
-                ' ] was updated from [ ' + instance.configuragion.hostname + ' ] to [ ' +
+                ' ] was updated from [ ' + instance.hostname + ' ] to [ ' +
                 new_hostname + ' ] by ' + request.user.get_full_name())
             
             messages.info(request, 'the Hostname of IT Assets [ ' + instance.serial_number + 
-                ' ] was updated from [ ' + instance.configuragion.hostname + ' ] to [ ' + new_hostname + ' ]')
+                ' ] was updated from [ ' + instance.hostname + ' ] to [ ' + new_hostname + ' ]')
 
-            # configuragion.hostname = new_hostname
-            instance.configuragion.hostname = new_hostname
+            instance.hostname = new_hostname
 
-            # configuragion.save()
             instance.save()
 
             return redirect('nanoassets:instance-detail', pk=instance.pk)
-
 
     else: # if this is a GET (or any other method) create the default form.
         form = InstanceHostnameUpdateForm(initial={
@@ -284,7 +280,6 @@ def InstanceHostnameUpdate(request, pk):
 
     return render(request, 'nanoassets/instance_update_hostname.html', {
         'form': form,
-        # 'configuragion': configuragion,
         'instance': instance,
         })
 

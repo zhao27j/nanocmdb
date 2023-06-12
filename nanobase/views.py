@@ -45,7 +45,7 @@ def user_profile_update(request, pk):
 
     return render(request, 'nanobase/user_profile_update.html', {'form': form})
 
-
+"""
 def data_migration_Hostname(request):
     instances = Instance.objects.all()
     for instance in instances:
@@ -54,3 +54,4 @@ def data_migration_Hostname(request):
             instance.save()
 
     return redirect(request.path) # 重定向 至 当前 页面
+"""

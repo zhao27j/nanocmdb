@@ -10,6 +10,8 @@ urlpatterns = [
 ]
 
 # temp - data migrations
+"""
 urlpatterns += [
     path('temp_data_migration/', views.data_migration_Hostname, name='data-migration'),
 ]
+"""

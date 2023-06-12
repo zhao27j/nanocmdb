@@ -7,7 +7,7 @@
     <ul class="nav nav-tabs" id="myTab" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="assets-tab" data-bs-toggle="tab" data-bs-target="#assets-tab-pane" type="button" role="tab" aria-controls="assets-tab-pane" aria-selected="true">
-          Assets
+          Ownership
         </button>
       </li>
       <li class="nav-item" role="presentation">
@@ -50,14 +50,12 @@
         </ul>
       </div>
       <div class="tab-pane fade" id="configuration-tab-pane" role="tabpanel" aria-labelledby="configuration-tab" tabindex="0">
-        <h5 class="card-title text-body-secondary">
-          <a href="{% url 'nanoassets:instance-hostname-upd' instance.pk %}">
-            {{ instance.configuragion.hostname }}
-          </a>
-        </h5>
+        <h5 class="card-title text-body-secondary">{{ instance.model_type }} - {{ instance.serial_number }}</h5>
         <ul class="list-group list-group-flush">
           <li class="list-group-item"><b>Sub Category :</b> <small>{{ instance.model_type.sub_category }}</small></li>
           <li class="list-group-item"><b>Model / Type :</b> <small>{{ instance.model_type }}</small></li>
+          <li class="list-group-item"><b>Serial # :</b> <small>{{ instance.serial_number }}</small></li>
+          <li class="list-group-item"><b>Hostname :</b> <a href="{% url 'nanoassets:instance-hostname-upd' instance.pk %}"><small>{{ instance.hostname }}</small></a></li>
           <li class="list-group-item"><em>...</em></li>
           <li class="list-group-item"><em>...</em></li>
         </ul>

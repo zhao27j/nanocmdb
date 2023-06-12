@@ -44,7 +44,7 @@
       {% endif %}
       <small>{{ instance.model_type }}</small>
     </td>
-    <td><small>{{ instance.configuragion.hostname }}</small></td>
+    <td><a href="{% url 'nanoassets:instance-hostname-upd' instance.pk %}"><small>{{ instance.hostname }}</small></a></td>
     <td><small>{{ instance.get_status_display }}</small></td>
     {% if user|has_group:"IT China" %}
     <td>

@@ -3,12 +3,12 @@ from import_export.widgets import ForeignKeyWidget
 
 from django.contrib.auth.models import User
 
-from .models import Instance, ModelType, branchSite, Configuragion
+from .models import Instance, ModelType, branchSite
 
 class InstanceResource(resources.ModelResource):
     model_type = fields.Field(attribute='model_type', column_name='Model / Type', widget=ForeignKeyWidget(ModelType, field='name'),)
     
-    hostname = fields.Field(attribute='configuragion', column_name='Hostname', widget=ForeignKeyWidget(Configuragion, field='hostname'),)
+    # hostname = fields.Field(attribute='configuragion', column_name='Hostname', widget=ForeignKeyWidget(Configuragion, field='hostname'),)
 
     owner = fields.Field(attribute='owner', column_name='Owner', widget=ForeignKeyWidget(User, field='username'),)
 
@@ -19,9 +19,11 @@ class InstanceResource(resources.ModelResource):
             model_type_name = str(row["Model / Type"]).strip()
             ModelType.objects.get_or_create(name=model_type_name, defaults={"name": model_type_name})
 
+        """
         if str(row["Hostname"]).strip():
             configuragion_hostname = str(row["Hostname"]).strip()
             Configuragion.objects.get_or_create(hostname=configuragion_hostname, defaults={"hostname": configuragion_hostname})
+        """
 
         if str(row["Owner"]).strip():
             owner_username = str(row["Owner"]).strip()
