@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load auth_extras %}
+{% load static %}
 {% block page_content %}
 
 {% include 'base_messages.html' %}
@@ -24,13 +25,12 @@
   <div class="card mb-3" ">
     <div class="row g-0">
       <div class="col-md-4">
-        <img src="..." class="img-fluid rounded-start" alt="...">
+        <img src="{% static 'default_img.bmp' %}" class="img-fluid rounded-start" alt="...">
       </div>
       <div class="col-md-8">
         <div class="card-body">
           <h3 class="card-title text-body-secondary">New User</h3>
           <p class="card-text"><small class="text-body-secondary">...</small></p>
-          <p class="card-text">...</p>
         </div>
         <ul class="list-group list-group-flush">
           
