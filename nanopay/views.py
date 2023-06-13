@@ -21,8 +21,8 @@ from django.contrib.auth.decorators import login_required
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 
-from .models import LegalEntity, Contract, PaymentTerm, PaymentRequest, NonPayrollExpense
-from .forms import NewContractForm, NewPaymentTermForm, NewPaymentRequestForm
+from .models import Prjct, LegalEntity, Contract, PaymentTerm, PaymentRequest, NonPayrollExpense
+from .forms import NewLegalEntityForm, NewContractForm, NewPaymentTermForm, NewPaymentRequestForm
 
 # Create your views here.
 
@@ -411,6 +411,50 @@ class LegalEntityUpdateView(LoginRequiredMixin, UpdateView):
     fields = '__all__'
     success_url = reverse_lazy('nanopay:legal-entity-list')
 
+
+def legal_entity_new(request):
+    prjct_list = []
+    for prjct in Prjct.objects.all():
+        prjct_list.append(prjct.name)
+
+    external_contact_list = []
+    for external_contact in User.objects.exclude(email__icontains='tishmanspeyer.com'):
+        if  external_contact.username != 'admin' and not 'tishmanspeyer.com' in external_contact.email.lower():
+            if hasattr(external_contact, "userprofile"):
+                if not external_contact.userprofile.legal_entity:
+                    external_contact_list.append('%s - %s' % (external_contact.get_full_name(), external_contact.email))
+            else:
+                external_contact_list.append('%s - %s' % (external_contact.get_full_name(), external_contact.email))
+
+    if request.method == 'POST':
+        form = NewLegalEntityForm(request.POST)
+        if form.is_valid():
+            new_legal_entity = LegalEntity.objects.create(
+                name= form.cleaned_data.get('name'),
+                type= form.cleaned_data.get('type'),
+                prjct= Prjct.objects.get(name=form.cleaned_data.get('prjct')) if form.cleaned_data.get('type') == 'I' else None,
+                deposit_bank= form.cleaned_data.get('deposit_bank'),
+                deposit_bank_account= form.cleaned_data.get('deposit_bank_account'),
+                tax_number= form.cleaned_data.get('tax_number'),
+                reg_addr= form.cleaned_data.get('reg_addr'),
+                reg_phone= form.cleaned_data.get('reg_phone'),
+                postal_addr= form.cleaned_data.get('postal_addr'),
+            )
+
+            if form.cleaned_data.get('contact') != '':
+                contact = User.objects.get(username=form.cleaned_data.get('contact').split("-")[-1].split("@")[0].strip())
+                contact.userprofile.legal_entity = new_legal_entity
+                contact.userprofile.save()
+
+            return redirect(to='nanopay:legalentity-detail', pk=new_legal_entity.pk)
+    else:
+        form = NewLegalEntityForm(initial={})
+    return render(request, 'nanopay/legalentity_new.html', {
+        'form': form,
+        'prjct_list': prjct_list,
+        'external_contact_list': external_contact_list,
+        })
+        
 
 class LegalEntityCreateView(LoginRequiredMixin, CreateView):
     model = LegalEntity

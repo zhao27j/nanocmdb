@@ -1,53 +1,78 @@
 {% extends 'base.html' %}
 {% load auth_extras %}
+{% load static %}
 {% block page_content %}
 
 {% include 'base_messages.html' %}
+
+{% if form.non_field_errors %}
+  {% for message in form.non_field_errors %}
+  <div class="container-fluid">
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <div>{{ message }}</div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+        <!-- <span aria-hidden="True">&times;</span> -->
+      </button>
+    </div>
+  </div>
+  {% endfor %}
+{% endif %}
 
 {% if user|has_group:"IT China" and request.user.is_staff %}
 
 <div class="card mb-3" ">
     <div class="row g-0">
       <div class="col-md-4">
-        <img src="..." class="img-fluid rounded-start" alt="...">
+        {% include 'base_carousel_portrait.html' %}
+        <!--<img src="{% static 'default_img.bmp' %}" class="img-fluid rounded-start" alt="...">-->
       </div>
       <div class="col-md-8">
         <div class="card-body">
           <h3 class="card-title text-body-secondary">{{ legalentity.name }}</h3>
-          <p class="card-text"><small class="text-body-secondary">...</small></p>
+          <p class="card-text"><small class="text-body-secondary">{{ legalentity.get_type_display }}</small></p>
           <p class="card-text">...</p>
         </div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item">
             <div class="row">
-              <div class="col"><b>Type : </b> {{ legalentity.get_type_display }}</div>
-              <div class="col"><b>Project : </b> {{ legalentity.prjct }}</div>
+              <div class="col-3"><small>Project : </small> </div>
+              <div class="col"><small>{{ legalentity.prjct }}</small></div>
             </div>
           </li>
           <li class="list-group-item">
             <div class="row">
-              <div class="col"><b>Deposit bank : </b> {{ legalentity.deposit_bank }}</div>
-              <div class="col"><b>Deposit bank account : </b> {{ legalentity.deposit_bank_account }}</div>
+              <div class="col-3"><small>Deposit bank : </small></div>
+              <div class="col"><small>{{ legalentity.deposit_bank }}</small></div>
             </div>
           </li>
           <li class="list-group-item">
             <div class="row">
-              <div class="col"><b>Tax # : </b> {{ legalentity.tax_number }}</div>
+              <div class="col-3"><small>Deposit bank account : </small></div>
+              <div class="col"><small>{{ legalentity.deposit_bank_account }}</small></div>
             </div>
           </li>
           <li class="list-group-item">
             <div class="row">
-              <div class="col"><b>Registered address : </b> {{ legalentity.reg_addr }}</div>
+              <div class="col-3"><small>Tax # : </small></div>
+              <div class="col"><small>{{ legalentity.tax_number }}</small></div>
             </div>
           </li>
           <li class="list-group-item">
             <div class="row">
-              <div class="col"><b>Registered phone # : </b> {{ legalentity.reg_phone }}</div>
+              <div class="col-3"><small>Registered address : </small></div>
+              <div class="col"><small>{{ legalentity.reg_addr }}</small></div>
             </div>
           </li>
           <li class="list-group-item">
             <div class="row">
-              <div class="col"><b>Postal address : </b> {{ legalentity.postal_addr }}</div>
+              <div class="col-3"><small>Registered phone # : </small></div>
+              <div class="col"><small>{{ legalentity.reg_phone }}</small></div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col-3"><small>Postal address : </small></div>
+              <div class="col"><small>{{ legalentity.postal_addr }}</small></div>
             </div>
           </li>
         </ul>
@@ -66,7 +91,7 @@
           {% for userprofile in legalentity.userprofile_set.all %}
           <tr>
             <td><input type="checkbox" name="userprofile" id="term{{ forloop.counter }}" value="{{ userprofile.pk }}"/></td>
-            <td><small>{{ userprofile.user.get_full_name }}</small></td>
+            <td><small>{{ userprofile.user.last_name }}, {{ userprofile.user.first_name }}</small></td>
             <td><small>{{ userprofile.user.email }}</small></td>
             <td><small>{{ userprofile.work_phone }}</small></td>
             <td><small>{{ userprofile.cellphone }}</small></td>

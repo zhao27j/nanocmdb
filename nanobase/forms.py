@@ -12,7 +12,10 @@ from nanopay.models import LegalEntity
 class UserCreateForm(forms.Form):
     username = forms.CharField(required=True, max_length=16, help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only',
                                # validators=[validators.RegexValidator(regex='^[-a-zA-Z0-9_]+$`', message='Enter a valid Username', code='invalid_username')],
-                               widget=forms.TextInput(attrs={'class': 'form-control', }))
+                               widget=forms.TextInput(attrs={
+                                   'class': 'form-control', 
+                                   "placeholder": "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only",
+                                   }))
     
     first_name = forms.CharField(required=True, max_length=16, 
                                  # validators=[validators.RegexValidator(regex='^[-a-zA-Z0-9_]+$`', message='Enter a valid First Name', code='invalid_first_name')],
