@@ -15,79 +15,6 @@ from django.shortcuts import get_object_or_404
 
 from .models import Prjct, LegalEntity, Contract, PaymentTerm, PaymentRequest, NonPayrollExpense
 
-class NewLegalEntityForm(forms.Form):
-    name = forms.CharField(required=True, max_length=128, widget=TextInput(attrs={
-        "class": "form-control",
-        "placeholder": "Please fill in the correct name of the Legal Entity",
-        }))
-    ENTITY_TYPE = (
-        ('I', 'Internal'),
-        ('E', 'External'),
-    )
-    type = forms.ChoiceField(required=True, initial='E', choices=ENTITY_TYPE, widget=forms.Select(attrs={"class": "form-control",}))
-    prjct = forms.CharField(required=False, widget=forms.TextInput(attrs={
-        "list": "prjct_list",
-        "class": "form-control",
-        }))
-    deposit_bank = forms.CharField(required=False, widget=forms.TextInput(attrs={
-        "class": "form-control",
-        "placeholder": "required for External Legal Entities",
-        }))
-    deposit_bank_account = forms.CharField(required=False, widget=forms.TextInput(attrs={
-        "class": "form-control",
-        "placeholder": "required for External Legal Entities",
-        }))
-    tax_number = forms.CharField(required=False, widget=forms.TextInput(attrs={"class": "form-control",}))
-    reg_addr = forms.CharField(required=False, widget=forms.TextInput(attrs={"class": "form-control",}))
-    reg_phone = forms.CharField(required=False, widget=forms.TextInput(attrs={"class": "form-control",}))
-    postal_addr = forms.CharField(required=False, widget=forms.TextInput(attrs={"class": "form-control",}))
-
-    contact = forms.CharField(required=False, widget=forms.TextInput(attrs={
-        "list": "external_contact_list",
-        # "type": "email",
-        # "multiple": True,
-        "class": "form-control",
-        "placeholder": "for External Legal Entities (optional)",
-        }))
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        name = cleaned_data.get('name')
-        if LegalEntity.objects.filter(name=name):
-            raise ValidationError(_('the name of Legal Entity given does Exist'))
-        
-        type = cleaned_data.get('type')
-        prjct = cleaned_data.get('prjct')
-
-        if type == 'E' and prjct != '':
-            raise ValidationError(_('please leave the Project field empty if External is selected as the Type of Legal Entity'))
-        
-        if type == 'I' and not Prjct.objects.filter(name=prjct):
-            raise ValidationError(_('the related Project must be given if Internal is selected as the Type of Legal Entity'))
-
-        deposit_bank = cleaned_data.get('deposit_bank')
-        deposit_bank_account = cleaned_data.get('deposit_bank_account')
-        if type == 'E' and (deposit_bank == '' or deposit_bank_account == ''):
-            raise ValidationError(_('Deposit Bank and Deposit Bank Account must be provided if the External is selected as the Type of Legal Entity'))
-
-        contact = cleaned_data.get('contact')
-
-        if type == 'I' and contact != '':
-            raise ValidationError(_('Contact field is for the External Legal Entities only'))
-        
-        external_contact_list = []
-        for external_contact in User.objects.exclude(email__icontains='tishmanspeyer.com'):
-            if  external_contact.username != 'admin' and not 'tishmanspeyer.com' in external_contact.email.lower():
-                if hasattr(external_contact, "userprofile"):
-                    if not external_contact.userprofile.legal_entity:
-                        external_contact_list.append('%s - %s' % (external_contact.get_full_name(), external_contact.email))
-                else:
-                    external_contact_list.append('%s - %s' % (external_contact.get_full_name(), external_contact.email))
-        
-        if type == 'E' and not contact in external_contact_list:
-            raise ValidationError(_('the Contact given is invalid'))
-
 
 class NewPaymentRequestForm(forms.Form):
     non_payroll_expense = forms.CharField(required=True, max_length=256, widget=TextInput(attrs={
@@ -249,6 +176,80 @@ class NewContractForm(forms.Form):
             raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
 
         # return super().clean()
+
+
+class NewLegalEntityForm(forms.Form):
+    name = forms.CharField(required=True, max_length=128, widget=TextInput(attrs={
+        "class": "form-control",
+        "placeholder": "Please fill in the correct name of the Legal Entity",
+        }))
+    ENTITY_TYPE = (
+        ('I', 'Internal'),
+        ('E', 'External'),
+    )
+    type = forms.ChoiceField(required=True, initial='E', choices=ENTITY_TYPE, widget=forms.Select(attrs={"class": "form-control",}))
+    prjct = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        "list": "prjct_list",
+        "class": "form-control",
+        }))
+    deposit_bank = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        "class": "form-control",
+        "placeholder": "required for External Legal Entities",
+        }))
+    deposit_bank_account = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        "class": "form-control",
+        "placeholder": "required for External Legal Entities",
+        }))
+    tax_number = forms.CharField(required=False, widget=forms.TextInput(attrs={"class": "form-control",}))
+    reg_addr = forms.CharField(required=False, widget=forms.TextInput(attrs={"class": "form-control",}))
+    reg_phone = forms.CharField(required=False, widget=forms.TextInput(attrs={"class": "form-control",}))
+    postal_addr = forms.CharField(required=False, widget=forms.TextInput(attrs={"class": "form-control",}))
+
+    contact = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        "list": "external_contact_list",
+        # "type": "email",
+        # "multiple": True,
+        "class": "form-control",
+        "placeholder": "for External Legal Entities (optional)",
+        }))
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        name = cleaned_data.get('name')
+        if LegalEntity.objects.filter(name=name):
+            raise ValidationError(_('the name of Legal Entity given does Exist'))
+        
+        type = cleaned_data.get('type')
+        prjct = cleaned_data.get('prjct')
+
+        if type == 'E' and prjct != '':
+            raise ValidationError(_('please leave the Project field empty if External is selected as the Type of Legal Entity'))
+        
+        if type == 'I' and not Prjct.objects.filter(name=prjct):
+            raise ValidationError(_('the related Project must be given if Internal is selected as the Type of Legal Entity'))
+        """
+        deposit_bank = cleaned_data.get('deposit_bank')
+        deposit_bank_account = cleaned_data.get('deposit_bank_account')
+        if type == 'E' and (deposit_bank == '' or deposit_bank_account == ''):
+            raise ValidationError(_('Deposit Bank and Deposit Bank Account must be provided if the External is selected as the Type of Legal Entity'))
+        """
+        contact = cleaned_data.get('contact')
+
+        if type == 'I' and contact != '':
+            raise ValidationError(_('Contact field is for the External Legal Entities only'))
+        
+        external_contact_list = []
+        for external_contact in User.objects.exclude(email__icontains='tishmanspeyer.com'):
+            if  external_contact.username != 'admin' and not 'tishmanspeyer.com' in external_contact.email.lower():
+                if hasattr(external_contact, "userprofile"):
+                    if not external_contact.userprofile.legal_entity:
+                        external_contact_list.append('%s - %s' % (external_contact.get_full_name(), external_contact.email))
+                else:
+                    external_contact_list.append('%s - %s' % (external_contact.get_full_name(), external_contact.email))
+        
+        if type == 'E' and not contact in external_contact_list:
+            raise ValidationError(_('the Contact given is invalid'))
 
 
 """

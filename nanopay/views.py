@@ -1,10 +1,10 @@
 from io import BytesIO
 import datetime
-import pathlib
+# import pathlib
 
-from typing import Any, Dict
+# from typing import Any, Dict
 
-from django.core.files import File
+# from django.core.files import File
 from django.core.mail import EmailMessage
 from django.utils import timezone
 
@@ -22,6 +22,7 @@ from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 
 from .models import Prjct, LegalEntity, Contract, PaymentTerm, PaymentRequest, NonPayrollExpense
+from nanobase.models import ChangeHistory
 from .forms import NewLegalEntityForm, NewContractForm, NewPaymentTermForm, NewPaymentRequestForm
 
 # Create your views here.
@@ -349,6 +350,14 @@ def contract_new(request):
                 description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'the base info was added by ' + request.user.get_full_name()
                 )
             
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=new_contract._meta.db_table,
+                db_table_pk=new_contract.pk,
+                detail='1 x new Contract [ ' + new_contract.name + ' ] was added'
+                )
+            
             messages.info(request, 'the base info of the new Contract [ ' + form.cleaned_data['briefing'] + ' ] was added by ' + request.user.get_full_name())
 
 
@@ -403,6 +412,10 @@ class ContractDetailView(LoginRequiredMixin, generic.DetailView):
                 context["non_payroll_expense"] = '[yet associated]'
         else:
             context["non_payroll_expense"] = '[yet associated]'
+        
+        changes = ChangeHistory.objects.filter(db_table_name=self.object._meta.db_table, db_table_pk=self.object.pk).order_by("-on")
+        context["changes"] = changes
+        
         return context
 
 
@@ -430,21 +443,31 @@ def legal_entity_new(request):
         form = NewLegalEntityForm(request.POST)
         if form.is_valid():
             new_legal_entity = LegalEntity.objects.create(
-                name= form.cleaned_data.get('name'),
-                type= form.cleaned_data.get('type'),
-                prjct= Prjct.objects.get(name=form.cleaned_data.get('prjct')) if form.cleaned_data.get('type') == 'I' else None,
-                deposit_bank= form.cleaned_data.get('deposit_bank'),
-                deposit_bank_account= form.cleaned_data.get('deposit_bank_account'),
-                tax_number= form.cleaned_data.get('tax_number'),
-                reg_addr= form.cleaned_data.get('reg_addr'),
-                reg_phone= form.cleaned_data.get('reg_phone'),
-                postal_addr= form.cleaned_data.get('postal_addr'),
+                name=form.cleaned_data.get('name'),
+                type=form.cleaned_data.get('type'),
+                prjct=Prjct.objects.get(name=form.cleaned_data.get('prjct')) if form.cleaned_data.get('type') == 'I' else None,
+                deposit_bank=form.cleaned_data.get('deposit_bank'),
+                deposit_bank_account=form.cleaned_data.get('deposit_bank_account'),
+                tax_number=form.cleaned_data.get('tax_number'),
+                reg_addr=form.cleaned_data.get('reg_addr'),
+                reg_phone=form.cleaned_data.get('reg_phone'),
+                postal_addr=form.cleaned_data.get('postal_addr'),
             )
 
             if form.cleaned_data.get('contact') != '':
                 contact = User.objects.get(username=form.cleaned_data.get('contact').split("-")[-1].split("@")[0].strip())
                 contact.userprofile.legal_entity = new_legal_entity
                 contact.userprofile.save()
+
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=new_legal_entity._meta.db_table,
+                db_table_pk=new_legal_entity.pk,
+                detail='1 x new Legal Entity [ ' + new_legal_entity.name + ' ] was added'
+                )
+            
+            messages.info(request, '1 x new Legal Entity [ ' + form.cleaned_data['name'] + ' ] was added by ' + request.user.get_full_name())
 
             return redirect(to='nanopay:legalentity-detail', pk=new_legal_entity.pk)
     else:
@@ -465,14 +488,13 @@ class LegalEntityCreateView(LoginRequiredMixin, CreateView):
 
 class LegalEntityDetailView(LoginRequiredMixin, generic.DetailView):
     model = LegalEntity
-    """
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        contacts = self.object.userprofile_set.all()
-        context["contacts"] = contacts
+        changes = ChangeHistory.objects.filter(db_table_name=self.object._meta.db_table, db_table_pk=self.object.pk).order_by("-on")
+        context["changes"] = changes
         return context
-    """
-
+    
 
 class LegalEntityListView(LoginRequiredMixin, generic.ListView):
     model = LegalEntity

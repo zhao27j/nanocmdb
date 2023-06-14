@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 
@@ -7,8 +9,8 @@ from django.contrib.auth.models import User
 
 from django.views.generic.edit import CreateView
 
-from .models import UserDept
-from nanopay.models import LegalEntity
+from .models import UserDept, ChangeHistory
+from nanoassets.models import ActivityHistory
 
 from .forms import UserProfileUpdateForm, UserCreateForm
 
@@ -85,13 +87,25 @@ def user_profile_update(request, pk):
 
     return render(request, 'nanobase/user_profile_update.html', {'form': form})
 
-"""
-def data_migration_Hostname(request):
-    instances = Instance.objects.all()
-    for instance in instances:
-        if instance.configuragion:
-            instance.hostname = instance.configuragion.hostname
-            instance.save()
 
+def data_migration_ActivityHistory_to_ChangeHistory(request):
+    activity_history_all = ActivityHistory.objects.all()
+    for activity_history in activity_history_all:
+        if activity_history.Instance:
+            db_table_name = activity_history.Instance._meta.db_table
+            db_table_pk = activity_history.Instance.pk
+        elif activity_history.Contract:
+            db_table_name = activity_history.Contract._meta.db_table
+            db_table_pk = activity_history.Contract.pk
+
+        on = activity_history.description.strip("[").split("]")[0].strip()
+        detail = activity_history.description.split(on)[1].strip().strip("]").strip()
+        ChangeHistory.objects.create(
+                # by=request.user,
+                on=datetime.strptime(on, "%Y-%m-%d %H:%M:%S"),
+                db_table_name=db_table_name,
+                db_table_pk=db_table_pk,
+                detail=detail,
+                )
+            
     return redirect(request.path) # 重定向 至 当前 页面
-"""

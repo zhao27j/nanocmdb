@@ -26,16 +26,6 @@ class ActivityHistory(models.Model):
     class Meta:
         ordering = ['-description',]
 
-"""
-class Configuragion(models.Model):
-    hostname = models.CharField(_("Hostname"), max_length=32, primary_key=True, default=uuid.uuid4, help_text='Hostname')
-
-    def __str__(self):
-        return self.hostname
-
-    def get_absolute_url(self):
-        return reverse("nanoassets:configuration-detail", kwargs={"pk": self.pk})
-"""
 
 class branchSite(models.Model):
     name = models.CharField(_("Site / Branch Office Name"), max_length=64, null=True)

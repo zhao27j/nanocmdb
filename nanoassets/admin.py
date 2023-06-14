@@ -32,10 +32,13 @@ class InstanceAdmin(ImportExportModelAdmin):
 class ModelTypeAdmin(admin.ModelAdmin):
     list_display = ['sub_category', 'manufacturer', 'name', ]
 
+@admin.register(ActivityHistory)
+class ActivityHistoryAdmin(admin.ModelAdmin):
+    list_display = ['Instance', 'Contract', 'description',]
+
 # admin.site.register(Instance, InstanceAdmin)
 # admin.site.register(ModelType)
 admin.site.register(Manufacturer)
 # admin.site.register(ScrapRequest)
 # admin.site.register(branchSite)
-# admin.site.register(Configuragion)
-admin.site.register(ActivityHistory)
+# admin.site.register(ActivityHistory)

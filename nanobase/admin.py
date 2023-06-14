@@ -1,8 +1,12 @@
 from django.contrib import admin
 
-from .models import UserProfile, UserDept, SubCategory
+from .models import UserProfile, UserDept, SubCategory, ChangeHistory
 
 # Register your models here.
+
+@admin.register(ChangeHistory)
+class ChangeHistoryAdmin(admin.ModelAdmin):
+    list_display = ['on', 'by', 'db_table_name', 'db_table_pk', 'detail',]
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):

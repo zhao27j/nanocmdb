@@ -1,4 +1,13 @@
+"""
 
+class Configuragion(models.Model):
+    hostname = models.CharField(_("Hostname"), max_length=32, primary_key=True, default=uuid.uuid4, help_text='Hostname')
+
+    def __str__(self):
+        return self.hostname
+
+    def get_absolute_url(self):
+        return reverse("nanoassets:configuration-detail", kwargs={"pk": self.pk})
 
 
 def paper_form_path(instance, filename):
@@ -8,3 +17,5 @@ def paper_form_path(instance, filename):
     full_file_name = os.path.join(file_path, file_name)
 
     return full_file_name
+
+"""

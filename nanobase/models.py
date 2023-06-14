@@ -36,3 +36,14 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+
+class ChangeHistory(models.Model):
+    on = models.DateTimeField((_("on")), null=True, blank=True)
+    by = models.ForeignKey(User, verbose_name=(_("by")), on_delete=models.SET_NULL, null=True, blank=True)
+    db_table_name = models.CharField((_("")), max_length=32, null=True, blank=True)
+    db_table_pk = models.CharField((_("")), max_length=32, null=True, blank=True)
+    detail = models.TextField((_("Details")), null=True, blank=True)
+
+    def __str__(self):
+        return self.detail
