@@ -10,7 +10,8 @@ from django.contrib.auth.models import User
 from django.views.generic.edit import CreateView
 
 from .models import UserDept, ChangeHistory
-from nanoassets.models import ActivityHistory
+from nanopay.models import LegalEntity
+# from nanoassets.models import ActivityHistory
 
 from .forms import UserProfileUpdateForm, UserCreateForm
 
@@ -87,7 +88,7 @@ def user_profile_update(request, pk):
 
     return render(request, 'nanobase/user_profile_update.html', {'form': form})
 
-
+"""
 def data_migration_ActivityHistory_to_ChangeHistory(request):
     activity_history_all = ActivityHistory.objects.all()
     for activity_history in activity_history_all:
@@ -109,3 +110,4 @@ def data_migration_ActivityHistory_to_ChangeHistory(request):
                 )
             
     return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
+"""

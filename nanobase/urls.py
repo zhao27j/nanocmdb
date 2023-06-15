@@ -13,5 +13,5 @@ urlpatterns = [
 # temp - data migrations
 
 urlpatterns += [
-    path('temp_data_migration/', views.data_migration_ActivityHistory_to_ChangeHistory, name='temp-data-migration'),
+    # path('temp_data_migration/', views.data_migration_ActivityHistory_to_ChangeHistory, name='temp-data-migration'),
 ]
