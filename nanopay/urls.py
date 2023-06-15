@@ -5,6 +5,7 @@ from . import views
 
 app_name = 'nanopay'
 
+# Legal Entity
 urlpatterns = [
     path('legal_entity/<int:pk>/update/', views.LegalEntityUpdateView.as_view(), name='legal-entity-update'),
     # path('legal_entity/new/', views.LegalEntityCreateView.as_view(), name='legal-entity-new'),
@@ -13,6 +14,7 @@ urlpatterns = [
     path('legal_entities', views.LegalEntityListView.as_view(), name='legal-entity-list'),
 ]
 
+# Contract
 urlpatterns += [
     path('', views.ContractListView.as_view(), name='contract-list'),
     path('contract/<int:pk>/detail/', views.ContractDetailView.as_view(), name='contract-detail'),
@@ -21,6 +23,7 @@ urlpatterns += [
     path('contract/new/', views.contract_new, name='contract-new'),
 ]
 
+# Payment Term & Request
 urlpatterns += {
     path('payment_term/<int:pk>/new/', views.payment_term_new, name='payment-term-new'),
 

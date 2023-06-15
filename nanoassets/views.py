@@ -14,8 +14,8 @@ from django.template.loader import get_template
 # from django.template import Context
 
 from django.views import generic
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
+# from django.views.generic.edit import CreateView, UpdateView, DeleteView
+# from django.urls import reverse_lazy
 from django.utils import timezone
 
 from django.db.models import Q
@@ -165,7 +165,7 @@ def InstanceBulkUpd(request):
                             by=request.user,
                             db_table_name=contract_selected._meta.db_table,
                             db_table_pk=contract_selected.pk,
-                            detail='Associated with the IT Assets [ ' + selected_instance.serial_number
+                            detail='Associated with the IT Assets [ ' + selected_instance.serial_number + ' ]'
                             )
                         
                         contract_selected.save()
@@ -177,7 +177,7 @@ def InstanceBulkUpd(request):
                             by=request.user,
                             db_table_name=selected_instance._meta.db_table,
                             db_table_pk=selected_instance.pk,
-                            detail='Associated with the Contract [ ' + contract_selected.briefing + ' ] '
+                            detail='Associated with the Contract [ ' + contract_selected.briefing + ' ]'
                             )
                         
                         selected_instance.save()
@@ -478,7 +478,7 @@ def InstanceNew(request):
                     by=request.user,
                     db_table_name=new_instance._meta.db_table,
                     db_table_pk=new_instance.pk,
-                    detail='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'a New IT Assets was added'
+                    detail='1 x New IT Assets was added'
                     )
             
             contract_associated_with = get_object_or_404(Contract, briefing=form.cleaned_data['contract'].strip())
@@ -491,10 +491,10 @@ def InstanceNew(request):
                     by=request.user,
                     db_table_name=contract_associated_with._meta.db_table,
                     db_table_pk=contract_associated_with.pk,
-                    detail='a New IT Assets [ ' + new_instance.serial_number + ' ] was associated with this Contract'
+                    detail='1 x New IT Assets [ ' + new_instance.serial_number + ' ] was associated with this Contract'
                     )
 
-            messages.info(request, 'the New IT Assets [ ' + form.cleaned_data['serial_number'] + ' ] was added by ' + request.user.get_full_name())
+            messages.info(request, 'the New IT Assets [ ' + form.cleaned_data['serial_number'] + ' ] was added')
 
             return redirect('nanoassets:instance-detail', pk=new_instance.pk) # redirect to a new URL:
     else:

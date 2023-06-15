@@ -308,8 +308,7 @@ def payment_term_new(request, pk):
             
             messages.info(request, 
                           str(new_payment_term_recurring) + ' x ' + new_payment_term.get_plan_display()
-                            + ' Payment Terms for the Contract [ ' + contract.briefing
-                              + ' ] were added by ' + request.user.get_full_name()
+                            + ' Payment Terms for the Contract [ ' + contract.briefing + ' ] were added'
                               )
 
             return redirect('nanopay:contract-detail', pk=pk) # redirect to a new URL:
@@ -370,7 +369,7 @@ def contract_new(request):
                 detail='1 x new Contract [ ' + new_contract.name + ' ] was added'
                 )
             
-            messages.info(request, 'the base info of the new Contract [ ' + form.cleaned_data['briefing'] + ' ] was added by ' + request.user.get_full_name())
+            messages.info(request, 'the base info of the new Contract [ ' + form.cleaned_data['briefing'] + ' ] was added')
 
 
             # return redirect(new_contract.get_absolute_url()) # redirect to a new URL:
@@ -479,7 +478,7 @@ def legal_entity_new(request):
                 detail='1 x new Legal Entity [ ' + new_legal_entity.name + ' ] was added'
                 )
             
-            messages.info(request, '1 x new Legal Entity [ ' + form.cleaned_data['name'] + ' ] was added by ' + request.user.get_full_name())
+            messages.info(request, '1 x new Legal Entity [ ' + form.cleaned_data['name'] + ' ] was added')
 
             return redirect(to='nanopay:legalentity-detail', pk=new_legal_entity.pk)
     else:

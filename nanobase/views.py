@@ -1,8 +1,10 @@
-from datetime import datetime
+# from datetime import datetime
 
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -52,8 +54,20 @@ def user_create(request):
             new_user.userprofile.legal_entity = LegalEntity.objects.get(name=form.cleaned_data.get('legal_entity').strip()) if form.cleaned_data.get('legal_entity') else None
             new_user.userprofile.save()
 
-            return redirect(to='/')
-
+            if new_user.userprofile.legal_entity:
+                ChangeHistory.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=new_user.userprofile.legal_entity._meta.db_table,
+                    db_table_pk=new_user.userprofile.legal_entity.pk,
+                    detail='1 x Contact [ ' + new_user.get_full_name() + ' ] is created and associated with this Legal Entity'
+                    )
+                messages.info(request, '1 x Contact [ ' + new_user.get_full_name() + 
+                              ' ] is created and associated with the Legal Entity [ ' + form.cleaned_data.get('legal_entity') + ' ]')
+                return redirect(to='nanopay:legal-entity-list')
+            else:
+                messages.info(request, '1 x User [ ' + new_user.get_full_name() + ' ] is created')
+                return redirect(to='/')
     else:
         form = UserCreateForm(initial={})
 

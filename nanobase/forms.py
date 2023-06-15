@@ -49,7 +49,7 @@ class UserCreateForm(forms.Form):
         
         username = cleaned_data.get('username').strip()
         if User.objects.filter(username=username):
-            raise ValidationError(_('the Username given does NOT exist'))
+            raise ValidationError(_('the Username given does Exist'))
         
         dept = cleaned_data.get('dept').strip()
         if dept != '' and not UserDept.objects.filter(name=dept):
