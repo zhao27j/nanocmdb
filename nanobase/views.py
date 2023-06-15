@@ -108,4 +108,4 @@ def data_migration_ActivityHistory_to_ChangeHistory(request):
                 detail=detail,
                 )
             
-    return redirect(request.path) # 重定向 至 当前 页面
+    return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
