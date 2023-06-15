@@ -23,6 +23,7 @@ from django.db.models import Q
 from .forms import NewInstanceForm, InstnaceOwnerUpdateForm, InstanceHostnameUpdateForm
 from .models import ModelType, Instance, ScrapRequest, branchSite
 from nanopay.models import Contract
+from nanobase.models import ChangeHistory
 
 # Create your views here.
 
@@ -131,11 +132,20 @@ def InstanceBulkUpd(request):
                 else:
                     for selected_instance_pk in request.POST.getlist('instance'):
                         selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
-                        selected_instance.activityhistory_set.create(
-                            description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
-                            'Transferred to ' + request.POST['branchsite_selected'] + ' from ' + selected_instance.branchSite.name + ' by ' + request.user.get_full_name())
+                        # selected_instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Transferred to ' + request.POST['branchsite_selected'] + ' from ' + selected_instance.branchSite.name + ' by ' + request.user.get_full_name())
+                        
+                        ChangeHistory.objects.create(
+                            on=timezone.now(),
+                            by=request.user,
+                            db_table_name=selected_instance._meta.db_table,
+                            db_table_pk=selected_instance.pk,
+                            detail='Transferred to ' + request.POST['branchsite_selected'] + ' from ' + selected_instance.branchSite.name
+                            )
+                        
                         selected_instance.branchSite = get_object_or_404(branchSite, name=request.POST['branchsite_selected'])
+                        
                         selected_instance.save()
+
                     messages.info(request, 'the selected IT Assets were Transferred to ' + request.POST['branchsite_selected'])
 
                 # return redirect('nanoassets:supported-instance-list')
@@ -148,14 +158,30 @@ def InstanceBulkUpd(request):
                     for selected_instance_pk in request.POST.getlist('instance'):
                         selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
                         contract_selected.assets.add(selected_instance)
-                        contract_selected.activityhistory_set.create(
-                            description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
-                            'Associated with the IT Assets [ ' + selected_instance.serial_number + ' ] by ' + request.user.get_full_name())
+                        # contract_selected.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Associated with the IT Assets [ ' + selected_instance.serial_number + ' ] by ' + request.user.get_full_name())
+                        
+                        ChangeHistory.objects.create(
+                            on=timezone.now(),
+                            by=request.user,
+                            db_table_name=contract_selected._meta.db_table,
+                            db_table_pk=contract_selected.pk,
+                            detail='Associated with the IT Assets [ ' + selected_instance.serial_number
+                            )
+                        
                         contract_selected.save()
-                        selected_instance.activityhistory_set.create(
-                            description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
-                            'Associated with the Contract [ ' + contract_selected.briefing + ' ] by ' + request.user.get_full_name())
+
+                        # selected_instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Associated with the Contract [ ' + contract_selected.briefing + ' ] by ' + request.user.get_full_name())
+                        
+                        ChangeHistory.objects.create(
+                            on=timezone.now(),
+                            by=request.user,
+                            db_table_name=selected_instance._meta.db_table,
+                            db_table_pk=selected_instance.pk,
+                            detail='Associated with the Contract [ ' + contract_selected.briefing + ' ] '
+                            )
+                        
                         selected_instance.save()
+
                     messages.info(request, 'the selected IT Assets were Associated with the Contract [ ' + request.POST['contract_selected'] + ' ]')
                     
             return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
@@ -225,26 +251,43 @@ def InstanceInRepair(request, pk):
         instance = get_object_or_404(Instance, pk=pk)
         if instance.status != 'inREPAIR':
             instance.status = 'inREPAIR'
-            instance.activityhistory_set.create(
-                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
-                'Sent to repair by ' + request.user.get_full_name())
-            # instance.activityhistory_set.save()
-            messages.info(request, instance.serial_number + ' (' +
-                          instance.model_type.name + ') ' + "was sent to repair")
+            # instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Sent to repair by ' + request.user.get_full_name())
+            
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=instance._meta.db_table,
+                db_table_pk=instance.pk,
+                detail='Sent to repair'
+                )
+            
+            messages.info(request, instance.serial_number + ' (' + instance.model_type.name + ') ' + "was sent to repair")
         elif instance.status == 'inREPAIR' and instance.owner:
             instance.status = 'inUSE'
-            instance.activityhistory_set.create(
-                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
-                'Got back from repairing by ' + request.user.get_full_name())
-            messages.info(request, instance.serial_number +
-                          ' (' + instance.model_type.name + ') ' + "was Repaired")
+            # instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Got back from repairing by ' + request.user.get_full_name())
+            
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=instance._meta.db_table,
+                db_table_pk=instance.pk,
+                detail='Got back from repairing'
+                )
+            
+            messages.info(request, instance.serial_number + ' (' + instance.model_type.name + ') ' + "was Repaired")
         elif instance.status == 'inREPAIR' and not instance.owner:
             instance.status = 'AVAILABLE'
-            instance.activityhistory_set.create(
-                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
-                'Got back from repairing by ' + request.user.get_full_name())
-            messages.info(request, instance.serial_number +
-                          ' (' + instance.model_type.name + ') ' + "was Repaired")
+            # instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Got back from repairing by ' + request.user.get_full_name())
+            
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=instance._meta.db_table,
+                db_table_pk=instance.pk,
+                detail='Got back from repairing'
+                )
+            
+            messages.info(request, instance.serial_number + ' (' + instance.model_type.name + ') ' + "was Repaired")
 
         instance.save()
 
@@ -258,11 +301,15 @@ def InstanceHostnameUpdate(request, pk):
         if form.is_valid():
             new_hostname = form.cleaned_data.get('hostname').strip()
 
-            instance.activityhistory_set.create(
-                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
-                'the Hostname of IT Assets [ ' + instance.serial_number + 
-                ' ] was updated from [ ' + instance.hostname + ' ] to [ ' +
-                new_hostname + ' ] by ' + request.user.get_full_name())
+            # instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'the Hostname of IT Assets [ ' + instance.serial_number + ' ] was updated from [ ' + instance.hostname + ' ] to [ ' + new_hostname + ' ] by ' + request.user.get_full_name())
+            
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=instance._meta.db_table,
+                db_table_pk=instance.pk,
+                detail='the Hostname of IT Assets [ ' + instance.serial_number + ' ] was updated from [ ' + instance.hostname + ' ] to [ ' + new_hostname + ' ]'
+                )
             
             messages.info(request, 'the Hostname of IT Assets [ ' + instance.serial_number + 
                 ' ] was updated from [ ' + instance.hostname + ' ] to [ ' + new_hostname + ' ]')
@@ -302,11 +349,17 @@ def InstanceOwnerUpdate(request, pk):
             re_assign_to = get_object_or_404(User, username=re_assign_to) if re_assign_to != '' else re_assign_to
             if re_assign_to == '' and instance.owner:
 
-                instance.activityhistory_set.create(
-                    description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' +
-                    'Returned from [ ' + instance.owner.get_full_name() + ' ] by ' + request.user.get_full_name())
-                messages.info(request, 'the IT Assets [ ' + instance.serial_number +
-                          ' ] was Returned from ' + instance.owner.username)
+                # instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Returned from [ ' + instance.owner.get_full_name() + ' ] by ' + request.user.get_full_name())
+                
+                ChangeHistory.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=instance._meta.db_table,
+                    db_table_pk=instance.pk,
+                    detail='Returned from [ ' + instance.owner.get_full_name() + ' ]'
+                    )
+
+                messages.info(request, 'the IT Assets [ ' + instance.serial_number + ' ] was Returned from ' + instance.owner.username)
 
                 instance.status = 'AVAILABLE'
                 instance.owner = None
@@ -316,10 +369,16 @@ def InstanceOwnerUpdate(request, pk):
             
             elif re_assign_to != '' and re_assign_to != instance.owner:
 
-                instance.activityhistory_set.create(
-                    description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 
-                    'Re-assigned to [ ' + re_assign_to.get_full_name() + ' ] from [ ' + 
-                    (instance.owner.get_full_name() if instance.owner else ' 🈳 ') + ' ] by ' + request.user.get_full_name())
+                # instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Re-assigned to [ ' + re_assign_to.get_full_name() + ' ] from [ ' + (instance.owner.get_full_name() if instance.owner else ' 🈳 ') + ' ] by ' + request.user.get_full_name())
+                
+                ChangeHistory.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=instance._meta.db_table,
+                    db_table_pk=instance.pk,
+                    detail='Re-assigned to [ ' + re_assign_to.get_full_name() + ' ] from [ ' + (instance.owner.get_full_name() if instance.owner else ' 🈳 ') + ' ]'
+                    )
+                
                 messages.info(request, 'the IT Assets [ ' + instance.serial_number + ' ] was Re-assigned to ' +
                                 re_assign_to.get_full_name() + ' from ' + (instance.owner.get_full_name() if instance.owner else ' 🈳 '))
 
@@ -378,6 +437,12 @@ class InstanceByUserListView(LoginRequiredMixin, generic.ListView):
 class InstanceDetailView(LoginRequiredMixin, generic.DetailView):
     model = Instance
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        changes = ChangeHistory.objects.filter(db_table_name=self.object._meta.db_table, db_table_pk=self.object.pk).order_by("-on")
+        context["changes"] = changes
+        return context
+
 
 @login_required
 def InstanceNew(request):
@@ -406,18 +471,28 @@ def InstanceNew(request):
 
             new_instance.save()
 
-            new_instance.activityhistory_set.create(
-                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'a New IT Assets was added by ' + request.user.get_full_name()
-                )
+            # new_instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'a New IT Assets was added by ' + request.user.get_full_name())
+            
+            ChangeHistory.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=new_instance._meta.db_table,
+                    db_table_pk=new_instance.pk,
+                    detail='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'a New IT Assets was added'
+                    )
             
             contract_associated_with = get_object_or_404(Contract, briefing=form.cleaned_data['contract'].strip())
             contract_associated_with.assets.add(new_instance)
 
-            contract_associated_with.activityhistory_set.create(
-                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 
-                'a New IT Assets [ ' + new_instance.serial_number + ' ] was associated with this Contract by ' + request.user.get_full_name()
-                )
-
+            # contract_associated_with.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'a New IT Assets [ ' + new_instance.serial_number + ' ] was associated with this Contract by ' + request.user.get_full_name())
+            
+            ChangeHistory.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=contract_associated_with._meta.db_table,
+                    db_table_pk=contract_associated_with.pk,
+                    detail='a New IT Assets [ ' + new_instance.serial_number + ' ] was associated with this Contract'
+                    )
 
             messages.info(request, 'the New IT Assets [ ' + form.cleaned_data['serial_number'] + ' ] was added by ' + request.user.get_full_name())
 

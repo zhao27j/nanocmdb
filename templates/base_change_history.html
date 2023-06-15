@@ -13,14 +13,14 @@
         <table class="table table-striped table-hover">
           <tr>
             <th></th>
-            <th></th>
-            <th></th>
+            <th>by</th>
+            <th>on</th>
           </tr>
           {% for change in changes %}
           <tr>
-            <td><small>{{ change.on }}</small></td>
-            <td><small>{{ change.by.get_full_name }}</small></td>
             <td><small>{{ change.detail }}</small></td>
+            <td><small>{{ change.by.get_full_name }}</small></td>
+            <td><small>{{ change.on }}</small></td>
           </tr>
           {% endfor %}
         </table>

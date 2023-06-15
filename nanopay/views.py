@@ -110,10 +110,15 @@ def payment_request_approved(request, pk):
 
     payment_request.save()
 
-    payment_request.payment_term.contract.activityhistory_set.create(
-        description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 
-        'the Payment Request [ ' + str(payment_request.id) + ' ] was approved by ' + request.user.get_full_name()
-        )
+    # payment_request.payment_term.contract.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'the Payment Request [ ' + str(payment_request.id) + ' ] was approved by ' + request.user.get_full_name())
+    
+    ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=payment_request.payment_term.contract._meta.db_table,
+                db_table_pk=payment_request.payment_term.contract.pk,
+                detail='the Payment Request [ ' + str(payment_request.id) + ' ] was approved'
+                )
     
     messages.info(request, 'the Approval decision for the Payment Request [ ' + str(payment_request.id) + ' ] was sent')
 
@@ -188,9 +193,14 @@ def payment_request_new(request, pk):
             payment_term.applied_on = new_payment_request.requested_on
             payment_term.save()
 
-            payment_term.contract.activityhistory_set.create(
-                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 
-                'the Payment Request [ ' + str(new_payment_request.id) + ' ] was submitted by ' + request.user.get_full_name()
+            # payment_term.contract.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'the Payment Request [ ' + str(new_payment_request.id) + ' ] was submitted by ' + request.user.get_full_name())
+            
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=payment_term.contract._meta.db_table,
+                db_table_pk=payment_term.contract.pk,
+                detail='the Payment Request [ ' + str(new_payment_request.id) + ' ] was submitted'
                 )
             
             messages.info(request, 'the notification for the Payment Request [ ' + str(new_payment_request.id) + ' ] was sent')
@@ -284,12 +294,16 @@ def payment_term_new(request, pk):
             # new_payment_term.contract = contract
             new_payment_term.save()
 
-            contract.activityhistory_set.create(
-                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] '
-                  + str(new_payment_term_recurring) + ' x ' + new_payment_term.get_plan_display()
+            # contract.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + str(new_payment_term_recurring) + ' x ' + new_payment_term.get_plan_display() + ' Payment Term scheduled since ' + str(new_payment_term.pay_day) + ' in amount ' + str(new_payment_term.amount) + ' were added by ' + request.user.get_full_name())
+
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=contract._meta.db_table,
+                db_table_pk=contract.pk,
+                detail=str(new_payment_term_recurring) + ' x ' + new_payment_term.get_plan_display()
                     + ' Payment Term scheduled since ' + str(new_payment_term.pay_day)
-                      + ' in amount ' + str(new_payment_term.amount)
-                        + ' were added by ' + request.user.get_full_name()
+                      + ' in amount ' + str(new_payment_term.amount) + ' were added'
                 )
             
             messages.info(request, 
@@ -346,9 +360,7 @@ def contract_new(request):
             new_contract.party_a_list.set(form.cleaned_data['party_a_list'])
             new_contract.party_b_list.set(form.cleaned_data['party_b_list'])
 
-            new_contract.activityhistory_set.create(
-                description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'the base info was added by ' + request.user.get_full_name()
-                )
+            # new_contract.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'the base info was added by ' + request.user.get_full_name())
             
             ChangeHistory.objects.create(
                 on=timezone.now(),
