@@ -26,9 +26,9 @@ class InstanceResource(resources.ModelResource):
         """
 
         if str(row["Owner"]).strip():
-            owner_username = str(row["Owner"]).strip()
-            owner_first_name = str(row["First Name"]).strip()
-            owner_last_name = str(row["Last Name"]).strip()
+            owner_username = str(row["Owner"]).strip().lower()
+            owner_first_name = str(row["First Name"]).strip().capitalize()
+            owner_last_name = str(row["Last Name"]).strip().capitalize()
             owner_email = str(row["Email"]).strip()
             User.objects.get_or_create(username=owner_username, defaults={
                 "username": owner_username,
