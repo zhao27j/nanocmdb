@@ -165,6 +165,8 @@ class PaymentRequestListView(LoginRequiredMixin, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        digital_copies = UploadedFile.objects.filter(db_table_name=self.object_list.first()._meta.db_table).order_by("-on")
+        context["digital_copies"] = digital_copies
         return context
 
 
@@ -192,6 +194,16 @@ def payment_request_new(request, pk):
 
             payment_term.applied_on = new_payment_request.requested_on
             payment_term.save()
+
+            digital_copies = request.FILES.getlist('digital_copies')
+            for digital_copy in digital_copies:
+                UploadedFile.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=new_payment_request._meta.db_table,
+                    db_table_pk=new_payment_request.pk,
+                    digital_copy=digital_copy,
+                )
 
             # payment_term.contract.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'the Payment Request [ ' + str(new_payment_request.id) + ' ] was submitted by ' + request.user.get_full_name())
             
@@ -358,7 +370,6 @@ def contract_new(request):
             new_contract.party_a_list.set(form.cleaned_data['party_a_list'])
             new_contract.party_b_list.set(form.cleaned_data['party_b_list'])
 
-            # digital_copies = form.cleaned_data['digital_copies']
             digital_copies = request.FILES.getlist('digital_copies')
             for digital_copy in digital_copies:
                 UploadedFile.objects.create(

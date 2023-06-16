@@ -82,7 +82,8 @@
     <tr>
       <td><div class="fieldWrapper"><label for="{{ form.amount.id_for_label }} "><small><b>Invoice Amount</b></small></label></div></td>
       <td><div class="fieldWrapper">{{ form.amount.errors }} {{ form.amount }}</div></td>
-      <td colspan="2"><div class="fieldWrapper"> {{ form.scanned_copy.errors }} {{ form.scanned_copy }}</div></td>
+      <!--<td colspan="2"><div class="fieldWrapper"> {{ form.scanned_copy.errors }} {{ form.scanned_copy }}</div></td>-->
+      <td colspan="2"><div class="fieldWrapper"> {{ form.digital_copies.errors }} {{ form.digital_copies }}</div></td>
     </tr>
   </table>
   <input type="submit" value="submit" class="btn btn-outline-primary d-inline-flex align-items-center"/>

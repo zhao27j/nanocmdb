@@ -25,8 +25,14 @@ class NewPaymentRequestForm(forms.Form):
         "class": "form-control",
         "placeholder": "the amount presented on the invoice"
         }))
-    scanned_copy = forms.FileField(required=True, help_text=".pdf is acceptable Only", widget=ClearableFileInput(attrs={
+    
+    scanned_copy = forms.FileField(required=False, help_text=".pdf is acceptable Only", widget=ClearableFileInput(attrs={
         "class": "form-control",}))
+    
+    digital_copies = forms.FileField(required=True, widget=forms.ClearableFileInput(attrs={
+        "multiple": True,
+        "class": "form-control",
+        }))
 
     def clean(self):
         cleaned_data = super().clean()
@@ -39,14 +45,15 @@ class NewPaymentRequestForm(forms.Form):
         if amount <= 0:
             raise ValidationError(_("amount of Invoice must be a positive number"))
 
-        scanned_copy = cleaned_data.get('scanned_copy')
-        if len(pathlib.Path(scanned_copy.name).name) > 128:
-            raise ValidationError(_("the full file name uploaded is great than 128"))
-        if not pathlib.Path(scanned_copy.name).suffix in ['.pdf', ]:
-            raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
         
-        if not scanned_copy.content_type == 'application/pdf':
-            raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
+        scanned_copy = cleaned_data.get('scanned_copy')
+        if scanned_copy:
+            if len(pathlib.Path(scanned_copy.name).name) > 128:
+                raise ValidationError(_("the full file name uploaded is great than 128"))
+            if not pathlib.Path(scanned_copy.name).suffix in ['.pdf', ]:
+                raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
+            if not scanned_copy.content_type == 'application/pdf':
+                raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
 
         # return super().clean()
 
@@ -134,13 +141,12 @@ class NewContractForm(forms.Form):
         "class": "form-control",
         }))
     
-    scanned_copy = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={
+    scanned_copy = forms.FileField(required=True, widget=forms.ClearableFileInput(attrs={
         # "multiple": True,
         "class": "form-control",
         }))
 
-    # scanned_copy_multiple = MultipleFileField()
-    digital_copies = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={
+    digital_copies = forms.FileField(required=True, widget=forms.ClearableFileInput(attrs={
         "multiple": True,
         "class": "form-control",
         }))
