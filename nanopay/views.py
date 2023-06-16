@@ -155,7 +155,9 @@ def payment_request_detail_invoice_scanned_copy(request, pk):
         invoice_scanned_copy = open(invoice_scanned_copy_path, 'rb')
         return FileResponse(invoice_scanned_copy, content_type='application/pdf')
     except FileNotFoundError:
-        raise Http404
+        # raise Http404
+        messages.warning(request, 'the file [ ' + invoice_scanned_copy_path + ' ] does NOT exist')
+        return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
 
 
 class PaymentRequestListView(LoginRequiredMixin, generic.ListView):
@@ -426,8 +428,10 @@ def contract_detail_scanned_copy(request, pk):
         scanned_copy = open(scanned_copy_path, 'rb')
         return FileResponse(scanned_copy, content_type='application/pdf')
     except FileNotFoundError:
-        raise Http404
-
+        # raise Http404
+        messages.warning(request, 'the file [ ' + scanned_copy_path + ' ] does NOT exist')
+        return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
+        
 
 class ContractDetailView(LoginRequiredMixin, generic.DetailView):
     model = Contract

@@ -1,5 +1,7 @@
 # from datetime import datetime
 
+from django.core.files import File
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -112,6 +114,22 @@ def get_digital_copy_display(request, pk):
     digital_copy_path = digital_copy_instance.digital_copy.name
     try:
         digital_copy = open(digital_copy_path, 'rb')
+        # return FileResponse(digital_copy, content_type='application/pdf')
+        return FileResponse(digital_copy)
+    except FileNotFoundError:
+        # raise Http404
+        messages.warning(request, 'the file [ ' + digital_copy_path + ' ] does NOT exist')
+        return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
+
+
+@login_required
+def get_digital_copy_delete(request, pk):
+    digital_copy_instance = get_object_or_404(UploadedFile, pk=pk)
+    digital_copy_path = digital_copy_instance.digital_copy.name
+    try:
+        digital_copy = open(digital_copy_path, 'rb')
+        f = File(digital_copy)
+        f.delete(save=True)
         # return FileResponse(digital_copy, content_type='application/pdf')
         return FileResponse(digital_copy)
     except FileNotFoundError:
