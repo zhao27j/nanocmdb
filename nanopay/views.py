@@ -339,17 +339,6 @@ def payment_term_new(request, pk):
 
 
 @login_required
-def contract_detail_scanned_copy(request, pk):
-    contract_instance = get_object_or_404(Contract, pk=pk)
-    scanned_copy_path = contract_instance.scanned_copy.name
-    try:
-        scanned_copy = open(scanned_copy_path, 'rb')
-        return FileResponse(scanned_copy, content_type='application/pdf')
-    except FileNotFoundError:
-        raise Http404
-
-
-@login_required
 def contract_new(request):
     if request.method == 'POST': # if this is a POST request then process the Form data
         form = NewContractForm(request.POST, request.FILES) # create a form instance and populate it with data from the request (binding):
@@ -363,7 +352,7 @@ def contract_new(request):
 
             new_contract.startup = form.cleaned_data['startup']
             new_contract.endup = form.cleaned_data['endup']
-            new_contract.scanned_copy = form.cleaned_data['scanned_copy']
+            # new_contract.scanned_copy = form.cleaned_data['scanned_copy']
             new_contract.created_by = request.user
             new_contract.save()
 
@@ -427,6 +416,17 @@ class ContractListView(LoginRequiredMixin, generic.ListView):
 
         return context
     """
+
+
+@login_required
+def contract_detail_scanned_copy(request, pk):
+    contract_instance = get_object_or_404(Contract, pk=pk)
+    scanned_copy_path = contract_instance.scanned_copy.name
+    try:
+        scanned_copy = open(scanned_copy_path, 'rb')
+        return FileResponse(scanned_copy, content_type='application/pdf')
+    except FileNotFoundError:
+        raise Http404
 
 
 class ContractDetailView(LoginRequiredMixin, generic.DetailView):

@@ -141,10 +141,7 @@ class NewContractForm(forms.Form):
         "class": "form-control",
         }))
     
-    scanned_copy = forms.FileField(required=True, widget=forms.ClearableFileInput(attrs={
-        # "multiple": True,
-        "class": "form-control",
-        }))
+    # scanned_copy = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={"multiple": True,"class": "form-control",}))
 
     digital_copies = forms.FileField(required=True, widget=forms.ClearableFileInput(attrs={
         "multiple": True,
@@ -174,6 +171,7 @@ class NewContractForm(forms.Form):
         if endup and endup < startup:
             raise ValidationError(_("the End date should NOT be later than the Start date"))
 
+        """
         scanned_copy = cleaned_data.get("scanned_copy")
         if scanned_copy:
             if len(pathlib.Path(scanned_copy.name).name) > 128:
@@ -182,6 +180,7 @@ class NewContractForm(forms.Form):
                 raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))        
             if not scanned_copy.content_type == 'application/pdf':
                 raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
+        """
 
         # return super().clean()
 
