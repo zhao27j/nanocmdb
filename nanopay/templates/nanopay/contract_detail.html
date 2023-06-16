@@ -100,8 +100,15 @@
                 </div>
               </li>
               <li class="list-group-item">
-                <small><b>Scanned copy : </b></small>
-                <a href="{% url 'nanopay:contract-detail-scanned-copy' contract.pk %}"><small>{{ contract.get_scanned_copy_base_file_name }}</small></a>
+                <div class="row">
+                  <div class="col-2"><small><b>Scanned copy : </b></small></div>
+                    <div class="col">
+                      <a href="{% url 'nanopay:contract-detail-scanned-copy' contract.pk %}"><small>{{ contract.get_scanned_copy_base_file_name }}</small></a>
+                      {% for digital_copy in digital_copies %}
+                      <div><a href="{% url 'nanobase:digital-copy-display' digital_copy.pk %}"><small>{{ digital_copy.get_digital_copy_base_file_name }}</small></a></div>
+                      {% endfor %}
+                    </div>
+                </div>
               </li>
               <li class="list-group-item">
                 <div class="row">

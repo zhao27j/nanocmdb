@@ -19,10 +19,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 
 from django.views import generic
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import FormView, CreateView, UpdateView
 
 from .models import Prjct, LegalEntity, Contract, PaymentTerm, PaymentRequest, NonPayrollExpense
-from nanobase.models import ChangeHistory
+from nanobase.models import ChangeHistory, UploadedFile
 from .forms import NewLegalEntityForm, NewContractForm, NewPaymentTermForm, NewPaymentRequestForm
 
 # Create your views here.
@@ -348,7 +348,6 @@ def contract_new(request):
             new_contract.briefing = form.cleaned_data['briefing']
             
             new_contract.type = form.cleaned_data['type']
-            # new_contract.non_payroll_expense = get_object_or_404(NonPayrollExpense, description=form.cleaned_data['non_payroll_expense'])
 
             new_contract.startup = form.cleaned_data['startup']
             new_contract.endup = form.cleaned_data['endup']
@@ -359,6 +358,17 @@ def contract_new(request):
             new_contract.party_a_list.set(form.cleaned_data['party_a_list'])
             new_contract.party_b_list.set(form.cleaned_data['party_b_list'])
 
+            # digital_copies = form.cleaned_data['digital_copies']
+            digital_copies = request.FILES.getlist('digital_copies')
+            for digital_copy in digital_copies:
+                UploadedFile.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=new_contract._meta.db_table,
+                    db_table_pk=new_contract.pk,
+                    digital_copy=digital_copy,
+                )
+
             # new_contract.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'the base info was added by ' + request.user.get_full_name())
             
             ChangeHistory.objects.create(
@@ -366,7 +376,7 @@ def contract_new(request):
                 by=request.user,
                 db_table_name=new_contract._meta.db_table,
                 db_table_pk=new_contract.pk,
-                detail='1 x new Contract [ ' + new_contract.name + ' ] was added'
+                detail='1 x new Contract [ ' + form.cleaned_data['briefing'] + ' ] was added'
                 )
             
             messages.info(request, 'the base info of the new Contract [ ' + form.cleaned_data['briefing'] + ' ] was added')
@@ -424,6 +434,8 @@ class ContractDetailView(LoginRequiredMixin, generic.DetailView):
         else:
             context["non_payroll_expense"] = '[yet associated]'
         
+        digital_copies = UploadedFile.objects.filter(db_table_name=self.object._meta.db_table, db_table_pk=self.object.pk).order_by("-on")
+        context["digital_copies"] = digital_copies
         changes = ChangeHistory.objects.filter(db_table_name=self.object._meta.db_table, db_table_pk=self.object.pk).order_by("-on")
         context["changes"] = changes
         

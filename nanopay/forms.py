@@ -15,7 +15,6 @@ from django.shortcuts import get_object_or_404
 
 from .models import Prjct, LegalEntity, Contract, PaymentTerm, PaymentRequest, NonPayrollExpense
 
-
 class NewPaymentRequestForm(forms.Form):
     non_payroll_expense = forms.CharField(required=True, max_length=256, widget=TextInput(attrs={
         "list": "non_payroll_expenses",
@@ -127,9 +126,7 @@ class NewContractForm(forms.Form):
         ('R', 'Rental'),
         # ('E', 'Expired'),
     )
-    type = forms.ChoiceField(required=True, initial='M', choices=CONTRACT_TYPE, widget=forms.Select(attrs={"class": "form-control",}))
-
-
+    type = forms.ChoiceField(required=True, initial='M', choices=CONTRACT_TYPE, widget=forms.Select(attrs={"class": "form-control", }))
 
     briefing = forms.CharField(required=True, max_length=72, widget=forms.TextInput(attrs={
         "list": "briefing",
@@ -137,9 +134,14 @@ class NewContractForm(forms.Form):
         "class": "form-control",
         }))
     
-    # scanned_copy = MultipleFileField(required=True)
     scanned_copy = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={
         # "multiple": True,
+        "class": "form-control",
+        }))
+
+    # scanned_copy_multiple = MultipleFileField()
+    digital_copies = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={
+        "multiple": True,
         "class": "form-control",
         }))
     
@@ -167,13 +169,13 @@ class NewContractForm(forms.Form):
             raise ValidationError(_("the End date should NOT be later than the Start date"))
 
         scanned_copy = cleaned_data.get("scanned_copy")
-        if len(pathlib.Path(scanned_copy.name).name) > 128:
-            raise ValidationError(_("the full file name uploaded is great than 128"))
-        if not pathlib.Path(scanned_copy.name).suffix in ['.pdf', ]:
-            raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
-        
-        if not scanned_copy.content_type == 'application/pdf':
-            raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
+        if scanned_copy:
+            if len(pathlib.Path(scanned_copy.name).name) > 128:
+                raise ValidationError(_("the full file name uploaded is great than 128"))
+            if not pathlib.Path(scanned_copy.name).suffix in ['.pdf', ]:
+                raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))        
+            if not scanned_copy.content_type == 'application/pdf':
+                raise ValidationError(_("the Only acceptable format is .pdf for Scanned Copy"))
 
         # return super().clean()
 
@@ -250,33 +252,3 @@ class NewLegalEntityForm(forms.Form):
         
         if type == 'E' and not contact in external_contact_list:
             raise ValidationError(_('the Contact given is invalid'))
-
-
-"""
-class MultipleFileInput(forms.ClearableFileInput):
-    allow_multiple_selected = True
-
-
-class MultipleFileField(forms.FileField):
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault("widget", MultipleFileInput())
-        super().__init__(*args, **kwargs)
-
-    def clean(self, data, initial=None):
-        single_file_clean = super().clean
-        if isinstance(data, (list, tuple)):
-            result = [single_file_clean(d, initial) for d in data]
-        else:
-            result = single_file_clean(data, initial)
-        return result
-
-
-PaymentTermFormSet = modelformset_factory(
-    PaymentTerm,
-    fields=[
-        "pay_day", "plan", "amount",
-    ],
-    extra=1
-)
-        
-"""

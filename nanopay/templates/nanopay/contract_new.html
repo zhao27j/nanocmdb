@@ -34,7 +34,6 @@
       <td >
         <div class="fieldWrapper">
           {{ form.non_payroll_expense.errors }}{{ form.non_payroll_expense }}
-          
         </div>
       </td>
     </tr> 
@@ -48,7 +47,8 @@
     <tr>
       <td><div class="fieldWrapper"><label for="{{ form.type.id_for_label }} "><small>Type</small></label></div></td>
       <td ><div class="fieldWrapper">{{ form.type.errors }}{{ form.type }}</div></td>
-      <td colspan="2"><div class="fieldWrapper"> {{ form.scanned_copy.errors }} {{ form.scanned_copy }}</div></td>
+      <!--<td colspan="2"><div class="fieldWrapper"> {{ form.scanned_copy.errors }} {{ form.scanned_copy }}</div></td>-->
+      <td colspan="2"><div class="fieldWrapper"> {{ form.digital_copies.errors }} {{ form.digital_copies }}</div></td>
     </tr>
     <tr>
       <td><div class="fieldWrapper"><label for="{{ form.briefing.id_for_label }} "><small>Briefing</small></label></div></td>

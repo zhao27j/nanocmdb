@@ -1,6 +1,6 @@
 # from datetime import datetime
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 
@@ -9,9 +9,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
+from django.http import Http404, FileResponse
+
 from django.views.generic.edit import CreateView
 
-from .models import UserDept, ChangeHistory
+from .models import UserDept, ChangeHistory, UploadedFile
 from nanopay.models import LegalEntity
 # from nanoassets.models import ActivityHistory
 
@@ -77,6 +79,7 @@ def user_create(request):
         'legal_entity_list': legal_entity_list,
         })
 
+
 @login_required
 def user_profile_update(request, pk):
     if request.method == 'POST': # if this is a POST request then process the Form data
@@ -101,6 +104,19 @@ def user_profile_update(request, pk):
         )
 
     return render(request, 'nanobase/user_profile_update.html', {'form': form})
+
+
+@login_required
+def get_digital_copy_display(request, pk):
+    digital_copy_instance = get_object_or_404(UploadedFile, pk=pk)
+    digital_copy_path = digital_copy_instance.digital_copy.name
+    try:
+        digital_copy = open(digital_copy_path, 'rb')
+        # return FileResponse(digital_copy, content_type='application/pdf')
+        return FileResponse(digital_copy)
+    except FileNotFoundError:
+        raise Http404
+
 
 """
 def data_migration_ActivityHistory_to_ChangeHistory(request):
