@@ -188,7 +188,7 @@ def payment_request_new(request, pk):
                 non_payroll_expense=get_object_or_404(NonPayrollExpense, description=form.cleaned_data['non_payroll_expense']),
                 amount=form.cleaned_data.get('amount'),
                 )
-            new_payment_request.scanned_copy = form.cleaned_data['scanned_copy']
+            # new_payment_request.scanned_copy = form.cleaned_data['scanned_copy']
             
             new_payment_request.save()
 
