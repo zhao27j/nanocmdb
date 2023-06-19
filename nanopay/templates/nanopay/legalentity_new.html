@@ -31,8 +31,10 @@
       <div class="col-md-8">
         <div class="card-body">
           <h3 class="card-title text-body-secondary">new Legal Entity</h3>
+          <!--
           <p class="card-text"><small class="text-body-secondary">...</small></p>
           <p class="card-text">...</p>
+          -->
         </div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item">
@@ -45,6 +47,12 @@
             <div class="row">
               <div class="col-3 fieldWrapper"><label for="{{ form.type.id_for_label }}"><small>Type</small></label></div>
               <div class="col fieldWrapper"><small>{{ form.type.errors }} {{ form.type }}</small></div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="row">
+              <div class="col-3 fieldWrapper"><label for="{{ form.code.id_for_label }}"><small>Code</small></label></div>
+              <div class="col fieldWrapper"><small>{{ form.code.errors }} {{ form.code }}</small></div>
               <div class="col-3 fieldWrapper"><label for="{{ form.prjct.id_for_label }}"><small>Project</small></label></div>
               <div class="col fieldWrapper">
                 <small>{{ form.prjct.errors }} {{ form.prjct }}</small>
@@ -55,7 +63,7 @@
                 </datalist>
               </div>
             </div>
-          </li>
+          </li>  
           <li class="list-group-item">
             <div class="row">
               <div class="col-3 fieldWrapper"><label for="{{ form.deposit_bank.id_for_label }}"><small>Deposit Bank</small></label></div>

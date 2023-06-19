@@ -186,13 +186,17 @@ class NewContractForm(forms.Form):
 class NewLegalEntityForm(forms.Form):
     name = forms.CharField(required=True, max_length=128, widget=TextInput(attrs={
         "class": "form-control",
-        "placeholder": "Please fill in the correct name of the Legal Entity",
+        "placeholder": "please provide the correct name of the Legal Entity",
         }))
     ENTITY_TYPE = (
         ('I', 'Internal'),
         ('E', 'External'),
     )
     type = forms.ChoiceField(required=True, initial='E', choices=ENTITY_TYPE, widget=forms.Select(attrs={"class": "form-control",}))
+    code = forms.CharField(required=False, max_length=8, widget=forms.TextInput(attrs={
+        "class": "form-control",
+        "placeholder": "required for External Legal Entities",
+        }))
     prjct = forms.CharField(required=False, widget=forms.TextInput(attrs={
         "list": "prjct_list",
         "class": "form-control",
@@ -227,18 +231,26 @@ class NewLegalEntityForm(forms.Form):
         
         type = cleaned_data.get('type')
         prjct = cleaned_data.get('prjct')
+        
 
         if type == 'E' and prjct != '':
             raise ValidationError(_('please leave the Project field empty if External is selected as the Type of Legal Entity'))
         
         if type == 'I' and not Prjct.objects.filter(name=prjct):
             raise ValidationError(_('the related Project must be given if Internal is selected as the Type of Legal Entity'))
-        """
+        
+        code = cleaned_data.get('code')
+        if type == 'E' and code == '':
+            raise ValidationError(_('please provide the Code if External is selected as the Type of Legal Entity'))
+        
+        if LegalEntity.objects.filter(code=code):
+            raise ValidationError(_('Code given does Exist'))
+        
         deposit_bank = cleaned_data.get('deposit_bank')
         deposit_bank_account = cleaned_data.get('deposit_bank_account')
         if type == 'E' and (deposit_bank == '' or deposit_bank_account == ''):
             raise ValidationError(_('Deposit Bank and Deposit Bank Account must be provided if the External is selected as the Type of Legal Entity'))
-        """
+
         contact = cleaned_data.get('contact')
 
         if type == 'I' and contact != '':

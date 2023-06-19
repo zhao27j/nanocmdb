@@ -515,6 +515,7 @@ def legal_entity_new(request):
                 name=form.cleaned_data.get('name'),
                 type=form.cleaned_data.get('type'),
                 prjct=Prjct.objects.get(name=form.cleaned_data.get('prjct')) if form.cleaned_data.get('type') == 'I' else None,
+                code = form.cleaned_data.get('code'),
                 deposit_bank=form.cleaned_data.get('deposit_bank'),
                 deposit_bank_account=form.cleaned_data.get('deposit_bank_account'),
                 tax_number=form.cleaned_data.get('tax_number'),
