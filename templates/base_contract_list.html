@@ -18,7 +18,7 @@
     <td>
       <a href="{% url 'nanopay:contract-detail' contract.pk %}" class="btn btn-link position-relative text-start">
         <small>{{ contract.briefing }}</small>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary">
           {{ contract.assets.all.count }}
           <span class="visually-hidden">IT Assets associated with</span>
         </span>

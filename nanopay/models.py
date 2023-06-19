@@ -168,6 +168,7 @@ class LegalEntity(models.Model):
         ('E', 'External'),
     )
     type = models.CharField(_("主体类型"), choices=ENTITY_TYPE, default='E', max_length=1)
+    code = models.CharField(_("编码"), max_length=8, null=True, blank=True)
     prjct = models.ForeignKey("nanopay.Prjct", verbose_name=(_("Project Name")), on_delete=models.SET_NULL, null=True, blank=True)
     deposit_bank = models.CharField(_("开户行"), max_length=64, null=True, blank=True)
     deposit_bank_account = models.CharField(_("开户行账号"), max_length=32, null=True, blank=True)

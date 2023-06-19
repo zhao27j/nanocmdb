@@ -30,14 +30,23 @@ from .forms import NewLegalEntityForm, NewContractForm, NewPaymentTermForm, NewP
 @login_required
 def payment_request_paper_form(request, pk):
     payment_request = get_object_or_404(PaymentRequest, pk=pk)
-    payment_terms = PaymentTerm.objects.filter(contract=payment_request.payment_term.contract)
-    currency_type = payment_request.non_payroll_expense.get_currency_display()
 
+    for legal_entity_b in payment_request.payment_term.contract.party_b_list.all():
+        if legal_entity_b:
+            vendor_address = legal_entity_b.reg_addr
+            vendor_code = legal_entity_b.code
+            vendor_telephone_number = legal_entity_b.reg_phone
+            for contact_profile in legal_entity_b.userprofile_set.all():
+                vendor_contact_person = contact_profile.user.last_name + ', ' + contact_profile.user.first_name
+
+    currency_type = payment_request.non_payroll_expense.get_currency_display()
     if payment_request.payment_term.contract.get_total_amount():
         contract_amount = currency_type + "{:,.2f}".format(payment_request.payment_term.contract.get_total_amount()['amount__sum'])
     else:
         contract_amount = '-'
 
+    payment_terms = PaymentTerm.objects.filter(contract=payment_request.payment_term.contract)
+    
     contract_accumulated_payment_excluded_this_request = 0
     accumulated_payment_excluded_this_request = 0
     accumulated_payment_excluded_this_request_count = 0
@@ -68,34 +77,56 @@ def payment_request_paper_form(request, pk):
         remaining_budget_after_this_payment = payment_request.non_payroll_expense.get_non_payroll_expense_subtotal() - payment_request.amount - accumulated_payment_excluded_this_request
 
     context = {
-        "payer": payment_request.payment_term.contract.get_party_a_display(),
-        "date_of_request": payment_request.requested_on,
+        "payer": payment_request.payment_term.contract.get_party_a_display(), # Project name [项目公司名称]
+        "date_of_request": payment_request.requested_on, # Date of Request [申请日期]
         "payment_due_date": '',
-        "contract_amount": contract_amount,
-        "contract_accumulated_payment_excluded_this_request": contract_accumulated_payment_excluded_this_request,
+        "contract_amount": contract_amount, # Total Contract Amount (including All approved ASA amount)) [合同总金额(包含所有已批准变更金额)]
+        "contract_accumulated_payment_excluded_this_request": contract_accumulated_payment_excluded_this_request, # Prior Accu. Paid [前期累计付款]
         "included_in_the_budget_yes": '✔️',
         "included_in_the_budget_no": '☐',
-        "budget_dept_code_budget_originator": payment_request.non_payroll_expense.functional_department,
+        "budget_dept_code_budget_originator": payment_request.non_payroll_expense.functional_department, # Request Department [请款部门]
         "budget_expense_category_major_and_minor": payment_request.non_payroll_expense.global_gl_account,
-        "total_budget_amount_in_gbs_minor_category": currency_type + "{:,.2f}".format(payment_request.non_payroll_expense.get_non_payroll_expense_subtotal()),
-        "accumulated_payment_excluded_this_request": currency_type + "{:,.2f}".format(accumulated_payment_excluded_this_request),
-        "remaining_budget_after_this_payment": currency_type + "{:,.2f}".format(remaining_budget_after_this_payment),
+        "total_budget_amount_in_gbs_minor_category": currency_type + "{:,.2f}".format(payment_request.non_payroll_expense.get_non_payroll_expense_subtotal()), # Total Budget [预算]
+        "accumulated_payment_excluded_this_request": currency_type + "{:,.2f}".format(accumulated_payment_excluded_this_request), # Remaining Budget Before this payment [付款前可用预算]
+        "remaining_budget_after_this_payment": currency_type + "{:,.2f}".format(remaining_budget_after_this_payment), # Remaining Budget After this payment
         "job_code": payment_request.non_payroll_expense.global_expense_tracking_id,
-        "item_1_description": payment_request.non_payroll_expense.description,
-        "item_1_amount": currency_type + "{:,.2f}".format(payment_request.amount),
-        "item_1_allocation_code": payment_request.non_payroll_expense.allocation,
+        
+        "item_1_description": payment_request.non_payroll_expense.description, # Description [描述]
+        "item_1_amount": currency_type + "{:,.2f}".format(payment_request.amount), # Amount [金额]
+        "item_1_allocation_code": payment_request.non_payroll_expense.allocation, # PMWeb Code/Budget Name/Budget Code [PMWeb code/预算科目预算编号]
         "item_1_allocation_percentage": '100%',
         "item_1_allocated_amount": currency_type + "{:,.2f}".format(payment_request.amount),
+        
         "total_amount": currency_type + "{:,.2f}".format(payment_request.amount),
         "total_allocated_amount": currency_type + "{:,.2f}".format(payment_request.amount),
-        "transfer_petty_cash": "☐",
-        "transfer_check": "☐",
-        "transfer_wire": "✔️",
-        "payee": payment_request.payment_term.contract.get_party_b_display(),
-        "bank_information_deposit": payment_request.payment_term.contract.party_b_list.first().deposit_bank,
-        "bank_information_deposit_account": payment_request.payment_term.contract.party_b_list.first().deposit_bank_account,
+        "transfer_petty_cash": "☐", # Cash [现金]
+        "transfer_check": "☐", # Cheque [支票]
+        "transfer_wire": "✔️", # Wire Transfer [转账]
+        "payee": payment_request.payment_term.contract.get_party_b_display(), # Vendor[供应商]
+        "bank_information_deposit": payment_request.payment_term.contract.party_b_list.first().deposit_bank, # Bank Information [供应商银行信息]
+        "bank_information_deposit_account": payment_request.payment_term.contract.party_b_list.first().deposit_bank_account, # Bank Information [供应商银行信息]
+        
+        # for Project Payment Request Form (Non-D&C)
+        "contract_no": '',
+
+        "vendor_address": vendor_address, # Address [地址]
+        "vendor_code": vendor_code, # Vendor Code [供应商编码]
+        "vendor_contact_person": vendor_contact_person, # Vendor contact person [供应商联络人]
+        "vendor_telephone_number": vendor_telephone_number, # Telephone number [供应商联系电话]
+
+        "budget_category_development_budget": "✔️", # Development budget [开发预算]
+        "budget_category_operation_budget": "☐", # Operation budget [运营预算]
+
+        "budget_system_pmweb": "✔️", # PMWeb
+        "budget_system_non_pmweb": "☐", # Non-PMWeb
+        
+
+
     }
-    path = "nanopay/payment_request_paper_form.html" # find the template and render it.
+    if payment_request.payment_term.contract.party_a_list.first().prjct.name == 'TSP':
+        path = "nanopay/payment_request_paper_form.html" # find the template and render it.
+    else:
+        path = "nanopay/payment_request_paper_form_project.html" # find the template and render it.
     template = get_template(path)
     html = template.render(context)
     return HttpResponse(html)

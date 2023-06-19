@@ -72,7 +72,7 @@ class NewInstanceForm(forms.Form):
         "class": "form-control",
     }))
 
-    contract = forms.CharField(max_length=64, required=False, widget=TextInput(attrs={
+    contract = forms.CharField(max_length=72, required=False, widget=TextInput(attrs={
         "list": "contract_list",
         "class": "form-control",
     }))
