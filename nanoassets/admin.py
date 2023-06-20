@@ -3,7 +3,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin, ImportExportMixin
 
 from .resources import InstanceResource
-from .models import Instance, ModelType, Manufacturer, ScrapRequest, branchSite, ActivityHistory
+from .models import Instance, ModelType, Manufacturer, ScrapRequest, branchSite
 
 # Register your models here.
 
@@ -32,10 +32,11 @@ class InstanceAdmin(ImportExportModelAdmin):
 class ModelTypeAdmin(admin.ModelAdmin):
     list_display = ['sub_category', 'manufacturer', 'name', ]
 
+"""
 @admin.register(ActivityHistory)
 class ActivityHistoryAdmin(admin.ModelAdmin):
     list_display = ['Instance', 'Contract', 'description',]
-
+"""
 # admin.site.register(Instance, InstanceAdmin)
 # admin.site.register(ModelType)
 admin.site.register(Manufacturer)

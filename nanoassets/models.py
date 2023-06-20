@@ -13,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 
+"""
 class ActivityHistory(models.Model):
     description = models.TextField(_("Description"))
     # created_on = models.DateTimeField(_("Created on"), auto_now=False, auto_now_add=True)
@@ -25,7 +26,7 @@ class ActivityHistory(models.Model):
     
     class Meta:
         ordering = ['-description',]
-
+"""
 
 class branchSite(models.Model):
     name = models.CharField(_("Site / Branch Office Name"), max_length=64, null=True)
@@ -118,7 +119,7 @@ class Instance(models.Model):
 
 class ModelType(models.Model):
     name = models.CharField(max_length=32, unique=True)
-    manufacturer = models.ForeignKey("Manufacturer", on_delete=models.SET_NULL, blank=True, null=True)
+    manufacturer = models.ForeignKey("Manufacturer", verbose_name=(_("Manufacturer")), on_delete=models.SET_NULL, blank=True, null=True)
     sub_category = models.ForeignKey("nanobase.SubCategory", verbose_name=(_("Sub-Catetory")), on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):

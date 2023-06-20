@@ -3,21 +3,34 @@ from import_export.widgets import ForeignKeyWidget
 
 from django.contrib.auth.models import User
 
-from .models import Instance, ModelType, branchSite
+from .models import Instance, ModelType, Manufacturer, branchSite
+from nanobase.models import SubCategory
+
 
 class InstanceResource(resources.ModelResource):
+    sub_category = fields.Field(attribute='sub_category', column_name='Sub Category', widget=ForeignKeyWidget(SubCategory, field='name'),)
+    manufacturer = fields.Field(attribute='manufacturer', column_name='Manufacturer', widget=ForeignKeyWidget(Manufacturer, field='name'),)
     model_type = fields.Field(attribute='model_type', column_name='Model / Type', widget=ForeignKeyWidget(ModelType, field='name'),)
-    
     # hostname = fields.Field(attribute='configuragion', column_name='Hostname', widget=ForeignKeyWidget(Configuragion, field='hostname'),)
-
     owner = fields.Field(attribute='owner', column_name='Owner', widget=ForeignKeyWidget(User, field='username'),)
-
     site = fields.Field(attribute='branchSite', column_name='Site', widget=ForeignKeyWidget(branchSite, field='name'),)
 
     def before_import_row(self, row, row_number=None, **kwargs):
-        if str(row["Model / Type"]).strip():
+        if str(row["Sub Category"]).strip() != '':
+            sub_category_name = str(row["Sub Category"]).strip()
+            sub_category_obj = SubCategory.objects.get_or_create(name=sub_category_name, defaults={"name": sub_category_name, })
+
+        if str(row["Manufacturer"]).strip() != '':
+            manufacturer_name = str(row["Manufacturer"]).strip()
+            manufacturer_obj = Manufacturer.objects.get_or_create(name=manufacturer_name, defaults={"name": manufacturer_name, })
+
+        if str(row["Model / Type"]).strip() != '':
             model_type_name = str(row["Model / Type"]).strip()
-            ModelType.objects.get_or_create(name=model_type_name, defaults={"name": model_type_name})
+            model_type = ModelType.objects.get_or_create(name=model_type_name, defaults={"name": model_type_name,})
+
+            model_type[0].manufacturer = manufacturer_obj[0]
+            model_type[0].sub_category = sub_category_obj[0]
+            model_type[0].save()
 
         """
         if str(row["Hostname"]).strip():
@@ -25,7 +38,7 @@ class InstanceResource(resources.ModelResource):
             Configuragion.objects.get_or_create(hostname=configuragion_hostname, defaults={"hostname": configuragion_hostname})
         """
 
-        if str(row["Owner"]).strip():
+        if str(row["Owner"]).strip() != '':
             owner_username = str(row["Owner"]).strip().lower()
             owner_first_name = str(row["First Name"]).strip().capitalize()
             owner_last_name = str(row["Last Name"]).strip().capitalize()
@@ -49,4 +62,6 @@ class InstanceResource(resources.ModelResource):
         skip_unchanged = True
         report_skipped = False
         # exclude = ('eol_date')
-        fields = ('serial_number', 'model_type', 'status', 'hostname', 'owner', 'user_first_name', 'user_last_name', 'user_email', 'site', 'eol_date')
+        fields = ('site', 'sub_category', 'manufacturer', 'model_type', 'serial_number', 'status', 'hostname', 'owner', 'user_first_name', 'user_last_name', 'user_email',
+                  # 'eol_date'
+                  ) 
