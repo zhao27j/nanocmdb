@@ -294,6 +294,7 @@ def InstanceInRepair(request, pk):
     return redirect('nanoassets:supported-instance-list')
 
 
+@login_required
 def InstanceHostnameUpdate(request, pk):
     instance = get_object_or_404(Instance, pk=pk)
     if request.method == 'POST':
@@ -329,7 +330,6 @@ def InstanceHostnameUpdate(request, pk):
         'form': form,
         'instance': instance,
         })
-
 
 
 @login_required
@@ -507,8 +507,3 @@ def InstanceNew(request):
         'branchsite_list': branchsite_list,
         'contract_list': contract_list
         })
-
-
-@login_required
-def index(request):
-    return render(request, "index.html", {})

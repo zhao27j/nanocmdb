@@ -136,6 +136,11 @@ def get_digital_copy_delete(request, pk):
         raise Http404
 
 
+@login_required
+def index(request):
+    return render(request, "index.html", {})
+
+
 """
 def data_migration_ActivityHistory_to_ChangeHistory(request):
     activity_history_all = ActivityHistory.objects.all()

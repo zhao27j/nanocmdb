@@ -37,6 +37,7 @@ class ModelTypeAdmin(admin.ModelAdmin):
 class ActivityHistoryAdmin(admin.ModelAdmin):
     list_display = ['Instance', 'Contract', 'description',]
 """
+
 # admin.site.register(Instance, InstanceAdmin)
 # admin.site.register(ModelType)
 admin.site.register(Manufacturer)

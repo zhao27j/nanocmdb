@@ -25,12 +25,7 @@ urlpatterns = [
 
 urlpatterns += [
     path('', include('nanobase.urls')),
-]
-
-urlpatterns += [
     path('', include('nanoassets.urls')),
-]
-
-urlpatterns += [
-    path('nanopay/', include('nanopay.urls')),
+    # path('nanopay/', include('nanopay.urls')),
+    path('', include('nanopay.urls')),
 ]
