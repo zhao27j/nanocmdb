@@ -1,7 +1,56 @@
 {% extends 'base.html' %}
 {% load auth_extras %}
 {% block page_content %}
+
 {% include 'base_messages.html' %}
+
+{% if form.non_field_errors %}
+  {% for message in form.non_field_errors %}
+  <div class="container-fluid">
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <div>{{ message }}</div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+        <!-- <span aria-hidden="True">&times;</span> -->
+      </button>
+    </div>
+  </div>
+  {% endfor %}
+{% endif %}
+
+
+<form action="{% url 'nanoassets:instance-owner-upd-w-modal' instance.pk %}" method="post">
+  {% csrf_token %}
+  <!-- Modal -->
+  <div class="modal fade" id="ownerUpdModal" tabindex="-1" aria-labelledby="ownerUpdModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="ownerUpdModalLabel">Modal Owner Update</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          ...
+
+          <div class="row">
+            <div class="col"><b>Re-assign to : </b></div>
+            <input type="text" list="owner_list" name="owner_re_assign_to" placeholder="{{ instance.owner }}" class="form-control"/>
+            <datalist id="owner_list">
+              {% for owner in owner_list %}
+              <option>{{ owner }}</option>
+              {% endfor %}
+            </datalist>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
 <div class="card text-start">
   <div class="card-header">
     <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -41,10 +90,16 @@
         <ul class="list-group list-group-flush">
           <li class="list-group-item"><b>Status :</b> <small>{{ instance.get_status_display }}</small></li>
           <li class="list-group-item">
-            <b>Owner :</b> 
+            <b>Owner :</b>
+            <!--
             <a href="{% url 'nanoassets:instance-owner-upd' instance.pk %}">
               {% if instance.owner %}<small>{{ instance.owner.get_full_name }}</small>{% else %}🈳{% endif %}
             </a>
+            -->
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#ownerUpdModal">
+              {% if instance.owner %}<small>{{ instance.owner.get_full_name }}</small>{% else %}🈳{% endif %}
+            </button>
           </li>
           <li class="list-group-item"><em>...</em></li>
         </ul>

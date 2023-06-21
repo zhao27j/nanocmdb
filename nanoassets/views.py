@@ -332,6 +332,58 @@ def InstanceHostnameUpdate(request, pk):
         })
 
 
+def InstanceOwnerUpdatWithModal(request, pk):
+    if request.method == 'POST':
+        re_assign_to = request.POST.get('owner_re_assign_to').strip(")").split("(")[-1].strip().lower()
+        if re_assign_to == '' or User.objects.filter(username=re_assign_to) :
+            re_assign_to = get_object_or_404(User, username=re_assign_to) if re_assign_to != '' else re_assign_to
+            instance = get_object_or_404(Instance, pk=pk)
+            if re_assign_to == '' and instance.owner:
+                
+                ChangeHistory.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=instance._meta.db_table,
+                    db_table_pk=instance.pk,
+                    detail='Returned from [ ' + instance.owner.get_full_name() + ' ]'
+                    )
+
+                messages.info(request, 'the IT Assets [ ' + instance.serial_number + ' ] was Returned from ' + instance.owner.username)
+
+                instance.status = 'AVAILABLE'
+                instance.owner = None
+                instance.save()
+
+                return redirect('nanoassets:instance-detail', pk=instance.pk)
+            
+            elif re_assign_to != '' and re_assign_to != instance.owner:
+                
+                ChangeHistory.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=instance._meta.db_table,
+                    db_table_pk=instance.pk,
+                    detail='Re-assigned to [ ' + re_assign_to.get_full_name() + ' ] from [ ' + (instance.owner.get_full_name() if instance.owner else ' 🈳 ') + ' ]'
+                    )
+                
+                messages.info(request, 'the IT Assets [ ' + instance.serial_number + ' ] was Re-assigned to ' +
+                                re_assign_to.get_full_name() + ' from ' + (instance.owner.get_full_name() if instance.owner else ' 🈳 '))
+
+                instance.status = 'inUSE'
+                instance.owner = re_assign_to
+                instance.save()
+
+                return redirect('nanoassets:instance-detail', pk=instance.pk)
+
+            else:
+                messages.warning(request, 'the ownership of IT Assets [ ' + instance.serial_number + ' ] got Nothing to change')
+                return redirect('nanoassets:instance-detail', pk=instance.pk)
+
+        else:
+            messages.warning(request, 'the new Owner given [ ' + re_assign_to + ' ] does NOT exist')
+            return redirect('nanoassets:instance-detail', pk=pk)
+
+
 @login_required
 def InstanceOwnerUpdate(request, pk):
     owner_list = []
@@ -441,6 +493,14 @@ class InstanceDetailView(LoginRequiredMixin, generic.DetailView):
         context = super().get_context_data(**kwargs)
         changes = ChangeHistory.objects.filter(db_table_name=self.object._meta.db_table, db_table_pk=self.object.pk).order_by("-on")
         context["changes"] = changes
+
+        owner_list = []
+        for owner in User.objects.all():
+            if owner.username != 'admin' and 'tishmanspeyer.com' in owner.email:
+                owner_list.append('%s ( %s )' % (owner.get_full_name(), owner.username))
+
+        context["owner_list"] = owner_list
+
         return context
 
 
