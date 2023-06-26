@@ -34,7 +34,6 @@ class InstnaceOwnerUpdateForm(forms.Form):
         'list': 'owner_list',
     }))
 
-
     def clean(self):
         cleaned_data = super().clean()
 
