@@ -27,7 +27,7 @@ urlpatterns += [
     path('instances_supported/', views.InstanceByTechListView.as_view(), name='supported-instance-list'),
     path('instance/<pk>/detail/', views.InstanceDetailView.as_view(), name='instance-detail'),
     path('instance/new/', views.InstanceNew, name='instance-new'),
-    # path('instance/<pk>/owner_upd/', views.InstanceOwnerUpdate, name='instance-owner-upd'),
+
     path('instance/<pk>/owner_upd/', views.InstanceOwnerUpdate, name='instance-owner-upd'),
     path('instance/<pk>/hostname_upd/', views.InstanceHostnameUpdate, name='instance-hostname-upd'),
     path('instance/<pk>/in_repair/', views.InstanceInRepair, name='instance-in-repair'),

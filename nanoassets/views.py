@@ -241,6 +241,12 @@ class InstanceSearchResultsListView(LoginRequiredMixin, generic.ListView):
             contracts.append(contract)
         context['contracts'] = contracts
 
+        owner_list = []
+        for owner in User.objects.all():
+            if owner.username != 'admin' and 'tishmanspeyer.com' in owner.email:
+                owner_list.append('%s ( %s )' % (owner.get_full_name(), owner.username))
+        context["owner_list"] = owner_list
+
         return context
 
 
@@ -296,45 +302,38 @@ def InstanceInRepair(request, pk):
 
 @login_required
 def InstanceHostnameUpdate(request, pk):
-    instance = get_object_or_404(Instance, pk=pk)
     if request.method == 'POST':
-        form = InstanceHostnameUpdateForm(request.POST)
-        if form.is_valid():
-            new_hostname = form.cleaned_data.get('hostname').strip()
-
-            # instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'the Hostname of IT Assets [ ' + instance.serial_number + ' ] was updated from [ ' + instance.hostname + ' ] to [ ' + new_hostname + ' ] by ' + request.user.get_full_name())
-            
+        previous_url = request.META.get('HTTP_REFERER')
+        instance = get_object_or_404(Instance, pk=pk)
+        new_hostname = request.POST.get('hostname_re_name_to').strip()
+        if new_hostname != '' and new_hostname != instance.hostname:
             ChangeHistory.objects.create(
                 on=timezone.now(),
                 by=request.user,
                 db_table_name=instance._meta.db_table,
                 db_table_pk=instance.pk,
-                detail='the Hostname of IT Assets [ ' + instance.serial_number + ' ] was updated from [ ' + instance.hostname + ' ] to [ ' + new_hostname + ' ]'
+                detail='the Hostname of IT Assets [ ' + instance.serial_number + ' ] was renamed from [ '
+                + (instance.hostname if instance.hostname else 'None') + ' ] to [ ' + new_hostname + ' ]'
                 )
-            
-            messages.info(request, 'the Hostname of IT Assets [ ' + instance.serial_number + 
-                ' ] was updated from [ ' + instance.hostname + ' ] to [ ' + new_hostname + ' ]')
-
+            messages.info(request, 'the Hostname of IT Assets [ ' + instance.serial_number + ' ] was renamed from [ '
+                          + (instance.hostname if instance.hostname else 'None') + ' ] to [ ' + new_hostname + ' ]')
             instance.hostname = new_hostname
-
             instance.save()
-
-            return redirect('nanoassets:instance-detail', pk=instance.pk)
-
-    else: # if this is a GET (or any other method) create the default form.
-        form = InstanceHostnameUpdateForm(initial={
-            'hostname': 'TS-' + instance.serial_number,
-        })
-
-    return render(request, 'nanoassets/instance_update_hostname.html', {
-        'form': form,
-        'instance': instance,
-        })
+            return redirect(previous_url)
+        else:
+            messages.warning(request, 'the Hostname got nothing to change')
+            return redirect(previous_url)
 
 
-def InstanceOwnerUpdatWithModal(request, pk):
+@login_required
+def InstanceOwnerUpdate(request, pk):
     if request.method == 'POST':
+        previous_url = request.META.get('HTTP_REFERER')
         re_assign_to = request.POST.get('owner_re_assign_to').strip(")").split("(")[-1].strip().lower()
+        if re_assign_to == 'admin':
+            messages.warning(request, 'IT Assets can NOT be re-assignedd to Admin account')
+            return redirect(previous_url)
+
         if re_assign_to == '' or User.objects.filter(username=re_assign_to) :
             re_assign_to = get_object_or_404(User, username=re_assign_to) if re_assign_to != '' else re_assign_to
             instance = get_object_or_404(Instance, pk=pk)
@@ -354,7 +353,8 @@ def InstanceOwnerUpdatWithModal(request, pk):
                 instance.owner = None
                 instance.save()
 
-                return redirect('nanoassets:instance-detail', pk=instance.pk)
+                # return redirect('nanoassets:instance-detail', pk=instance.pk)
+                return redirect(previous_url)
             
             elif re_assign_to != '' and re_assign_to != instance.owner:
                 
@@ -373,7 +373,8 @@ def InstanceOwnerUpdatWithModal(request, pk):
                 instance.owner = re_assign_to
                 instance.save()
 
-                return redirect('nanoassets:instance-detail', pk=instance.pk)
+                # return redirect('nanoassets:instance-detail', pk=instance.pk)
+                return redirect(previous_url)
 
             else:
                 messages.warning(request, 'the ownership of IT Assets [ ' + instance.serial_number + ' ] got Nothing to change')
@@ -381,77 +382,11 @@ def InstanceOwnerUpdatWithModal(request, pk):
 
         else:
             messages.warning(request, 'the new Owner given [ ' + re_assign_to + ' ] does NOT exist')
-            return redirect('nanoassets:instance-detail', pk=pk)
-
-
-@login_required
-def InstanceOwnerUpdate(request, pk):
-    owner_list = []
-    for owner in User.objects.all():
-        if owner.username != 'admin' and 'tishmanspeyer.com' in owner.email:
-            owner_list.append('%s ( %s )' % (owner.get_full_name(), owner.username))
-
-    instance = get_object_or_404(Instance, pk=pk)
-
-    if request.method == 'POST': # if this is a POST request then process the Form data
-        form = InstnaceOwnerUpdateForm(request.POST) # create a form instance and populate it with data from the request (binding):
-        if form.is_valid(): # check if the form is valid:
-            # process the data in form.cleaned_data as required
-            re_assign_to = form.cleaned_data.get('owner').strip(")").split("(")[-1].strip().lower()
-            re_assign_to = get_object_or_404(User, username=re_assign_to) if re_assign_to != '' else re_assign_to
-            if re_assign_to == '' and instance.owner:
-
-                # instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Returned from [ ' + instance.owner.get_full_name() + ' ] by ' + request.user.get_full_name())
-                
-                ChangeHistory.objects.create(
-                    on=timezone.now(),
-                    by=request.user,
-                    db_table_name=instance._meta.db_table,
-                    db_table_pk=instance.pk,
-                    detail='Returned from [ ' + instance.owner.get_full_name() + ' ]'
-                    )
-
-                messages.info(request, 'the IT Assets [ ' + instance.serial_number + ' ] was Returned from ' + instance.owner.username)
-
-                instance.status = 'AVAILABLE'
-                instance.owner = None
-                instance.save()
-
-                return redirect('nanoassets:instance-detail', pk=instance.pk)
-            
-            elif re_assign_to != '' and re_assign_to != instance.owner:
-
-                # instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Re-assigned to [ ' + re_assign_to.get_full_name() + ' ] from [ ' + (instance.owner.get_full_name() if instance.owner else ' 🈳 ') + ' ] by ' + request.user.get_full_name())
-                
-                ChangeHistory.objects.create(
-                    on=timezone.now(),
-                    by=request.user,
-                    db_table_name=instance._meta.db_table,
-                    db_table_pk=instance.pk,
-                    detail='Re-assigned to [ ' + re_assign_to.get_full_name() + ' ] from [ ' + (instance.owner.get_full_name() if instance.owner else ' 🈳 ') + ' ]'
-                    )
-                
-                messages.info(request, 'the IT Assets [ ' + instance.serial_number + ' ] was Re-assigned to ' +
-                                re_assign_to.get_full_name() + ' from ' + (instance.owner.get_full_name() if instance.owner else ' 🈳 '))
-
-                instance.status = 'inUSE'
-                instance.owner = re_assign_to
-                instance.save()
-
-                return redirect('nanoassets:instance-detail', pk=instance.pk)
-
-            else:
-                messages.warning(request, 'the ownership of IT Assets [ ' + instance.serial_number + ' ] got Nothing to change')
-
-    else: # if this is a GET (or any other method) create the default form.
-        form = InstnaceOwnerUpdateForm(initial={})
-
-    return render(request, 'nanoassets/instance_update_owner.html', {
-        'form': form,
-        'owner_list': owner_list,
-        'instance': instance,
-        })
-
+            # return redirect('nanoassets:instance-detail', pk=pk)
+            # return redirect(request.path) # 重定向 至 当前 URL
+            # return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 URL
+            return redirect(previous_url)
+    
 
 class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
     model = Instance
@@ -470,6 +405,12 @@ class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
         for contract in Contract.objects.all():
             contracts.append(contract)
         context['contracts'] = contracts
+
+        owner_list = []
+        for owner in User.objects.all():
+            if owner.username != 'admin' and 'tishmanspeyer.com' in owner.email:
+                owner_list.append('%s ( %s )' % (owner.get_full_name(), owner.username))
+        context["owner_list"] = owner_list
 
         return context
 

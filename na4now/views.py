@@ -171,3 +171,40 @@ def InstanceOwnerUpdate(request, pk):
         'instance': instance,
         })
 
+
+@login_required
+def InstanceHostnameUpdate(request, pk):
+    instance = get_object_or_404(Instance, pk=pk)
+    if request.method == 'POST':
+        form = InstanceHostnameUpdateForm(request.POST)
+        if form.is_valid():
+            new_hostname = form.cleaned_data.get('hostname').strip()
+
+            # instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'the Hostname of IT Assets [ ' + instance.serial_number + ' ] was updated from [ ' + instance.hostname + ' ] to [ ' + new_hostname + ' ] by ' + request.user.get_full_name())
+            
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=instance._meta.db_table,
+                db_table_pk=instance.pk,
+                detail='the Hostname of IT Assets [ ' + instance.serial_number + ' ] was updated from [ ' + instance.hostname + ' ] to [ ' + new_hostname + ' ]'
+                )
+            
+            messages.info(request, 'the Hostname of IT Assets [ ' + instance.serial_number + 
+                ' ] was updated from [ ' + instance.hostname + ' ] to [ ' + new_hostname + ' ]')
+
+            instance.hostname = new_hostname
+
+            instance.save()
+
+            return redirect('nanoassets:instance-detail', pk=instance.pk)
+
+    else: # if this is a GET (or any other method) create the default form.
+        form = InstanceHostnameUpdateForm(initial={
+            'hostname': 'TS-' + instance.serial_number,
+        })
+
+    return render(request, 'nanoassets/instance_update_hostname.html', {
+        'form': form,
+        'instance': instance,
+        })

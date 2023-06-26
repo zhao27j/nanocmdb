@@ -44,18 +44,12 @@
       {% endif %}
       <small>{{ instance.model_type }}</small>
     </td>
-    <td><a href="{% url 'nanoassets:instance-hostname-upd' instance.pk %}"><small>{{ instance.hostname }}</small></a></td>
+    <td><small>{{ instance.hostname }}</small></td>
     <td><small>{{ instance.get_status_display }}</small></td>
     {% if user|has_group:"IT China" %}
-    <td>
-      <a href="{% url 'nanoassets:instance-owner-upd' instance.pk %}">
-        {% if instance.owner %}<small>{{ instance.owner.get_full_name }}</small>{% else %}🈳{% endif %}
-      </a>
-    </td>
+    <td>{% if instance.owner %}<small>{{ instance.owner.get_full_name }}</small>{% else %}🈳{% endif %}</td>
     {% endif %}
-    <td>
-      <small>{{ instance.branchSite }}</small>
-    </td>
+    <td><small>{{ instance.branchSite }}</small></td>
     {% if user|has_group:"IT China" and request.user.is_staff %}
     <td>
       &nbsp;
