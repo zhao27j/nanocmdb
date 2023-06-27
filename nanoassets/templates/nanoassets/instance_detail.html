@@ -17,25 +17,34 @@
   {% endfor %}
 {% endif %}
 
-<form action="{% url 'nanoassets:instance-hostname-upd' instance.pk %}" method="post">
+<form action="{% url 'nanoassets:instance-hostname-upd' instance.pk %}" method="post" 
+  x-data="{ hostName: 'TS-' + document.getElementById('serial_number').innerHTML}"
+  
+  >
   {% csrf_token %}
   <!-- Modal -->
   <div class="modal fade" id="hostnameUpdModal" tabindex="-1" aria-labelledby="hostnameUpdModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="hostnameUpdModalLabel">Re-hostname to ...</h1>
+          <h1 class="modal-title fs-5" id="hostnameUpdModalLabel">Rename to ...</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="row">
-            <div class="col"><b> ... </b></div>
-            <input type="text" list="" value="TS-{{ instance.serial_number }}" name="hostname_re_name_to" placeholder="" class="form-control"/>
+          <div class="row" x-init="$nextTick(() => { $refs.hostNameInput.focus(); })">
+            <input type="text" list="" name="hostname_re_name_to" autocomplete="off" class="form-control"
+              x-model.lazy="hostName"
+              x-ref="hostNameInput"
+              x-on:focusout="hostName.trim().length < 1 ? $refs.hostNameInput.focus() : hostName = $event.target.value.toUpperCase()"
+              x-bind:value="hostName"
+              x-bind:class="hostName.trim().length < 1 ? 'border-bottom border-danger' : 'border-bottom border-success'"
+            />
+            <span x-show="hostName.trim().length < 1">your input is barely visible 😆</span>
           </div>
         </div>
         <div class="modal-footer">
           <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
-          <button type="submit" class="btn btn-primary">Save changes</button>
+          <button type="submit" class="btn btn-primary" x-bind:class="hostName.trim().length < 1 ? 'disabled' : ''">Save changes</button>
         </div>
       </div>
     </div>
@@ -131,7 +140,7 @@
         <ul class="list-group list-group-flush">
           <li class="list-group-item"><b>Sub Category :</b> <small>{{ instance.model_type.sub_category }}</small></li>
           <li class="list-group-item"><b>Model / Type :</b> <small>{{ instance.model_type }}</small></li>
-          <li class="list-group-item"><b>Serial # :</b> <small>{{ instance.serial_number }}</small></li>
+          <li class="list-group-item"><b>Serial # :</b> <small id="serial_number">{{ instance.serial_number }}</small></li>
           <li class="list-group-item">
             <b>Hostname :</b>
             {% if user|has_group:"IT China" %}
