@@ -265,5 +265,5 @@ class NewLegalEntityForm(forms.Form):
                 else:
                     external_contact_list.append('%s - %s' % (external_contact.get_full_name(), external_contact.email))
         
-        if contact != '' and type == 'E' and not contact in external_contact_list:
+        if type == 'E' and contact != '' and not contact in external_contact_list:
             raise ValidationError(_('the Contact given is invalid'))
