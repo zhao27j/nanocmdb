@@ -17,9 +17,17 @@
   {% endfor %}
 {% endif %}
 
+<script>
+  const myModal = document.getElementById('hostnameUpdModal')
+  const myInput = document.getElementById('hostnameUpdModalInput')
+
+  myModal.addEventListener('shown.bs.modal', () => {
+    myInput.focus()
+  })
+</script>
+
 <form action="{% url 'nanoassets:instance-hostname-upd' instance.pk %}" method="post" 
   x-data="{ hostName: 'TS-' + document.getElementById('serial_number').innerHTML}"
-  
   >
   {% csrf_token %}
   <!-- Modal -->
@@ -32,14 +40,17 @@
         </div>
         <div class="modal-body">
           <div class="row" x-init="$nextTick(() => { $refs.hostNameInput.focus(); })">
-            <input type="text" list="" name="hostname_re_name_to" autocomplete="off" class="form-control"
+            <input type="text" list="" id="hostnameUpdModalInput" name="hostname_re_name_to" autocomplete="off" class="form-control"
               x-model.lazy="hostName"
+              x-on:show-bs-modal.dot="
+                $refs.hostNameInput.focus();
+                console.log('show-bs-modal.dot'); "
               x-ref="hostNameInput"
               x-on:focusout="hostName.trim().length < 1 ? $refs.hostNameInput.focus() : hostName = $event.target.value.toUpperCase()"
               x-bind:value="hostName"
               x-bind:class="hostName.trim().length < 1 ? 'border-bottom border-danger' : 'border-bottom border-success'"
             />
-            <span x-show="hostName.trim().length < 1">your input is barely visible 😆</span>
+            <span x-show="hostName.trim().length < 1">looks your input is barely visible 😆</span>
           </div>
         </div>
         <div class="modal-footer">

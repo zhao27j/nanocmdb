@@ -243,7 +243,7 @@ class NewLegalEntityForm(forms.Form):
         if type == 'E' and code == '':
             raise ValidationError(_('please provide the Code if External is selected as the Type of Legal Entity'))
         
-        if LegalEntity.objects.filter(code=code):
+        if code != '' and LegalEntity.objects.filter(code=code):
             raise ValidationError(_('Code given does Exist'))
         
         deposit_bank = cleaned_data.get('deposit_bank')
