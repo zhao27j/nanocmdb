@@ -17,14 +17,22 @@
     <td><input type="checkbox" name="contract" id="contract{{ forloop.counter }}" value="{{ contract.pk }}"/></td>
     <td>
       <a href="{% url 'nanopay:contract-detail' contract.pk %}" class="btn btn-link position-relative text-start">
-        <small>{{ contract.briefing }}</small>
+        <small>{{ contract.briefing|truncatechars:32 }}</small>
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary">
           {{ contract.assets.all.count }}
           <span class="visually-hidden">IT Assets associated with</span>
         </span>
       </a>
     </td>
-    <td><small>{{ contract.get_party_a_display }}</small></td>
+    <td>
+      <!-- <small>{{ contract.get_party_a_display }}</small> -->
+      
+      {% for party_a in contract.party_a_list.all %}
+      <small>{{ party_a.name }}</small>
+      <br>
+      {% endfor %}
+      
+    </td>
     <td>
       {% for party_b in contract.party_b_list.all %}
         <a href="{{ party_b.get_absolute_url }}"><small>{{ contract.get_party_b_display }}</small></a>
