@@ -17,6 +17,7 @@ urlpatterns += [
 urlpatterns += [
     path('digital_copy/<int:pk>/display/', views.get_digital_copy_display, name='digital-copy-display'),
     path('digital_copy/<int:pk>/delete/', views.get_digital_copy_delete, name='digital-copy-delete'),
+    path('digital_copy/<int:pk>/<db_table_name>/add/', views.get_digital_copy_add, name='digital-copy-add'),
 ]
 
 # temp - data migrations

@@ -480,6 +480,7 @@ class ContractDetailView(LoginRequiredMixin, generic.DetailView):
         else:
             context["non_payroll_expense"] = '[yet associated]'
         
+        context["db_table_name"]=self.object._meta.db_table
         digital_copies = UploadedFile.objects.filter(db_table_name=self.object._meta.db_table, db_table_pk=self.object.pk).order_by("-on")
         context["digital_copies"] = digital_copies
         changes = ChangeHistory.objects.filter(db_table_name=self.object._meta.db_table, db_table_pk=self.object.pk).order_by("-on")

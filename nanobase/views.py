@@ -1,5 +1,7 @@
 # from datetime import datetime
 
+import os
+
 from django.core.files import File
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -126,6 +128,29 @@ def get_digital_copy_display(request, pk):
 def get_digital_copy_delete(request, pk):
     digital_copy_instance = get_object_or_404(UploadedFile, pk=pk)
     digital_copy_path = digital_copy_instance.digital_copy.name
+
+    if os.path.exists(digital_copy_path):
+        os.remove(digital_copy_path)
+
+        ChangeHistory.objects.create(
+            on=timezone.now(),
+            by=request.user,
+            db_table_name=digital_copy_instance.db_table_name,
+            db_table_pk=digital_copy_instance.db_table_pk,
+            detail='the Digital Copy [ ' + digital_copy_path + ' ] was deleted'
+            )
+
+        number_of_objects_deleted, dictionary_with_the_number_of_deletions_per_object_type = digital_copy_instance.delete()
+
+        messages.info(request, 'the Digital Copy of [ ' + digital_copy_path + ' ] was deleted')
+        
+        return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
+        
+    else:
+        messages.warning(request, 'the Digital Copy [ ' + digital_copy_path + ' ] does NOT exist')
+        return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
+
+    """
     try:
         digital_copy = open(digital_copy_path, 'rb')
         f = File(digital_copy)
@@ -134,7 +159,31 @@ def get_digital_copy_delete(request, pk):
         return FileResponse(digital_copy)
     except FileNotFoundError:
         raise Http404
+    """
 
+
+@login_required
+def get_digital_copy_add(request, pk, db_table_name):
+    if request.method == 'POST':
+        digital_copies = request.FILES.getlist('digital_copies')
+        for digital_copy in digital_copies:
+            uploadedFile = UploadedFile.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                # db_table_name=new_contract._meta.db_table,
+                db_table_name=db_table_name,
+                db_table_pk=pk,
+                digital_copy=digital_copy,
+            )
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=db_table_name,
+                db_table_pk=pk,
+                detail='the Digital Copy of [ ' + uploadedFile.get_digital_copy_base_file_name() + ' ] was added'
+                )
+        messages.info(request, str(len(digital_copies)) + ' Digital Copies were added')
+        return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
 
 @login_required
 def index(request):
