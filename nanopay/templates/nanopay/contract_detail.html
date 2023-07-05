@@ -213,7 +213,7 @@
         </ul>
       </div>
       <div class="tab-pane fade" id="assets-tab-pane" role="tabpanel" aria-labelledby="assets-tab" tabindex="0">
-        <h5 class="card-title"></h5>
+        <h5 class="card-title  text-body-secondary">{{ contract.briefing }}</h5>
         <ul class="list-group list-group-flush">
           <li class="list-group-item">
             {% include 'base_instance_list.html' with instances=contract.assets.all %}
