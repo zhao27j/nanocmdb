@@ -114,7 +114,7 @@ class Instance(models.Model):
         return reverse("nanoassets:instance-detail", kwargs={"pk": self.pk})
 
     class Meta:
-        ordering = ['branchSite', 'status', 'model_type', 'eol_date',]
+        ordering = ['model_type__sub_category', 'branchSite', 'status', 'model_type', 'eol_date',]
 
 
 class ModelType(models.Model):

@@ -23,7 +23,24 @@
   <form action="{% url 'nanoassets:instance-bulk-upd' %}" method="post">
     {% csrf_token %}
     {% include 'base_instance_list_tools.html' %}
-    {% include 'base_instance_list.html' with instances=instance_list %}
+
+    {% for sub_category in sub_categories %}
+    <p>
+      <button type="button" class="btn btn-secondary btn-sm mt-2" data-bs-toggle="collapse" href="#{{ sub_category }}" role="button" aria-expanded="false" aria-controls="{{ sub_category }}">
+        <small>{{ sub_category }}</small> ⤵️
+      </button>
+    </p>
+    <div class="row">
+      <div class="col">
+        <div class="collapse multi-collapse show" id="{{ sub_category }}">
+          <div class="card card-body">
+          {% include 'base_instance_list.html' with instances=instance_list %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
   </form>
   {% else %}
   <p class="lead">No IT assets are under your support !</p>

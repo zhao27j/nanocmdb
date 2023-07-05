@@ -194,7 +194,7 @@ def InstanceBulkUpd(request):
 class InstanceSearchResultsListView(LoginRequiredMixin, generic.ListView):
     model = Instance
     template_name = 'nanoassets/instance_list_search_results.html'
-    paginate_by = 32
+    # paginate_by = 32
 
     def get_queryset(self):
         queries = tuple(self.request.GET.get('q').split(','))
@@ -230,6 +230,12 @@ class InstanceSearchResultsListView(LoginRequiredMixin, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        sub_categories = []
+        for instance in self.object_list:
+            if instance.model_type.sub_category not in sub_categories:
+                sub_categories.append(instance.model_type.sub_category)
+        context["sub_categories"] = sub_categories
 
         branchSites_name = []
         for site in branchSite.objects.all():
@@ -391,10 +397,16 @@ def InstanceOwnerUpdate(request, pk):
 class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
     model = Instance
     template_name = 'nanoassets/instance_list_by_tech.html'
-    paginate_by = 32
+    # paginate_by = 32
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        sub_categories = []
+        for instance in self.object_list:
+            if instance.model_type.sub_category not in sub_categories:
+                sub_categories.append(instance.model_type.sub_category)
+        context["sub_categories"] = sub_categories
 
         branchSites_name = []
         for site in branchSite.objects.all():
