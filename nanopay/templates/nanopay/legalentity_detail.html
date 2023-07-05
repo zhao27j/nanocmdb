@@ -28,8 +28,10 @@
       </div>
       <div class="col-md-8">
         <div class="card-body">
-          <h3 class="card-title text-body-secondary">{{ legalentity.name }}</h3>
-          <p class="card-text"><small class="text-body-secondary">{{ legalentity.get_type_display }}</small></p>
+          <h3 class="card-title text-body-secondary">
+            {{ legalentity.name }}
+            <small class="h6" styly="inline-block">{{ legalentity.get_type_display }}</small>
+          </h3>
           <p class="card-text">...</p>
         </div>
         <ul class="list-group list-group-flush">
