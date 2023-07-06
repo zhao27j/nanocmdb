@@ -17,7 +17,7 @@
     {% endif %}
   </tr>
   {% for instance in instances %}
-    {% if instance.model_type.sub_category == sub_category %}
+    <!-- {% if instance.model_type.sub_category == sub_category %}-->
     <tr>
       <td><input type="checkbox" name="instance" id="instance{{ forloop.counter }}" value="{{ instance.pk }}"/></td>
       <td>
@@ -70,7 +70,7 @@
       </td>
       {% endif %}
     </tr>
-    {% endif %}
+    <!-- {% endif %} -->
   {% endfor %}
 </table>
 
