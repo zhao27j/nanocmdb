@@ -25,16 +25,16 @@
     {% include 'base_instance_list_tools.html' %}
 
     {% for sub_category in sub_categories %}
-    <p>
-      <button type="button" class="btn btn-secondary btn-sm mt-2" data-bs-toggle="collapse" href="#{{ sub_category }}" role="button" aria-expanded="false" aria-controls="{{ sub_category }}">
-        <small>{{ sub_category }}</small> ⤵️
+    <div class="d-grid gap-2">
+      <button type="button" class="btn btn-light btn-sm text-start mt-2" data-bs-toggle="collapse" href="#{{ sub_category }}" role="button" aria-expanded="false" aria-controls="{{ sub_category }}">
+        <small>{{ sub_category }} <span class="badge text-bg-secondary">{{ instance_list|grouped_by_sub_category_count:sub_category }}</span></small> ⤵️
       </button>
-    </p>
+    </div>
     <div class="row">
       <div class="col">
         <div class="collapse multi-collapse show" id="{{ sub_category }}">
           <div class="card card-body">
-          {% include 'base_instance_list.html' with instances=instance_list %}
+          {% include 'base_instance_list.html' with instances=instance_list|grouped_by_sub_category:sub_category %}
           </div>
         </div>
       </div>
