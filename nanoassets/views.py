@@ -86,9 +86,11 @@ def InstanceBulkUpd(request):
             if 'scrapping-request' in request.POST or 'branchsite-transfer' in request.POST:
                 for selected_instance_pk in request.POST.getlist('instance'):
                     selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
-                    if selected_instance.status != 'AVAILABLE' or selected_instance.scrap_request:
-                        messages.warning(request, "only unrequested Available computers can be requested")
-                        # return redirect(request.path) # 重定向 至 当前 页面 (在此不适合)
+                    if selected_instance.status != 'AVAILABLE':
+                        messages.warning(request, "only Available IT Assets can be Transferred or Scrapped")
+                        return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
+                    elif selected_instance.scrap_request:
+                        messages.warning(request, "looks this IT Assets has been requested for Scrapping")
                         return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
 
             if 'scrapping-request' in request.POST:
