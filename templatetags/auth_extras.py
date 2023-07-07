@@ -22,10 +22,26 @@ def grouped_by_sub_category(instance_list, sub_category):
         return False
     
 
-@register.filter(name='grouped_by_sub_category_count')
-def grouped_by_sub_category_count(instance_list, sub_category):
+@register.filter(name='grouped_by_sub_category_subtotal')
+def grouped_by_sub_category_subtotal(instance_list, sub_category):
     try:
-        instance_list_grouped_by_sub_category_count = instance_list.filter(model_type__sub_category=sub_category).count()
-        return instance_list_grouped_by_sub_category_count if instance_list_grouped_by_sub_category_count else None
+        instance_list_grouped_by_sub_category_subtotal = instance_list.filter(model_type__sub_category=sub_category).count()
+        return instance_list_grouped_by_sub_category_subtotal if instance_list_grouped_by_sub_category_subtotal else None
+    except:
+        return False
+    
+@register.filter(name='grouped_by_sub_category_subtotal_available')
+def grouped_by_sub_category_subtotal_available(instance_list, sub_category):
+    try:
+        instance_list_grouped_by_sub_category_subtotal_available = instance_list.filter(model_type__sub_category=sub_category).filter(status='AVAILABLE').count()
+        return instance_list_grouped_by_sub_category_subtotal_available if instance_list_grouped_by_sub_category_subtotal_available else None
+    except:
+        return False
+    
+@register.filter(name='grouped_by_sub_category_subtotal_in_repair')
+def grouped_by_sub_category_subtotal_in_repair(instance_list, sub_category):
+    try:
+        instance_list_grouped_by_sub_category_subtotal_in_repair = instance_list.filter(model_type__sub_category=sub_category).filter(status='inREPAIR').count()
+        return instance_list_grouped_by_sub_category_subtotal_in_repair if instance_list_grouped_by_sub_category_subtotal_in_repair else None
     except:
         return False
