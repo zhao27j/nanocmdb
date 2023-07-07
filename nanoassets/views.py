@@ -312,14 +312,18 @@ def InstanceInRepair(request, pk):
 def InstanceSubcategoryUpdate(request, pk):
     if request.method == 'POST':
         previous_url = request.META.get('HTTP_REFERER')
+
         instance = Instance.objects.get(pk=pk)
         if not instance.model_type or instance.model_type.name.strip() == '' or not ModelType.objects.get(name=instance.model_type.name):
             messages.warning(request, 'please Assign a Model Type to this IT Assets first')
             return redirect(previous_url)
         
         re_subcategorize_to = request.POST.get('re_subcategorize_to').strip()
+        if instance.model_type.sub_category and re_subcategorize_to == instance.model_type.sub_category.name:
+            messages.warning(request, 'the Sub Category given [ ' + re_subcategorize_to + ' ] is the same as the orginal')
+            return redirect(previous_url)
 
-        if re_subcategorize_to != '' and re_subcategorize_to != instance.model_type.sub_category.name and SubCategory.objects.filter(name=re_subcategorize_to):
+        if re_subcategorize_to != '' and SubCategory.objects.filter(name=re_subcategorize_to):
             sub_category = SubCategory.objects.get(name=re_subcategorize_to)
             model_type = ModelType.objects.get(name=instance.model_type.name)
 
@@ -343,7 +347,6 @@ def InstanceSubcategoryUpdate(request, pk):
             return redirect(previous_url)
 
 
-
 @login_required
 def InstanceModelTypeUpdate(request, pk):
     if request.method == 'POST':
@@ -351,8 +354,11 @@ def InstanceModelTypeUpdate(request, pk):
         instance = Instance.objects.get(pk=pk)
         
         change_model_type_to = request.POST.get('change_model_type_to').split("-")[-1].strip()
+        if instance.model_type and change_model_type_to == instance.model_type.name:
+            messages.warning(request, 'the Model / Type given [ ' + change_model_type_to + ' ] is the same as the orginal')
+            return redirect(previous_url)
 
-        if change_model_type_to != '' and change_model_type_to != instance.model_type.name and ModelType.objects.filter(name=change_model_type_to):
+        if change_model_type_to != '' and ModelType.objects.filter(name=change_model_type_to):
             model_type = ModelType.objects.get(name=change_model_type_to)
 
             ChangeHistory.objects.create(
@@ -373,7 +379,6 @@ def InstanceModelTypeUpdate(request, pk):
         else:
             messages.warning(request, 'the Sub Category given [ ' + request.POST.get('change_model_type_to').strip() + ' ] is invalid')
             return redirect(previous_url)
-
 
 
 @login_required
