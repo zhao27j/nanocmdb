@@ -32,7 +32,9 @@
     {% for request in scraprequest_list %}
     <tr>
       <td>
-        <a href="{% url 'nanoassets:instance-scrapping-request-detail' request.case_id %}"><small>{{ request.case_id }}</small></a>
+        <a href="{% url 'nanoassets:instance-scrapping-request-detail' request.case_id %}" class="text-decoration-none">
+          <small>{{ request.case_id }}</small>
+        </a>
       </td>
       <td><small>{{ request.get_status_display }}</small></td>
       <td><small>{{ request.requested_by.get_full_name }}</small></td>

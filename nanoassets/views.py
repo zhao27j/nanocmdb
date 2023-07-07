@@ -23,7 +23,7 @@ from django.db.models import Q
 from .forms import NewInstanceForm, InstnaceOwnerUpdateForm, InstanceHostnameUpdateForm
 from .models import ModelType, Instance, ScrapRequest, branchSite
 from nanopay.models import Contract
-from nanobase.models import ChangeHistory
+from nanobase.models import ChangeHistory, SubCategory
 
 # Create your views here.
 
@@ -309,6 +309,45 @@ def InstanceInRepair(request, pk):
 
 
 @login_required
+def InstanceSubcategoryUpdate(request, pk):
+    if request.method == 'POST':
+        previous_url = request.META.get('HTTP_REFERER')
+        instance = Instance.objects.get(pk=pk)
+        if not instance.model_type or instance.model_type.name.strip() == '' or not ModelType.objects.get(name=instance.model_type.name):
+            messages.warning(request, 'please Assign a Model Type to this IT Assets first')
+            return redirect(previous_url)
+        
+        re_subcategorize_to = request.POST.get('re_subcategorize_to').strip()
+
+        if re_subcategorize_to != '' and SubCategory.objects.filter(name=re_subcategorize_to):
+            sub_category = SubCategory.objects.get(name=re_subcategorize_to)
+            model_type = ModelType.objects.get(name=instance.model_type.name)
+
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=instance._meta.db_table,
+                db_table_pk=instance.pk,
+                detail='Model Type of this IT assets was re-sub-categorized to [ ' + re_subcategorize_to + ' ] from ' + str(instance.model_type.sub_category) + ' ]'
+                )
+
+            messages.info(request, 'Model Type of this IT assets was re-sub-categorized to [ ' + re_subcategorize_to + ' ] from ' + str(instance.model_type.sub_category) + ' ]')
+
+            model_type.sub_category = sub_category
+            model_type.save()
+
+            # return redirect('nanoassets:instance-detail', pk=instance.pk)
+            return redirect(previous_url)
+
+        else:
+            messages.warning(request, 'the Sub Category given [ ' + re_subcategorize_to + ' ] does NOT exist')
+            # return redirect('nanoassets:instance-detail', pk=pk)
+            # return redirect(request.path) # 重定向 至 当前 URL
+            # return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 URL
+            return redirect(previous_url)
+
+
+@login_required
 def InstanceHostnameUpdate(request, pk):
     if request.method == 'POST':
         previous_url = request.META.get('HTTP_REFERER')
@@ -394,7 +433,7 @@ def InstanceOwnerUpdate(request, pk):
             # return redirect(request.path) # 重定向 至 当前 URL
             # return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 URL
             return redirect(previous_url)
-    
+
 
 class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
     model = Instance
@@ -446,14 +485,19 @@ class InstanceDetailView(LoginRequiredMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         changes = ChangeHistory.objects.filter(db_table_name=self.object._meta.db_table, db_table_pk=self.object.pk).order_by("-on")
         context["changes"] = changes
+
+        subcategory_list = []
+        for subcategory in SubCategory.objects.all():
+            subcategory_list.append(subcategory)
+        context["subcategory_list"] = subcategory_list
 
         owner_list = []
         for owner in User.objects.all():
             if owner.username != 'admin' and 'tishmanspeyer.com' in owner.email:
                 owner_list.append('%s ( %s )' % (owner.get_full_name(), owner.username))
-
         context["owner_list"] = owner_list
 
         return context

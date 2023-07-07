@@ -77,7 +77,9 @@
               <li>
                 <span class="nav-link">
                   {% if user.userprofile %}
-                  😎 <a href="{% url 'nanobase:user-profile-update' user.userprofile.pk %}">{{ user.get_full_name|truncatechars:8 }}</a>
+                  😎 <a href="{% url 'nanobase:user-profile-update' user.userprofile.pk %}" class="text-decoration-none">
+                    {{ user.get_full_name|truncatechars:8 }}
+                  </a>
                   {% else %}
                   {{ user.get_full_name|truncatechars:8 }}
                   {% endif %}
@@ -140,7 +142,7 @@
       <!-- Footer -->
       <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
         <p class="col-md-4 mb-0 text-body-secondary">
-          © 2023 <a href="#">Jun ZHAO</a>
+          © 2023 <a href="#" class="text-decoration-none">Jun ZHAO</a>
         </p>
         <a href="/" class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
           <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>

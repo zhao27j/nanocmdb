@@ -21,13 +21,15 @@
       <td><input type="checkbox" name="instance" id="instance{{ forloop.counter }}" value="{{ instance.pk }}"/></td>
       <td>
         <label for="instance{{ forloop.counter }}">
-          <a href="{% url 'nanoassets:instance-detail' instance.pk %}"><small>{{ instance.serial_number }}</small></a>
+          <a href="{% url 'nanoassets:instance-detail' instance.pk %}" class="text-decoration-none">
+            <small>{{ instance.serial_number }}</small>
+          </a>
         </label>
       </td>
       <!-- <td><small>{{ instance.model_type.sub_category }}</small></td> -->
       <td>
         {% if user|has_group:"IT China" %}
-        <a href="{% url 'nanoassets:instance-in-repair' instance.pk %}">
+        <a href="{% url 'nanoassets:instance-in-repair' instance.pk %}" class="text-decoration-none">
           {% if instance.status == 'inREPAIR' %}
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send-exclamation" viewBox="0 0 16 16">
             <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855a.75.75 0 0 0-.124 1.329l4.995 3.178 1.531 2.406a.5.5 0 0 0 .844-.536L6.637 10.07l7.494-7.494-1.895 4.738a.5.5 0 1 0 .928.372l2.8-7Zm-2.54 1.183L5.93 9.363 1.591 6.602l11.833-4.733Z"></path>
@@ -55,7 +57,7 @@
         {% if instance.contract_set.first %}
           {% for contract in instance.contract_set.all %}
             {% if contract.type in 'MNR' %}
-            <a href="{% url 'nanopay:contract-detail' contract.pk %}">
+            <a href="{% url 'nanopay:contract-detail' contract.pk %}" class="text-decoration-none">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-check" viewBox="0 0 16 16">
                 <path d="M10.854 7.854a.5.5 0 0 0-.708-.708L7.5 9.793 6.354 8.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3z"/>
                 <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
