@@ -31,7 +31,7 @@
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{ sub_category }}" aria-expanded="false" aria-controls="{{ sub_category }}" style="height: 25px;">
             <small>
               <div class="row">
-                <div class="col">{{ sub_category }}</div>
+                <div class="col"><small><b>{{ sub_category }}</b></small></div>
                 <div class="col"><span class="badge text-bg-light">{{ instance_list|grouped_by_sub_category_subtotal:sub_category }}</span></div>
                 {% if instance_list|grouped_by_sub_category_subtotal_available:sub_category %}
                 <div class="col"><span class="badge text-bg-warning">{{ instance_list|grouped_by_sub_category_subtotal_available:sub_category }} x Available</span></div>
