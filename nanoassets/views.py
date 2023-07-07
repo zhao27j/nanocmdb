@@ -319,7 +319,7 @@ def InstanceSubcategoryUpdate(request, pk):
         
         re_subcategorize_to = request.POST.get('re_subcategorize_to').strip()
 
-        if re_subcategorize_to != '' and SubCategory.objects.filter(name=re_subcategorize_to):
+        if re_subcategorize_to != '' and re_subcategorize_to != instance.model_type.sub_category.name and SubCategory.objects.filter(name=re_subcategorize_to):
             sub_category = SubCategory.objects.get(name=re_subcategorize_to)
             model_type = ModelType.objects.get(name=instance.model_type.name)
 
@@ -328,23 +328,52 @@ def InstanceSubcategoryUpdate(request, pk):
                 by=request.user,
                 db_table_name=instance._meta.db_table,
                 db_table_pk=instance.pk,
-                detail='Model Type of this IT assets was re-sub-categorized to [ ' + re_subcategorize_to + ' ] from ' + str(instance.model_type.sub_category) + ' ]'
+                detail='Model Type of this IT Assets was re-sub-categorized to [ ' + re_subcategorize_to + ' ] from [ ' + str(instance.model_type.sub_category) + ' ]'
                 )
 
-            messages.info(request, 'Model Type of this IT assets was re-sub-categorized to [ ' + re_subcategorize_to + ' ] from ' + str(instance.model_type.sub_category) + ' ]')
+            messages.info(request, 'Model Type of this IT Assets was re-sub-categorized to [ ' + re_subcategorize_to + ' ] from [ ' + str(instance.model_type.sub_category) + ' ]')
 
             model_type.sub_category = sub_category
             model_type.save()
 
-            # return redirect('nanoassets:instance-detail', pk=instance.pk)
             return redirect(previous_url)
 
         else:
-            messages.warning(request, 'the Sub Category given [ ' + re_subcategorize_to + ' ] does NOT exist')
-            # return redirect('nanoassets:instance-detail', pk=pk)
-            # return redirect(request.path) # 重定向 至 当前 URL
-            # return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 URL
+            messages.warning(request, 'the Sub Category given [ ' + re_subcategorize_to + ' ] is invalid')
             return redirect(previous_url)
+
+
+
+@login_required
+def InstanceModelTypeUpdate(request, pk):
+    if request.method == 'POST':
+        previous_url = request.META.get('HTTP_REFERER')
+        instance = Instance.objects.get(pk=pk)
+        
+        change_model_type_to = request.POST.get('change_model_type_to').split("-")[-1].strip()
+
+        if change_model_type_to != '' and change_model_type_to != instance.model_type.name and ModelType.objects.filter(name=change_model_type_to):
+            model_type = ModelType.objects.get(name=change_model_type_to)
+
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=instance._meta.db_table,
+                db_table_pk=instance.pk,
+                detail='Model Type of this IT Assets was changed to [ ' + request.POST.get('change_model_type_to').strip() + ' ] from [ ' + str(instance.model_type) + ' ]'
+                )
+
+            messages.info(request, 'Model Type of this IT Assets was changed to [ ' + request.POST.get('change_model_type_to').strip() + ' ] from [ ' + str(instance.model_type) + ' ]')
+
+            instance.model_type = model_type
+            instance.save()
+
+            return redirect(previous_url)
+
+        else:
+            messages.warning(request, 'the Sub Category given [ ' + request.POST.get('change_model_type_to').strip() + ' ] is invalid')
+            return redirect(previous_url)
+
 
 
 @login_required
@@ -493,6 +522,11 @@ class InstanceDetailView(LoginRequiredMixin, generic.DetailView):
         for subcategory in SubCategory.objects.all():
             subcategory_list.append(subcategory)
         context["subcategory_list"] = subcategory_list
+
+        model_type_list = []
+        for model_type in ModelType.objects.all():
+            model_type_list.append('%s - %s' % (model_type.manufacturer, model_type.name))
+        context["model_type_list"] = model_type_list
 
         owner_list = []
         for owner in User.objects.all():

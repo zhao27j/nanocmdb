@@ -59,6 +59,39 @@
   </div>
 </form>
 
+<form action="{% url 'nanoassets:instance-model-type-upd' instance.pk %}" method="post">
+  {% csrf_token %}
+  <!-- Modal -->
+  <div class="modal fade" id="modelTypeUpdModal" tabindex="-1" aria-labelledby="modelTypeUpdModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="modelTypeUpdModalLabel">change Model / Type to ...</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+
+          <div class="row">
+            <div class="col"><small>{{ instance.model_type.sub_category }}</small></div>
+            <div class=""><b> ... </b></div>
+            <input type="text" list="model_type_list" name="change_model_type_to" placeholder=" ..." class="form-control"/>
+            <datalist id="model_type_list">
+              {% for model_type in model_type_list %}
+              <option>{{ model_type }}</option>
+              {% endfor %}
+            </datalist>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
 <form action="{% url 'nanoassets:instance-hostname-upd' instance.pk %}" method="post" 
   x-data="{ hostName: 'TS-' + document.getElementById('serial_number').innerHTML}"
   >
@@ -127,7 +160,7 @@
   </div>
 </form>
 
-<div class="card mb-3" ">
+<div class="card mb-3">
   <div class="card text-start">
     <div class="card-header">
       <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -174,7 +207,7 @@
                 <li class="list-group-item">
                   <b>Owner :</b>
                   {% if user|has_group:"IT China" %}
-                  <!-- Button trigger modal -->
+                  <!-- Button trigger modal : Owner -->
                   <button type="button" class="btn btn-link text-decoration-none" data-bs-toggle="modal" data-bs-target="#ownerUpdModal">
                     {% if instance.owner %}<small>{{ instance.owner.get_full_name }}</small>{% else %}🈳{% endif %}
                   </button>
@@ -190,7 +223,7 @@
               <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                   <b>Subcategory :</b>
-                  {% if user|has_group:"IT China" %}
+                  {% if user|has_group:"IT China" and request.user.is_staff %}
                   <!-- Button trigger modal : Sub-category -->
                   <button type="button" class="btn btn-link text-decoration-none" data-bs-toggle="modal" data-bs-target="#subcategoryUpdModal">
                     <small>{{ instance.model_type.sub_category }}</small>
@@ -199,7 +232,17 @@
                   <small>{{ instance.model_type.sub_category }}</small>
                   {% endif %}
                 </li>
-                <li class="list-group-item"><b>Model / Type :</b> <small>{{ instance.model_type }}</small></li>
+                <li class="list-group-item">
+                  <b>Model / Type :</b>
+                  {% if user|has_group:"IT China" and request.user.is_staff %}
+                  <!-- Button trigger modal : Model / Type -->
+                  <button type="button" class="btn btn-link text-decoration-none" data-bs-toggle="modal" data-bs-target="#modelTypeUpdModal">
+                    <small>{{ instance.model_type }}</small>
+                  </button>
+                  {% else %}
+                  <small>{{ instance.model_type }}</small>
+                  {% endif %}
+                </li>
                 <li class="list-group-item"><b>Serial # :</b> <small id="serial_number">{{ instance.serial_number }}</small></li>
                 <li class="list-group-item">
                   <b>Hostname :</b>
