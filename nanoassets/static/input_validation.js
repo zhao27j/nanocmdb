@@ -1,10 +1,3 @@
-
-(() => {
-    // const templateVariableDataSet = document.querySelector('#template_variable');
-    // const dataHostnameList = templateVariableDataSet.hostnameList;
-
-})()
-
 // Example starter JavaScript for disabling form submissions if there are invalid fields
 (() => {
     'use strict'
@@ -23,10 +16,6 @@
         form.classList.add('was-validated')
         }, false)
     })
-})()
-
-(() => {
-    'use strict'
 
     const hostnameUpdModal = document.getElementById('hostnameUpdModal');
     const hostnameUpdModalInput = document.getElementById('hostnameUpdModalInput');
@@ -35,17 +24,36 @@
         hostnameUpdModalInput.focus()
     })
 
-    hostnameUpdModalInput.addEventListener('focusout', event => {
+    hostnameUpdModalInput.addEventListener('focusout', (e) => hostnameCheck(e));
+    hostnameUpdModalInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            hostnameCheck(e);
+        }
+    });
+    
+    function hostnameCheck(e) {
+        const hostnameInvalidSpan = document.querySelector('#hostnameInvalidSpan');
+        const hostnameBtn = document.querySelector('#hostnameBtn');
         const hostnameListDataSet = hostnameUpdModal.dataset.hostnameList;
         const hostnameList = hostnameListDataSet.replace(/[\[\]']/g, '').split(', ');
 
-        if (hostnameList.includes(hostnameUpdModalInput.value)) {
-            hostnameUpdModalInput.setCustomValidity(`the Hostname given [ {hostnameUpdModalInput.value} ] does exist in the system`);
+        if (hostnameUpdModalInput.value.trim() === '' || hostnameList.includes(hostnameUpdModalInput.value.trim())) {
+            hostnameInvalidSpan.innerHTML = `the Hostname given [ ${hostnameUpdModalInput.value} ] is Empty or already Existing`;
+            hostnameInvalidSpan.className = 'invalid-feedback';
+
+            hostnameBtn.classList.add('disabled');
+
+            hostnameUpdModalInput.setCustomValidity(`the Hostname given [ ${hostnameUpdModalInput.value} ] is Empty or already Existing`);
             hostnameUpdModalInput.value = '';
             hostnameUpdModalInput.focus();
+            
         } else {
+            hostnameInvalidSpan.innerHTML = "";
+
+            hostnameBtn.classList.remove('disabled');
+
             hostnameUpdModalInput.setCustomValidity("");
         }
 
-    })
+    }
 })()

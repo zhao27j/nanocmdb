@@ -107,15 +107,17 @@
                 console.log('show-bs-modal.dot'); "
               x-ref="hostNameInput"
               x-on:focusout="hostName.trim().length < 1 ? $refs.hostNameInput.focus() : hostName = $event.target.value.toUpperCase()"
+              x-on:keydown.enter="hostnameCheck()"
               x-bind:value="hostName"
               x-bind:class="hostName.trim().length < 1 ? 'border-bottom border-danger' : 'border-bottom border-success'"
             />
             <span class="invalid-feedback" x-show="hostName.trim().length < 1">looks your input is barely visible 😆</span>
+            <span class="invalid-feedback" id="hostnameInvalidSpan" aria-live="polite"></span>
           </div>
         </div>
         <div class="modal-footer">
           <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
-          <button type="submit" class="btn btn-primary" x-bind:class="hostName.trim().length < 1 ? 'disabled' : ''">Save changes</button>
+          <button type="submit" id="hostnameBtn" class="btn btn-primary" x-bind:class="hostName.trim().length < 1 ? 'disabled' : ''">Save changes</button>
         </div>
       </div>
     </div>
