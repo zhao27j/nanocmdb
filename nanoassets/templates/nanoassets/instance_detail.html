@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
+
 {% load auth_extras %}
+{% load static %}
+
 {% block page_content %}
 
 {% include 'base_messages.html' %}
@@ -88,7 +91,7 @@
   >
   {% csrf_token %}
   <!-- Modal -->
-  <div class="modal fade" id="hostnameUpdModal" tabindex="-1" aria-labelledby="hostnameUpdModalLabel" aria-hidden="true">
+  <div class="modal fade" id="hostnameUpdModal" data-hostname-list="{{ hostname_list }}" tabindex="-1" aria-labelledby="hostnameUpdModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -294,4 +297,8 @@
     {% endif %}
   </div>
 </div>
+
+<!-- customized JS -->
+<script src="{% static 'input_validation.js' %}" defer id="template_variable"></script>
+
 {% endblock page_content %}

@@ -533,6 +533,12 @@ class InstanceDetailView(LoginRequiredMixin, generic.DetailView):
             model_type_list.append('%s - %s' % (model_type.manufacturer, model_type.name))
         context["model_type_list"] = model_type_list
 
+        hostname_list = []
+        for instance in Instance.objects.all():
+            if instance.hostname != None and not instance.hostname in hostname_list:
+                hostname_list.append(instance.hostname)
+        context["hostname_list"] = hostname_list
+
         owner_list = []
         for owner in User.objects.all():
             if owner.username != 'admin' and 'tishmanspeyer.com' in owner.email:

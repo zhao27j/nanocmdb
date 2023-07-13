@@ -1,27 +1,51 @@
-// Example starter JavaScript for disabling form submissions if there are invalid fields
+
 (() => {
-'use strict'
+    // const templateVariableDataSet = document.querySelector('#template_variable');
+    // const dataHostnameList = templateVariableDataSet.hostnameList;
 
-// Fetch all the forms we want to apply custom Bootstrap validation styles to
-const forms = document.querySelectorAll('.needs-validation')
-
-// Loop over them and prevent submission
-Array.from(forms).forEach(form => {
-    form.addEventListener('submit', event => {
-    if (!form.checkValidity()) {
-        event.preventDefault()
-        event.stopPropagation()
-    }
-
-    form.classList.add('was-validated')
-    }, false)
-})
 })()
 
-const myModal = document.getElementById('hostnameUpdModal')
-const myInput = document.getElementById('hostnameUpdModalInput')
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+(() => {
+    'use strict'
 
-myModal.addEventListener('shown.bs.modal', () => {
-myInput.focus()
-})
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    const forms = document.querySelectorAll('.needs-validation');
 
+    // Loop over them and prevent submission
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+        }, false)
+    })
+})()
+
+(() => {
+    'use strict'
+
+    const hostnameUpdModal = document.getElementById('hostnameUpdModal');
+    const hostnameUpdModalInput = document.getElementById('hostnameUpdModalInput');
+
+    hostnameUpdModal.addEventListener('shown.bs.modal', () => {
+        hostnameUpdModalInput.focus()
+    })
+
+    hostnameUpdModalInput.addEventListener('focusout', event => {
+        const hostnameListDataSet = hostnameUpdModal.dataset.hostnameList;
+        const hostnameList = hostnameListDataSet.replace(/[\[\]']/g, '').split(', ');
+
+        if (hostnameList.includes(hostnameUpdModalInput.value)) {
+            hostnameUpdModalInput.setCustomValidity(`the Hostname given [ {hostnameUpdModalInput.value} ] does exist in the system`);
+            hostnameUpdModalInput.value = '';
+            hostnameUpdModalInput.focus();
+        } else {
+            hostnameUpdModalInput.setCustomValidity("");
+        }
+
+    })
+})()
