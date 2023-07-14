@@ -86,7 +86,7 @@
   </div>
 </form>
 
-<form action="{% url 'nanoassets:instance-hostname-upd' instance.pk %}" method="post" class="row g-3 needs-validation was-validated" novalidate=""
+<form action="{% url 'nanoassets:instance-hostname-upd' instance.pk %}" method="post" class="row g-3 needs-validation" novalidate=""
   x-data="{ hostName: 'TS-' + document.getElementById('serial_number').innerHTML}"
   >
   {% csrf_token %}
