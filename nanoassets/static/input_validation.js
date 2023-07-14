@@ -17,12 +17,69 @@
         }, false)
     })
 
+    // owner Upd Input Verify
+    const ownerUpdModal = document.getElementById('ownerUpdModal');
+    const ownerUpdModalInput = document.getElementById('ownerUpdModalInput');
+
+    ownerUpdModal.addEventListener('shown.bs.modal', () => ownerUpdModalInput.focus());
+
+    ownerUpdModalInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            ownerChk(e);
+        }
+    });
+    ownerUpdModalInput.addEventListener('focusout', (e) => ownerChk(e));
+
+    function ownerChk(e) {
+        const ownerInvalidSpan = document.querySelector('#ownerInvalidSpan');
+        const ownerUpdBtn = document.querySelector('#ownerUpdBtn');
+        const ownerInstanceDataSet = ownerUpdModal.dataset.ownerInstance;
+        const ownerListDataSet = ownerUpdModal.dataset.ownerList;
+        const ownerList = ownerListDataSet.replace(/[\[\]']/g, '').split(', ');
+        let owners = [];
+        ownerList.forEach(owner => {
+            owners.push(owner.split("(")[0].trim());
+        });
+
+        const ownerChg = ownerUpdModalInput.value.trim();
+        if (ownerChg === ownerInstanceDataSet) {
+            ownerInvalidSpan.innerHTML = `the Owner given [ ${ownerChg} ] is the same as the orginal`;
+            ownerInvalidSpan.className = 'invalid-feedback';
+
+            ownerUpdBtn.classList.add('disabled');
+
+            ownerUpdModalInput.setCustomValidity(`the Owner given [ ${ownerChg} ] is the same as the orginal`);
+            ownerUpdModalInput.value = '';
+            ownerUpdModalInput.focus();
+
+            // e.preventDefault();
+            // e.stopPropagation();
+
+        } else if (ownerChg !== '' && !ownerList.includes(ownerChg)) {
+            ownerInvalidSpan.innerHTML = `the Owner given [ ${ownerChg} ] does NOT exist in the system`;
+            ownerInvalidSpan.className = 'invalid-feedback';
+
+            ownerUpdBtn.classList.add('disabled');
+
+            ownerUpdModalInput.setCustomValidity(`the Owner given [ ${ownerChg} ] does NOT exist in the system`);
+            ownerUpdModalInput.value = '';
+            ownerUpdModalInput.focus();
+
+            // e.preventDefault();
+            // e.stopPropagation();
+
+        } else {
+            ownerInvalidSpan.innerHTML = "";
+            ownerUpdModalInput.setCustomValidity("");
+            ownerUpdBtn.classList.remove('disabled');
+        }
+    }
+
+    // hostname Upd Input Verify
     const hostnameUpdModal = document.getElementById('hostnameUpdModal');
     const hostnameUpdModalInput = document.getElementById('hostnameUpdModalInput');
 
-    hostnameUpdModal.addEventListener('shown.bs.modal', () => {
-        hostnameUpdModalInput.focus()
-    })
+    hostnameUpdModal.addEventListener('shown.bs.modal', () => hostnameUpdModalInput.focus());
 
     hostnameUpdModalInput.addEventListener('focusout', (e) => hostnameCheck(e));
     hostnameUpdModalInput.addEventListener('keydown', (e) => {
@@ -33,7 +90,7 @@
     
     function hostnameCheck(e) {
         const hostnameInvalidSpan = document.querySelector('#hostnameInvalidSpan');
-        const hostnameBtn = document.querySelector('#hostnameBtn');
+        const hostnameUpdBtn = document.querySelector('#hostnameUpdBtn');
         const hostnameListDataSet = hostnameUpdModal.dataset.hostnameList;
         const hostnameList = hostnameListDataSet.replace(/[\[\]']/g, '').split(', ');
 
@@ -41,7 +98,7 @@
             hostnameInvalidSpan.innerHTML = `the Hostname given [ ${hostnameUpdModalInput.value} ] is Empty or already Existing`;
             hostnameInvalidSpan.className = 'invalid-feedback';
 
-            hostnameBtn.classList.add('disabled');
+            hostnameUpdBtn.classList.add('disabled');
 
             hostnameUpdModalInput.setCustomValidity(`the Hostname given [ ${hostnameUpdModalInput.value} ] is Empty or already Existing`);
             hostnameUpdModalInput.value = '';
@@ -49,10 +106,8 @@
             
         } else {
             hostnameInvalidSpan.innerHTML = "";
-
-            hostnameBtn.classList.remove('disabled');
-
             hostnameUpdModalInput.setCustomValidity("");
+            hostnameUpdBtn.classList.remove('disabled');
         }
 
     }

@@ -117,17 +117,19 @@
         </div>
         <div class="modal-footer">
           <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
-          <button type="submit" id="hostnameBtn" class="btn btn-primary" x-bind:class="hostName.trim().length < 1 ? 'disabled' : ''">Save changes</button>
+          <button type="submit" id="hostnameUpdBtn" class="btn btn-primary" x-bind:class="hostName.trim().length < 1 ? 'disabled' : ''">Save changes</button>
         </div>
       </div>
     </div>
   </div>
 </form>
 
-<form action="{% url 'nanoassets:instance-owner-upd' instance.pk %}" method="post">
+<form action="{% url 'nanoassets:instance-owner-upd' instance.pk %}" method="post" class="row g-3 needs-validation" novalidate="">
   {% csrf_token %}
   <!-- Modal -->
-  <div class="modal fade" id="ownerUpdModal" tabindex="-1" aria-labelledby="ownerUpdModalLabel" aria-hidden="true">
+  <div class="modal fade" id="ownerUpdModal" tabindex="-1" aria-labelledby="ownerUpdModalLabel" aria-hidden="true"
+        data-owner-list="{{ owner_list }}"  data-owner-instance="{{ instance.owner.get_full_name }}" 
+        >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -135,28 +137,28 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-
           <div class="row">
             <div class="col"><b> ... </b></div>
-            <input type="text" list="owner_list" name="owner_re_assign_to" placeholder="leave this field Empty for Returning back ..." class="form-control"/>
+            <input type="text" list="owner_list" id="ownerUpdModalInput" name="owner_re_assign_to" placeholder="leave this field Empty for Returning back ..." class="form-control"/>
             <datalist id="owner_list">
               {% for owner in owner_list %}
               <option>{{ owner }}</option>
               {% endfor %}
             </datalist>
+            <span class="invalid-feedback" id="ownerInvalidSpan" aria-live="polite"></span>
           </div>
         </div>
 
         <div class="modal-footer">
           <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
-          <button type="submit" class="btn btn-primary">Save changes</button>
+          <button type="submit" id="ownerUpdBtn" class="btn btn-primary">Save changes</button>
         </div>
       </div>
     </div>
   </div>
 </form>
 
-<div class="card mb-3">
+<div class="card mt-4">
   <div class="card text-start">
     <div class="card-header">
       <ul class="nav nav-tabs" id="myTab" role="tablist">
