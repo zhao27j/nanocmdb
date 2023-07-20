@@ -434,7 +434,6 @@ def InstanceOwnerUpdate(request, pk):
                 instance.owner = None
                 instance.save()
 
-                # return redirect('nanoassets:instance-detail', pk=instance.pk)
                 return redirect(previous_url)
             
             elif re_assign_to != '' and re_assign_to != instance.owner:
@@ -454,7 +453,6 @@ def InstanceOwnerUpdate(request, pk):
                 instance.owner = re_assign_to
                 instance.save()
 
-                # return redirect('nanoassets:instance-detail', pk=instance.pk)
                 return redirect(previous_url)
 
             else:
@@ -463,9 +461,6 @@ def InstanceOwnerUpdate(request, pk):
 
         else:
             messages.warning(request, 'the new Owner given [ ' + re_assign_to + ' ] does NOT exist')
-            # return redirect('nanoassets:instance-detail', pk=pk)
-            # return redirect(request.path) # 重定向 至 当前 URL
-            # return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 URL
             return redirect(previous_url)
 
 
@@ -538,12 +533,14 @@ class InstanceDetailView(LoginRequiredMixin, generic.DetailView):
             if instance.hostname != None and not instance.hostname in hostname_list:
                 hostname_list.append(instance.hostname)
         context["hostname_list"] = hostname_list
-
+        
+        """
         owner_list = []
         for owner in User.objects.all():
             if owner.username != 'admin' and 'tishmanspeyer.com' in owner.email:
                 owner_list.append('%s ( %s )' % (owner.get_full_name(), owner.username))
         context["owner_list"] = owner_list
+        """
 
         return context
 
