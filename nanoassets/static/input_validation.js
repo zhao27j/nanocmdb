@@ -41,7 +41,7 @@
     const ownerUpdModalBtn = document.querySelector('#ownerUpdModalBtn');
     const ownerUpdModalInvalidSpan = document.querySelector('#ownerUpdModalInvalidSpan');
 
-    const instanceOwnerDataSet = ownerUpdModal.dataset.instanceOwner;
+    let instanceOwnerDataSet = ownerUpdModal.dataset.instanceOwner;
 
     let owner_list
     const jsonResponseOwnerListDataSet = ownerUpdModal.dataset.jsonresponseOwnerList;
@@ -77,15 +77,16 @@
 
             if (ownerUpdModalInput.value != '') {
                 document.querySelector('#instance_status').innerHTML = 'in Use';
-                document.querySelector('#instance_owner').innerHTML = ownerUpdModalInput.value;
+                document.querySelector('#instance_owner').innerHTML = ownerUpdModalInput.value.split('(')[0].trim();
 
-                appendAlert(`the IT Assets was Re-assign to ${ownerUpdModalInput.value} from ${instanceOwnerDataSet == '' ? "🈳" : instanceOwnerDataSet}`, 'success');
-
+                appendAlert(`the IT Assets was Re-assign to [ ${ownerUpdModalInput.value} ] from [ ${instanceOwnerDataSet == '' ? "🈳" : instanceOwnerDataSet} ]`, 'success');
+                instanceOwnerDataSet = ownerUpdModalInput.value.split('(')[0].trim();
             } else {
                 document.querySelector('#instance_status').innerHTML = 'Available';
                 document.querySelector('#instance_owner').innerHTML = "🈳";
 
-                appendAlert(`the IT Assets was Returned from ${instanceOwnerDataSet}`, 'success');
+                appendAlert(`the IT Assets was Returned from [ ${instanceOwnerDataSet} ]`, 'success');
+                instanceOwnerDataSet = ownerUpdModalInput.value.split('(')[0].trim();
             }
 
             const formData = new FormData();
