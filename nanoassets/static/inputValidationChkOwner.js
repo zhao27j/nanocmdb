@@ -1,40 +1,14 @@
-// Example starter JavaScript for disabling form submissions if there are invalid fields
+import {formsValidation} from './formsValidation.js';
+import {baseMessagesAlertPlaceholder, baseMessagesAlert} from './baseMessagesAlert.js';
+
 (() => {
     'use strict'
 
-    // Fetch all the forms we want to apply custom Bootstrap validation styles to
-    const forms = document.querySelectorAll('.needs-validation');
-
-    // Loop over them and prevent submission
-    Array.from(forms).forEach(form => {
-        form.addEventListener('submit', event => {
-            if (!form.checkValidity()) {
-                event.preventDefault()
-                event.stopPropagation()
-            }
-
-            form.classList.add('was-validated')
-        }, false)
-    })
-
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    // page level Alert Msg
-    const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
-    const appendAlert = (message, type) => {
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = [
-            `<div class="alert alert-${type} alert-dismissible" role="alert">`,
-            `   <div>${message}</div>`,
-            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
-            '</div>'
-        ].join('')
-
-        // alertPlaceholder.append(wrapper);
-        alertPlaceholder.firstChild ? alertPlaceholder.replaceChild(wrapper, alertPlaceholder.firstChild) : alertPlaceholder.appendChild(wrapper);
-    }
 
     // owner Upd input validation
     const ownerUpdModal = document.querySelector('#ownerUpdModal');
+    const ownerUpdModalInstance = bootstrap.Modal.getOrCreateInstance('#ownerUpdModal');
     const ownerUpdModalForm = document.querySelector('#ownerUpdModalForm');
     const ownerUpdModalInput = document.querySelector('#ownerUpdModalInput');
     const ownerUpdModalDataList = document.querySelector('#ownerUpdModalDataList');
@@ -42,6 +16,8 @@
     const ownerUpdModalInvalidSpan = document.querySelector('#ownerUpdModalInvalidSpan');
 
     let instanceOwnerDataSet = ownerUpdModal.dataset.instanceOwner;
+
+    document.querySelector('#instanceOwnerLi').addEventListener('dblclick', () => ownerUpdModalInstance.show());
 
     let owner_list
     const jsonResponseOwnerListDataSet = ownerUpdModal.dataset.jsonresponseOwnerList;
@@ -68,24 +44,33 @@
             })}
     }, {});
 
+    const controller = new AbortController();
+    ownerUpdModalInput.addEventListener('focusout', (e) => ownerChk(e), { signal: controller.signal });
+ /*
+    ownerUpdModalInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+            ownerChk(e);
+        }
+    });
+*/
     ownerUpdModalForm.addEventListener('submit', (e) => {
         if (ownerChk(e)) {
             e.preventDefault();
+            controller.abort(); // remove listener from modal Input element after validation
 
-            const ownerUpdModalInstance = bootstrap.Modal.getInstance('#ownerUpdModal');
             ownerUpdModalInstance.hide();
 
             if (ownerUpdModalInput.value != '') {
                 document.querySelector('#instance_status').innerHTML = 'in Use';
-                document.querySelector('#instance_owner').innerHTML = ownerUpdModalInput.value.split('(')[0].trim();
+                document.querySelector('#instanceOwnerBtn').innerHTML = ownerUpdModalInput.value.split('(')[0].trim();
 
-                appendAlert(`the IT Assets was Re-assign to [ ${ownerUpdModalInput.value} ] from [ ${instanceOwnerDataSet == '' ? "🈳" : instanceOwnerDataSet} ]`, 'success');
+                baseMessagesAlert(`the IT Assets was Re-assigned to [ ${ownerUpdModalInput.value} ] from [ ${instanceOwnerDataSet == '' ? "🈳" : instanceOwnerDataSet} ]`, 'success');
                 instanceOwnerDataSet = ownerUpdModalInput.value.split('(')[0].trim();
             } else {
                 document.querySelector('#instance_status').innerHTML = 'Available';
-                document.querySelector('#instance_owner').innerHTML = "🈳";
+                document.querySelector('#instanceOwnerBtn').innerHTML = "🈳";
 
-                appendAlert(`the IT Assets was Returned from [ ${instanceOwnerDataSet} ]`, 'success');
+                baseMessagesAlert(`the IT Assets was Returned from [ ${instanceOwnerDataSet} ]`, 'success');
                 instanceOwnerDataSet = ownerUpdModalInput.value.split('(')[0].trim();
             }
 
@@ -106,15 +91,7 @@
             }).catch(error => {console.error('Error:', error);})
         }
     });
-    /*
-    ownerUpdModalInput.addEventListener('keyup', (e) => {
-        if (e.key === 'Enter') {
-            ownerChk(e);
-        }
-    });
-    */
-    ownerUpdModalInput.addEventListener('blur', (e) => ownerChk(e));
-
+    
     function ownerChk(e) {
         /* 
         const ownerListDataSet = ownerUpdModal.dataset.ownerList;
@@ -127,14 +104,14 @@
         // const ownerChg = ownerUpdModalInput.value.trim().split("(")[0].trim();
         const ownerChg = ownerUpdModalInput.value.trim();
         if (ownerChg.split("(")[0].trim() === instanceOwnerDataSet) {
-            ownerUpdModalInvalidSpan.innerHTML = `the Owner given [ ${ownerChg} ] looks no Change`;
+            ownerUpdModalInvalidSpan.innerHTML = `the given Owner [ ${ownerChg} ] looks no Change`;
             ownerUpdModalInvalidSpan.className = 'invalid-feedback';
 
-            appendAlert(`the Owner [ ${ownerChg} ] given looks no Change`, 'warning');
+            baseMessagesAlert(`the given Owner [ ${ownerChg} ] looks no Change`, 'warning');
 
             ownerUpdModalBtn.classList.add('disabled');
 
-            ownerUpdModalInput.setCustomValidity(`the Owner given [ ${ownerChg} ] is the same as the orginal`);
+            ownerUpdModalInput.setCustomValidity(`the given Owner [ ${ownerChg} ] looks no Change`);
             ownerUpdModalInput.value = '';
             ownerUpdModalInput.focus();
 
@@ -143,14 +120,14 @@
             return false;
 
         } else if (ownerChg !== '' && !(ownerChg in owner_list)) {
-            ownerUpdModalInvalidSpan.innerHTML = `the Owner given [ ${ownerChg} ] does NOT exist in the list`;
+            ownerUpdModalInvalidSpan.innerHTML = `the given Owner [ ${ownerChg} ] does NOT exist in the list`;
             ownerUpdModalInvalidSpan.className = 'invalid-feedback';
 
-            appendAlert(`the Owner [ ${ownerChg} ] given does NOT exist in the list`, 'warning');
+            baseMessagesAlert(`the given Owner [ ${ownerChg} ] does NOT exist in the list`, 'warning');
 
             ownerUpdModalBtn.classList.add('disabled');
 
-            ownerUpdModalInput.setCustomValidity(`the Owner given [ ${ownerChg} ] does NOT exist in the list`);
+            ownerUpdModalInput.setCustomValidity(`the given Owner [ ${ownerChg} ] does NOT exist in the list`);
             ownerUpdModalInput.value = '';
             ownerUpdModalInput.focus();
 
@@ -167,40 +144,3 @@
         }
     }
 })()
-
-// hostname Upd input validation
-const hostnameUpdModal = document.getElementById('hostnameUpdModal');
-const hostnameUpdModalInput = document.getElementById('hostnameUpdModalInput');
-
-hostnameUpdModal.addEventListener('shown.bs.modal', () => hostnameUpdModalInput.focus());
-
-hostnameUpdModalInput.addEventListener('focusout', (e) => hostnameCheck(e));
-hostnameUpdModalInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        hostnameCheck(e);
-    }
-});
-
-function hostnameCheck(e) {
-    const hostnameInvalidSpan = document.querySelector('#hostnameInvalidSpan');
-    const hostnameUpdBtn = document.querySelector('#hostnameUpdBtn');
-    const hostnameListDataSet = hostnameUpdModal.dataset.hostnameList;
-    const hostnameList = hostnameListDataSet.replace(/[\[\]']/g, '').split(', ');
-
-    if (hostnameUpdModalInput.value.trim() === '' || hostnameList.includes(hostnameUpdModalInput.value.trim())) {
-        hostnameInvalidSpan.innerHTML = `the Hostname given [ ${hostnameUpdModalInput.value} ] is Empty or already Existing`;
-        hostnameInvalidSpan.className = 'invalid-feedback';
-
-        hostnameUpdBtn.classList.add('disabled');
-
-        hostnameUpdModalInput.setCustomValidity(`the Hostname given [ ${hostnameUpdModalInput.value} ] is Empty or already Existing`);
-        hostnameUpdModalInput.value = '';
-        hostnameUpdModalInput.focus();
-        
-    } else {
-        hostnameInvalidSpan.innerHTML = "";
-        hostnameUpdModalInput.setCustomValidity("");
-        hostnameUpdBtn.classList.remove('disabled');
-    }
-
-}
