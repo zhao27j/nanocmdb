@@ -1,4 +1,5 @@
 {% load auth_extras %}
+{% load static %}
 
 <table class="table table-striped table-hover fw-light">
   <tr>
@@ -46,9 +47,16 @@
         <small>{{ instance.model_type }}</small>
       </td>
       <td><small>{{ instance.hostname }}</small></td>
-      <td><small>{{ instance.get_status_display }}</small></td>
+      <td><small id="instanceStatus-{{ instance.pk }}">{{ instance.get_status_display }}</small></td>
       {% if user|has_group:"IT China" %}
-      <td>{% if instance.owner %}<small>{{ instance.owner.get_full_name }}</small>{% else %}🈳{% endif %}</td>
+      <td id="instanceOwner-{{ instance.pk }}"
+          data-instance-owner="{{ instance.owner.get_full_name }}"
+          data-instance-owner-upd-uri="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:instance-owner-upd' instance.pk %}"
+          >
+        {% if instance.owner %}
+        <small>{{ instance.owner.get_full_name }}</small>
+        {% else %}🈳{% endif %}
+      </td>
       {% endif %}
       <td><small>{{ instance.branchSite }}</small></td>
       {% if user|has_group:"IT China" and request.user.is_staff %}
@@ -74,4 +82,3 @@
     </tr>
   {% endfor %}
 </table>
-

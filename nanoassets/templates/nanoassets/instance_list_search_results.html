@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
+
 {% load auth_extras %}
+{% load static %}
+
 {% block page_content %}
 
 {% include 'base_messages.html' %}
@@ -16,6 +19,8 @@
   </div>
   {% endfor %}
 {% endif %}
+
+{% include 'base_instance_modal_form.html' %}
 
 <p class="h3">search results</p>
 {% if user|has_group:"IT China" %}
@@ -57,8 +62,10 @@
   <p class="lead">No IT assets are under your support !</p>
   {% endif %}
 {% else %}
-  <p class="lead">You're not the authorized IT staff</p>
+<p class="lead">You're not the authorized IT staff</p>
 {% endif %}
 
+<!-- customized JS -->
+<script type="module" src="{% static 'inputValidationChkOwner.js' %}" defer ></script>
 
 {% endblock page_content %}

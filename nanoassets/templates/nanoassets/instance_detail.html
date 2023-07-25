@@ -122,39 +122,7 @@
   </div>
 </form>
 
-<form action="{% url 'nanoassets:instance-owner-upd' instance.pk %}" method="post" id="ownerUpdModalForm" class="row g-3 needs-validation" novalidate="">
-  {% csrf_token %}
-  <!-- Modal -->
-  <div class="modal fade" id="ownerUpdModal" tabindex="-1" aria-labelledby="ownerUpdModalLabel" aria-hidden="true"
-        data-jsonResponse-owner-list="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanobase:jsonResponse-owner-list' %}"
-        data-submission-instance-owner-upd="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:instance-owner-upd' instance.pk %}"
-        data-instance-owner="{{ instance.owner.get_full_name }}"
-        >
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="ownerUpdModalLabel">Re-assign to ...</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col"><b> ... </b></div>
-            <input type="text" list="ownerUpdModalDataList" id="ownerUpdModalInput" name="owner_re_assign_to" placeholder="leave this field Empty for Returning back ..." class="form-control"/>
-            <datalist id="ownerUpdModalDataList">
-              <!--{% for owner in owner_list %}<option>{{ owner }}</option>{% endfor %}-->
-            </datalist>
-            <span class="invalid-feedback" id="ownerUpdModalInvalidSpan" aria-live="polite"></span>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
-          <button type="submit" id="ownerUpdModalBtn" class="btn btn-primary">Save changes</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</form>
+{% include 'base_instance_modal_form.html' %}
 
 <div class="card mt-4">
   <div class="card text-start">
@@ -199,14 +167,18 @@
             <div class="tab-pane fade show active" id="assets-tab-pane" role="tabpanel" aria-labelledby="assets-tab" tabindex="0">
               <h5 class="card-title text-body-secondary">{{ instance.model_type }} - {{ instance.serial_number }}</h5>
               <ul class="list-group list-group-flush">
-                <li class="list-group-item"><b>Status :</b> <small id="instance_status">{{ instance.get_status_display }}</small></li>
-                <li class="list-group-item" id="instanceOwnerLi">
+                <li class="list-group-item"><b>Status :</b> <small id="instanceStatus-{{ instance.pk }}">{{ instance.get_status_display }}</small></li>
+                <li class="list-group-item"
+                    id="instanceOwner-{{ instance.pk }}"
+                    data-instance-owner="{{ instance.owner.get_full_name }}"
+                    data-instance-owner-upd-uri="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:instance-owner-upd' instance.pk %}"
+                    >
                   <b>Owner :</b>
                   {% if user|has_group:"IT China" %}
                   <!-- Button trigger modal : Owner -->
-                  <button type="button" class="btn btn-link text-decoration-none" data-bs-toggle="modal" data-bs-target="#ownerUpdModal">
-                    <small id="instanceOwnerBtn">{% if instance.owner %}{{ instance.owner.get_full_name }}{% else %}🈳{% endif %}</small>
-                  </button>
+                  {# <button type="button" class="btn btn-link text-decoration-none" data-bs-toggle="modal" data-bs-target="#ownerUpdModal"> #}
+                    <small>{% if instance.owner %}{{ instance.owner.get_full_name }}{% else %}🈳{% endif %}</small>
+                  {# </button> #}
                   {% else %}
                   {% if instance.owner %}<small>{{ instance.owner.get_full_name }}</small>{% else %}🈳{% endif %}
                   {% endif %}
@@ -301,6 +273,6 @@
 </div>
 
 <!-- customized JS -->
-<script type="module" src="{% static 'inputValidationChkOwner.js' %}" defer></script>
+<script type="module" src="{% static 'inputValidationChkOwner.js' %}" defer ></script>
 
 {% endblock page_content %}

@@ -20,6 +20,7 @@ urlpatterns += [
 urlpatterns += [
     path('instance_bulk_upd/', views.InstanceBulkUpd, name='instance-bulk-upd'),
     path('instance_search_results/', views.InstanceSearchResultsListView.as_view(), name='instance-search-results'),
+    path('json_response/branchSite_list', views.jsonResponse_branchSite_list, name='jsonResponse-branchSite-list'),
 ]
 
 urlpatterns += [

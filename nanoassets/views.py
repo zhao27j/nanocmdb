@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 
-# from django.http import HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse
 
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
@@ -608,3 +608,15 @@ def InstanceNew(request):
         'branchsite_list': branchsite_list,
         'contract_list': contract_list
         })
+
+
+@login_required
+def jsonResponse_branchSite_list(request):
+    if request.method == 'GET':
+        branchSites = branchSite.objects.all()
+        branchSite_list = {}
+        for branchSite in branchSites:
+            branchSite_list[branchSite.name] = branchSite.pk
+
+        response = JsonResponse(branchSite_list)
+        return response
