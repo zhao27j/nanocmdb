@@ -169,7 +169,7 @@
               <ul class="list-group list-group-flush">
                 <li class="list-group-item"><b>Status :</b> <small id="instanceStatus-{{ instance.pk }}">{{ instance.get_status_display }}</small></li>
                 <li class="list-group-item"
-                    id="instanceOwner-{{ instance.pk }}"
+                    id="instanceOwner{{ instance.pk }}"
                     data-instance-owner="{{ instance.owner.get_full_name }}"
                     data-instance-owner-upd-uri="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:instance-owner-upd' instance.pk %}"
                     >

@@ -3,12 +3,13 @@ import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesA
 
 'use strict'
 
-const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+// const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
 // owner Upd input validation
 const ownerUpdModal = document.querySelector('#ownerUpdModal');
 const ownerUpdModalInstance = bootstrap.Modal.getOrCreateInstance('#ownerUpdModal');
 const ownerUpdModalForm = document.querySelector('#ownerUpdModalForm');
+const csrftoken = ownerUpdModalForm.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
 const ownerUpdModalInput = document.querySelector('#ownerUpdModalInput');
 const ownerUpdModalDataList = document.querySelector('#ownerUpdModalDataList');
 const ownerUpdModalBtn = document.querySelector('#ownerUpdModalBtn');
@@ -18,7 +19,7 @@ let dblClickedElId, dblClickedElIdPk, instanceOwner, instanceOwnerDataSet;
 document.addEventListener('dblclick', e => {
     if (e.target.id !== '') {
         dblClickedElId = e.target.id;
-        dblClickedElIdPk = dblClickedElId.split('-')[1];
+        dblClickedElIdPk = dblClickedElId.split('instanceOwner')[1];
         if (dblClickedElId.includes('instanceOwner')) {
             instanceOwner = document.querySelector(`#${dblClickedElId}`);
             
