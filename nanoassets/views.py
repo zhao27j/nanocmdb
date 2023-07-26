@@ -410,7 +410,7 @@ def InstanceHostnameUpdate(request, pk):
 def InstanceOwnerUpdate(request, pk):
     if request.method == 'POST':
         previous_url = request.META.get('HTTP_REFERER')
-        re_assign_to = request.POST.get('owner_re_assign_to').strip(")").split("(")[-1].strip().lower()
+        re_assign_to = request.POST.get('owner_re_assign_to').strip(")").split("(")[-1].strip()
         if re_assign_to == 'admin':
             messages.warning(request, 'IT Assets can NOT be re-assignedd to Admin account')
             return redirect(previous_url)
@@ -610,13 +610,43 @@ def InstanceNew(request):
         })
 
 
+# -- branch site Transfer --
 @login_required
 def jsonResponse_branchSite_list(request):
     if request.method == 'GET':
         branchSites = branchSite.objects.all()
         branchSite_list = {}
-        for branchSite in branchSites:
-            branchSite_list[branchSite.name] = branchSite.pk
+        for branch_site in branchSites:
+            branchSite_list[branch_site.name] = branch_site.pk
 
         response = JsonResponse(branchSite_list)
         return response
+
+@login_required
+def branchSite_transfer(request):
+    if request.method == 'POST':
+        selected_instances = request.POST.get('instanceChkedUpload').split(',')
+        try:
+            branchSite_transfer_to = branchSite.objects.get(name=request.POST['branchSite_transfer_to'])
+        except (KeyError, branchSite.DoesNotExist):
+            messages.info(request, 'distination Branch Site given is invalid')
+        else:
+            # for selected_instance_pk in request.POST.getlist('instance'):
+            for selected_instance_pk in selected_instances:
+                selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                
+                ChangeHistory.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=selected_instance._meta.db_table,
+                    db_table_pk=selected_instance.pk,
+                    detail='Transferred to [ ' + branchSite_transfer_to.name + ' ] from [ ' + selected_instance.branchSite.name + ' ]'
+                    )
+                
+                selected_instance.branchSite = branchSite_transfer_to
+                
+                selected_instance.save()
+
+            # messages.info(request, 'the selected IT Assets were Transferred to ' + branchSite_transfer_to.name)
+
+        return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面

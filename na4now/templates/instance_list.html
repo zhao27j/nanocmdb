@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-<!-- {% load auth_extras %} -->
+{# {% load auth_extras %} #}
 {% block page_content %}
   {% if messages %}
     {% for message in messages %}
@@ -7,7 +7,7 @@
         <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
           <div>{{ message }}</div>
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-            <!-- <span aria-hidden="True">&times;</span> -->
+            {# <span aria-hidden="True">&times;</span> #}
           </button>
         </div>
       </div>
@@ -16,11 +16,11 @@
   <div class="container mt-3">
     <h1>All IT Assets</h1>
     {% if user|has_group:"IT China" %}
-      <!--
+      {#
       <form action="{% url 'nanoassets:instance-search-results' %}" method="get">
         <input name="q" type="search" placeholder="Search..."/>
       </form>
-      -->
+      #}
       {% if instance_list %}
         <form action="{% url 'nanoassets:instance-bulk-upd' %}" method="post">
           {% csrf_token %}

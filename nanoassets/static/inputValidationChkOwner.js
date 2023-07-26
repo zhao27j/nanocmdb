@@ -93,8 +93,8 @@ ownerUpdModalForm.addEventListener('submit', (e) => {
         formData.append('owner_re_assign_to', ownerUpdModalInput.value);
         // formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
-        const InstanceOwnerUpdUriDataSet = instanceOwner.dataset.instanceOwnerUpdUri;
-        fetch(InstanceOwnerUpdUriDataSet, {
+        const instanceOwnerUpdUriDataSet = instanceOwner.dataset.instanceOwnerUpdUri;
+        fetch(instanceOwnerUpdUriDataSet, {
             method: 'POST',
             headers: {'X-CSRFToken': csrftoken},
             mode: 'same-origin', // Do not send CSRF token to another domain

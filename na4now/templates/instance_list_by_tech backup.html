@@ -11,7 +11,7 @@
                   class="btn-close"
                   data-bs-dismiss="alert"
                   aria-label="Close">
-            <!-- <span aria-hidden="True">&times;</span> -->
+            {# <span aria-hidden="True">&times;</span> #}
           </button>
         </div>
       </div>
@@ -25,7 +25,7 @@
       {% csrf_token %}
       <div class="input-group gap-1">
         <input type="submit" name="scrapping-request" value="Apply for Scrapping" class="btn btn-outline-secondary d-inline-flex align-items-center"/>
-        <!--<select name="branchsite_selected" id="site" class="form-select d-inline-flex" style="width:auto" aria-label="Default select example"></select>-->
+        {# <select name="branchsite_selected" id="site" class="form-select d-inline-flex" style="width:auto" aria-label="Default select example"></select> #}
         <input type="submit" name="branchsite-transfer" value="Transfer to" class="btn btn-outline-secondary d-inline-flex align-items-center"/>
         <input type="text" list="branchSites" name="branchsite_selected" placeholder="distination ..." class="form-control"/>
         <datalist id="branchSites">

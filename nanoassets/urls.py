@@ -20,7 +20,6 @@ urlpatterns += [
 urlpatterns += [
     path('instance_bulk_upd/', views.InstanceBulkUpd, name='instance-bulk-upd'),
     path('instance_search_results/', views.InstanceSearchResultsListView.as_view(), name='instance-search-results'),
-    path('json_response/branchSite_list', views.jsonResponse_branchSite_list, name='jsonResponse-branchSite-list'),
 ]
 
 urlpatterns += [
@@ -35,4 +34,10 @@ urlpatterns += [
     path('instance/<pk>/subcategory_upd/', views.InstanceSubcategoryUpdate, name='instance-subcategory-upd'),
     
     path('instance/<pk>/in_repair/', views.InstanceInRepair, name='instance-in-repair'),
+]
+
+# Assets Instance - JSON Response
+urlpatterns += [
+    path('json_response/branchSite_list', views.jsonResponse_branchSite_list, name='jsonResponse-branchSite-list'),
+    path('instance/branchSite_transfer', views.branchSite_transfer, name='instance-branchSite-transfer'),
 ]

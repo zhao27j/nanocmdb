@@ -10,7 +10,7 @@
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
       <div>{{ message }}</div>
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-        <!-- <span aria-hidden="True">&times;</span> -->
+        {# <span aria-hidden="True">&times;</span> #}
       </button>
     </div>
   </div>
@@ -32,13 +32,13 @@
         <div class="modal-body">
           <div class="row">
             <div class="mb-3">
-              <!-- <label for="formFileMultiple" class="form-label">Multiple files input example</label> -->
+              {# <label for="formFileMultiple" class="form-label">Multiple files input example</label> #}
               <input class="form-control" type="file" name="digital_copies" id="formFileMultiple" multiple>
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+          {# <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> #}
           <button type="submit" class="btn btn-primary">upload</button>
         </div>
       </div>
@@ -190,7 +190,7 @@
               <tr>
                 <th></th>
                 <th><small>Interval</small></th>
-                <!--<th><small>Recurring</small></th>-->
+                {# <th><small>Recurring</small></th> #}
                 <th><small>Scheduled</small></th>
                 <th><small>Amount</small></th>
                 <th><small>Applied on</small></th>
@@ -199,7 +199,7 @@
               <tr>
                 <td><input type="checkbox" name="term" id="term{{ forloop.counter }}" value="{{ term.pk }}"/></td>
                 <td><small>{{ term.get_plan_display }}</small></td>
-                <!--<td><small>{{ term.recurring }}</small></td>-->
+                {# <td><small>{{ term.recurring }}</small></td> #}
                 <label for="term{{ forloop.counter }}"><td><small>{{ term.pay_day }}</small></td></label>
                 <td><small>¥{{ term.amount|floatformat:"2g" }}</small></td>
                 <td>

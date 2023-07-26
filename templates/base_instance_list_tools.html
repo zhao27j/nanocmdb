@@ -2,7 +2,8 @@
 
 <div class="input-group gap-1">
   <input type="submit" name="scrapping-request" value="Apply for Scrapping" class="btn btn-outline-secondary d-inline-flex align-items-center"/>
-  <!--<select name="branchsite_selected" id="site" class="form-select d-inline-flex" style="width:auto" aria-label="Default select example"></select>-->
+  {# <select name="branchsite_selected" id="site" class="form-select d-inline-flex" style="width:auto" aria-label="Default select example"></select> #}
+  
   <input type="text" list="branchSites" name="branchsite_selected" placeholder="distination ..." class="form-control"/>
   <datalist id="branchSites">
     {% for branchSite_name in branchSites_name %}
@@ -10,6 +11,12 @@
     {% endfor %}
   </datalist>
   <input type="submit" name="branchsite-transfer" value="Transfer to" class="btn btn-outline-secondary d-inline-flex align-items-center"/>
+  
+  <!-- Button trigger modal : Owner -->
+  <button type="button" class="btn btn-link text-decoration-none" data-bs-toggle="modal" data-bs-target="#branchSiteUpdModal">
+    <small>Transfer to</small>
+  </button>
+
   {% if user|has_group:"IT China" and request.user.is_staff %}
   <input type="text" list="contracts" name="contract_selected" placeholder="contract ..." class="form-control"/>
   <datalist id="contracts">

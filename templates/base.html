@@ -101,7 +101,7 @@
           {% if user|has_group:"IT China" %}
           <form class="d-flex" role="search" action="{% url 'nanoassets:instance-search-results' %}" method="get">
             <input class="form-control me-2" name="q" type="search" placeholder="kwrd1, kwrd2 ..." aria-label="Search" id="autoFocusedInput" autofocus="autofocus">
-            <!-- <button class="btn btn-outline-success" type="submit">Search</button> -->
+            {# <button class="btn btn-outline-success" type="submit">Search</button> #}
           </form>
           {% endif %}
         </div>
@@ -152,10 +152,10 @@
         </a>
         <ul class="nav col-md-4 justify-content-end">
           <li class="nav-item"><a href="/" class="nav-link px-2 text-body-secondary">Home</a></li>
-          <!--
+          {# 
           <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">placeholder</a></li>
           <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">placeholder</a></li>
-          -->
+          #}
           <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">FAQs</a></li>
           <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">About</a></li>
         </ul>

@@ -10,7 +10,7 @@
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
       <div>{{ message }}</div>
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-        <!-- <span aria-hidden="True">&times;</span> -->
+        {# <span aria-hidden="True">&times;</span> #}
       </button>
     </div>
   </div>
@@ -19,7 +19,7 @@
 
 <h3>All Payment Requests</h3>
 {% if user|has_group:"IT China" and request.user.is_staff %}
-  <!-- <a href="{% url 'nanopay:contract-new' %}" class="btn btn-outline-primary d-inline-flex align-items-center">New Contract ...</a> -->
+  {# <a href="{% url 'nanopay:contract-new' %}" class="btn btn-outline-primary d-inline-flex align-items-center">New Contract ...</a> #}
   {% if paymentrequest_list %}
   <table class="table table-striped table-hover">
     <tr>

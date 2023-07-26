@@ -13,7 +13,7 @@
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
       <div>{{ message }}</div>
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-        <!-- <span aria-hidden="True">&times;</span> -->
+        {# <span aria-hidden="True">&times;</span> #}
       </button>
     </div>
   </div>
@@ -67,5 +67,6 @@
 
 <!-- customized JS -->
 <script type="module" src="{% static 'inputValidationChkOwner.js' %}" defer ></script>
+<script type="module" src="{% static 'inputValidationChkBranchSite.js' %}" defer></script>
 
 {% endblock page_content %}

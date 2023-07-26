@@ -7,7 +7,7 @@
         <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
         <div>{{ message }}</div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-            <!-- <span aria-hidden="True">&times;</span> -->
+            {# <span aria-hidden="True">&times;</span> #}
         </button>
         </div>
     </div>
@@ -121,7 +121,7 @@
                             <tr>
                                 <th></th>
                                 <th><small>Interval</small></th>
-                                <!--<th><small>Recurring</small></th>-->
+                                {# <th><small>Recurring</small></th> #}
                                 <th><small>Scheduled</small></th>
                                 <th><small>Amount</small></th>
                                 <th><small>Applied on</small></th>
@@ -130,7 +130,7 @@
                             <tr>
                                 <td><input type="checkbox" name="term" id="term{{ forloop.counter }}" value="{{ term.pk }}"/></td>
                                 <td><small> {{ term.get_plan_display }} </small></td>
-                                <!--<td><small> {{ term.recurring }} </small></td>-->
+                                {# <td><small> {{ term.recurring }} </small></td> #}
                                 <label for="term{{ forloop.counter }}">
                                     <td><small> {{ term.pay_day }} </small></td>
                                 </label>
@@ -167,9 +167,9 @@
                                 <td><small>{{ instance.model_type }}</small></td>
                                 <td><small>{{ instance.get_status_display }}</small></td>
                                 <td>
-                                {#<a href="{% url 'nanoassets:instance-owner-upd' instance.pk %}">#}
+                                {# <a href="{% url 'nanoassets:instance-owner-upd' instance.pk %}"> #}
                                     {% if instance.owner %}<small>{{ instance.owner.get_full_name }}</small>{% else %}🈳{% endif %}
-                                {#</a>#}
+                                {# </a> #}
                                 </td>
                                 <td><small>{{ instance.branchSite }}</small></td>
                             </tr>

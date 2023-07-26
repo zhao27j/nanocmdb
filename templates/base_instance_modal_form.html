@@ -1,6 +1,6 @@
 
   {# {% action=url 'nanoassets:instance-owner-upd' instance.pk %} method="post" #}
-  <form action="" method="" id="ownerUpdModalForm" class="row g-3 needs-validation" novalidate="">
+  <form action="" method="" id="ownerUpdModalForm" class="g-3 needs-validation" novalidate="">
     {% csrf_token %}
     <!-- Modal -->
     <div class="modal fade" id="ownerUpdModal" tabindex="-1" aria-labelledby="ownerUpdModalLabel" aria-hidden="true"
@@ -17,14 +17,14 @@
               <div class="col"><b> ... </b></div>
               <input type="text" list="ownerUpdModalDataList" id="ownerUpdModalInput" name="owner_re_assign_to" placeholder="leave this field Empty for Returning back ..." class="form-control"/>
               <datalist id="ownerUpdModalDataList">
-                <!--{% for owner in owner_list %}<option>{{ owner }}</option>{% endfor %}-->
+                {# {% for owner in owner_list %}<option>{{ owner }}</option>{% endfor %} #}
               </datalist>
               <span class="invalid-feedback" id="ownerUpdModalInvalidSpan" aria-live="polite"></span>
             </div>
           </div>
 
           <div class="modal-footer">
-            <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+            {# <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> #}
             <button type="submit" id="ownerUpdModalBtn" class="btn btn-primary">Save changes</button>
           </div>
         </div>
@@ -32,11 +32,12 @@
     </div>
   </form>
 
-  <form action="" method="" id="branchSiteUpdModalForm" class="row g-3 needs-validation" novalidate="">
+  <form action="" method="" id="branchSiteUpdModalForm" class="g-3 needs-validation" novalidate="">
     {% csrf_token %}
     <!-- branch Site Update - Modal -->
     <div class="modal fade" id="branchSiteUpdModal" tabindex="-1" aria-labelledby="branchSiteUpdModalLabel" aria-hidden="true"
-          data-jsonResponse-owner-list="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanobase:jsonResponse-owner-list' %}"
+          data-jsonResponse-branchSite-list="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:jsonResponse-branchSite-list' %}"
+          data-instance-branchSite-transfer-uri="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:instance-branchSite-transfer' %}"
           >
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -47,17 +48,17 @@
           <div class="modal-body">
             <div class="row">
               <div class="col"><b> ... </b></div>
-              <input type="text" list="branchSiteUpdModalDataList" id="branchSiteUpdModalInput" name="owner_re_assign_to" placeholder="" class="form-control"/>
+              <input type="text" list="branchSiteUpdModalDataList" id="branchSiteUpdModalInput" name="branchSite_transfer_to" placeholder="" class="form-control" required="" />
               <datalist id="branchSiteUpdModalDataList">
-                <!--{% for owner in owner_list %}<option>{{ owner }}</option>{% endfor %}-->
+                {# {% for owner in owner_list %}<option>{{ owner }}</option>{% endfor %} #}
               </datalist>
               <span class="invalid-feedback" id="branchSiteUpdModalInvalidSpan" aria-live="polite"></span>
             </div>
           </div>
 
           <div class="modal-footer">
-            <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
-            <button type="submit" id="branchSiteUpdModalBtn" class="btn btn-primary">Save changes</button>
+            {# <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> #}
+            <button type="submit" id="branchSiteUpdModalBtn" class="btn btn-primary">Transfer</button>
           </div>
         </div>
       </div>

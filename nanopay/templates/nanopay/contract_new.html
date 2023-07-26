@@ -11,7 +11,7 @@
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
       <div>{{ message }}</div>
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-        <!-- <span aria-hidden="True">&times;</span> -->
+        {# <span aria-hidden="True">&times;</span> #}
       </button>
     </div>
   </div>
@@ -56,7 +56,7 @@
             <div class="row">
               <div class="col-2 fieldWrapper"><label for="{{ form.type.id_for_label }} "><small>Type</small></label></div>
               <div class="col fieldWrapper">{{ form.type.errors }}{{ form.type }}</div>
-              <!--<div class="fieldWrapper"> {{ form.scanned_copy.errors }} {{ form.scanned_copy }}</div>-->
+              {# <div class="fieldWrapper"> {{ form.scanned_copy.errors }} {{ form.scanned_copy }}</div> #}
               <div class="col fieldWrapper"> {{ form.digital_copies.errors }} {{ form.digital_copies }}</div>
             </div>
           </li>
