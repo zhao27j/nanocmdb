@@ -3,8 +3,6 @@ import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesA
 
 'use strict'
 
-// const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
 // branch site Upd input validation
 const branchSiteUpdModal = document.querySelector('#branchSiteUpdModal');
 const branchSiteUpdModalInstance = bootstrap.Modal.getOrCreateInstance('#branchSiteUpdModal');
@@ -28,10 +26,10 @@ fetch(jsonResponseBranchSiteListDataSet //  'http://127.0.0.1:8000/json_response
         json => branchSite_list = json
     ).catch(error => {console.error('Error:', error);})
 
-let instances_chked;
+let instancesChked;
 branchSiteUpdModal.addEventListener('shown.bs.modal', () => {
-    instances_chked = document.querySelectorAll("input[type='checkbox']:checked");
-    if (instances_chked.length > 0) {
+    instancesChked = document.querySelectorAll("input[type='checkbox']:checked");
+    if (instancesChked.length > 0) {
         branchSiteUpdModalInput.focus();
         branchSiteUpdModalBtn.classList.add('disabled');
 
@@ -50,7 +48,7 @@ branchSiteUpdModal.addEventListener('shown.bs.modal', () => {
 const branchSiteUpdModalInputCtrl = new AbortController();
 branchSiteUpdModalInput.addEventListener('focusout', (e) => branchSiteChk(e), { signal: branchSiteUpdModalInputCtrl.signal });
 
-branchSiteUpdModalForm.addEventListener('submit', (e) => {
+branchSiteUpdModalForm.addEventListener('submit', (e) => { // listening Form Submission event
 
     if (branchSiteChk(e)) {
         e.preventDefault();
@@ -58,9 +56,9 @@ branchSiteUpdModalForm.addEventListener('submit', (e) => {
         branchSiteUpdModalInstance.hide();
 
         const branchSiteTransferTo = branchSiteUpdModalInput.value.trim();
-        let instanceChkedUpload = [];
-        instances_chked.forEach( i => {
-            instanceChkedUpload.push(i.value);
+        let instanceChkedPost = [];
+        instancesChked.forEach( i => {
+            instanceChkedPost.push(i.value);
             const branchSiteDisplay = document.querySelector(`#instanceBranchSite${i.id.split('instance')[1]}`).querySelector('small')
             branchSiteDisplay.innerHTML = branchSiteTransferTo;
 
@@ -69,7 +67,7 @@ branchSiteUpdModalForm.addEventListener('submit', (e) => {
 
         const formData = new FormData();
         formData.append('branchSite_transfer_to', branchSiteTransferTo);
-        formData.append('instanceChkedUpload', instanceChkedUpload);
+        formData.append('instanceChkedPost', instanceChkedPost);
 
         const instanceBranchSiteTransferUriDataSet = branchSiteUpdModal.dataset.instanceBranchsiteTransferUri;
         fetch(instanceBranchSiteTransferUriDataSet, {
@@ -79,12 +77,10 @@ branchSiteUpdModalForm.addEventListener('submit', (e) => {
             body: formData,
         }).then(response => {
             response.json();
-            baseMessagesAlert(`the selected IT Asset(s) [ ${instanceChkedUpload} ] were Transferred to [ ${branchSiteTransferTo} ] from`, 'success');
+            baseMessagesAlert(`the selected IT Asset(s) [ ${instanceChkedPost} ] were Transferred to [ ${branchSiteTransferTo} ]`, 'success');
         }).then(result => {
-            baseMessagesAlert(`the selected IT Asset(s) [ ${instanceChkedUpload} ] were Transferred to [ ${branchSiteTransferTo} ] from`, 'success');
             console.log('Success:', result);
-            
-        }).catch(error => {console.error('Error:', error);})
+        }).catch(error => {console.error('Error:', error)})
     }
 });
 
@@ -104,6 +100,7 @@ function branchSiteChk(e) {
 
         e.preventDefault();
         e.stopPropagation();
+
         return false;
 
     } else {
@@ -116,6 +113,3 @@ function branchSiteChk(e) {
         return true;
     }
 }
-
-
-export { branchSiteUpdModalInstance };

@@ -3,36 +3,37 @@ import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesA
 
 'use strict'
 
-// const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
 // owner Upd input validation
 const ownerUpdModal = document.querySelector('#ownerUpdModal');
 const ownerUpdModalInstance = bootstrap.Modal.getOrCreateInstance('#ownerUpdModal');
 const ownerUpdModalForm = document.querySelector('#ownerUpdModalForm');
-const csrftoken = ownerUpdModalForm.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
+const csrftoken = ownerUpdModalForm.querySelector('[name=csrfmiddlewaretoken]').value; // get CSRF Token from the related Form element
 const ownerUpdModalInput = document.querySelector('#ownerUpdModalInput');
 const ownerUpdModalDataList = document.querySelector('#ownerUpdModalDataList');
 const ownerUpdModalBtn = document.querySelector('#ownerUpdModalBtn');
 const ownerUpdModalInvalidSpan = document.querySelector('#ownerUpdModalInvalidSpan');
 
-let dblClickedElId, dblClickedElIdPk, instanceOwner, instanceOwnerDataSet;
-document.addEventListener('dblclick', e => {
-    if (e.target.id !== '') {
-        dblClickedElId = e.target.id;
-        dblClickedElIdPk = dblClickedElId.split('instanceOwner')[1];
-        if (dblClickedElId.includes('instanceOwner')) {
-            instanceOwner = document.querySelector(`#${dblClickedElId}`);
-            
-            ownerUpdModalInstance.show();
-        }
+document.addEventListener('mouseover', e => {
+    if (e.target.id.includes('instanceOwner') || (e.target.parentElement ? e.target.parentElement.id.includes('instanceOwner') : false)) {
+        e.target.style.cursor = 'pointer';
+        e.target.style.color = 'orange'; // 突出显示鼠标悬停目标
+        setTimeout(() => { e.target.style.color = "";}, 500); // 短暂延迟后重置颜色
+    }
+})
+
+let dblClickedElIdUniqueCode, instanceOwner, instanceOwnerDataSet;
+document.addEventListener('dblclick', e => { // listerning all Double Click events on the Document
+    if (e.target.id.includes('instanceOwner') || e.target.parentElement.id.includes('instanceOwner')) {
+        instanceOwner = e.target;
+        dblClickedElIdUniqueCode = e.target.id.split('instanceOwner')[1];
+
+        ownerUpdModalInstance.show();
     }
 });
 
-// document.querySelector('#instanceOwnerLi').addEventListener('dblclick', () => ownerUpdModalInstance.show());
-
 let owner_list
 const jsonResponseOwnerListDataSet = ownerUpdModal.dataset.jsonresponseOwnerList;
-fetch(jsonResponseOwnerListDataSet //  'http://127.0.0.1:8000/json_response/owner_list'
+fetch(jsonResponseOwnerListDataSet // 'http://127.0.0.1:8000/json_response/owner_list'
     ).then(response => {
         if (response.ok) {
             return response.json();
@@ -77,13 +78,13 @@ ownerUpdModalForm.addEventListener('submit', (e) => {
 
         instanceOwnerDataSet = instanceOwner.dataset.instanceOwner;
         if (ownerUpdModalInput.value != '') {
-            document.querySelector(`#instanceStatus-${dblClickedElIdPk}`).innerHTML = 'in Use';
+            document.querySelector(`#instanceStatus${dblClickedElIdUniqueCode}`).innerHTML = 'in Use';
             instanceOwner.querySelector('small').innerHTML = ownerUpdModalInput.value.split('(')[0].trim();
 
             baseMessagesAlert(`the IT Assets was Re-assigned to [ ${ownerUpdModalInput.value} ] from [ ${instanceOwnerDataSet == '' ? "🈳" : instanceOwnerDataSet} ]`, 'success');
             instanceOwnerDataSet = ownerUpdModalInput.value.split('(')[0].trim();
         } else {
-            document.querySelector(`#instanceStatus-${dblClickedElIdPk}`).innerHTML = 'Available';
+            document.querySelector(`#instanceStatus${dblClickedElIdUniqueCode}`).innerHTML = 'Available';
             instanceOwner.querySelector('small').innerHTML = "🈳";
 
             baseMessagesAlert(`the IT Assets was Returned from [ ${instanceOwnerDataSet} ]`, 'success');
@@ -104,7 +105,7 @@ ownerUpdModalForm.addEventListener('submit', (e) => {
         ).then(result => {
             console.log('Success:', result);
             
-        }).catch(error => {console.error('Error:', error);})
+        }).catch(error => {console.error('Error:', error)})
     }
 });
 
@@ -159,6 +160,3 @@ function ownerChk(e) {
         return true;
     }
 }
-
-
-export { ownerUpdModalInstance };

@@ -625,14 +625,14 @@ def jsonResponse_branchSite_list(request):
 @login_required
 def branchSite_transfer(request):
     if request.method == 'POST':
-        selected_instances = request.POST.get('instanceChkedUpload').split(',')
+        selected_instances = request.POST.get('instanceChkedPost').split(',')
         try:
             branchSite_transfer_to = branchSite.objects.get(name=request.POST['branchSite_transfer_to'])
         except (KeyError, branchSite.DoesNotExist):
             messages.info(request, 'distination Branch Site given is invalid')
         else:
-            # for selected_instance_pk in request.POST.getlist('instance'):
-            for selected_instance_pk in selected_instances:
+            transferred_instance_list = {}
+            for selected_instances_index, selected_instance_pk in enumerate(selected_instances):
                 selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
                 
                 ChangeHistory.objects.create(
@@ -642,11 +642,10 @@ def branchSite_transfer(request):
                     db_table_pk=selected_instance.pk,
                     detail='Transferred to [ ' + branchSite_transfer_to.name + ' ] from [ ' + selected_instance.branchSite.name + ' ]'
                     )
-                
+                transferred_instance_list[selected_instance_pk] = selected_instances_index
                 selected_instance.branchSite = branchSite_transfer_to
-                
                 selected_instance.save()
 
             # messages.info(request, 'the selected IT Assets were Transferred to ' + branchSite_transfer_to.name)
-
-        return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
+            response = JsonResponse(transferred_instance_list)
+            return response
