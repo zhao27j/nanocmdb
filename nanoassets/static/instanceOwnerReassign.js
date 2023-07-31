@@ -22,11 +22,13 @@ document.addEventListener('mouseover', e => {
     }
 })
 
-let dblClickedElIdUniqueCode, instanceOwner, instanceOwnerDataSet;
+let dblClickedElIdUniqueCode, dblClickedEl, dblClickedElInnerHTML, instanceOwnerDataSet;
 document.addEventListener('dblclick', e => { // listerning all Double Click events on the Document
     if (e.target.id.includes('instanceOwner') || e.target.parentElement.id.includes('instanceOwner')) {
-        instanceOwner = e.target;
+        dblClickedEl = e.target;
         dblClickedElIdUniqueCode = e.target.id.split('instanceOwner')[1];
+        dblClickedElInnerHTML = dblClickedEl.querySelector('small').innerHTML === '🈳' ? '' : dblClickedEl.querySelector('small').innerHTML;
+        // instanceOwnerDataSet = dblClickedEl.dataset.instanceOwner;
 
         ownerUpdModalInstance.show();
     }
@@ -77,26 +79,27 @@ ownerUpdModalForm.addEventListener('submit', (e) => {
 
         ownerUpdModalInstance.hide();
 
-        instanceOwnerDataSet = instanceOwner.dataset.instanceOwner;
         if (ownerUpdModalInput.value != '') {
+            baseMessagesAlert(`the IT Assets was Re-assigned to [ ${ownerUpdModalInput.value} ] from [ ${dblClickedElInnerHTML == '' ? "🈳" : dblClickedElInnerHTML} ]`, 'success');
+
             document.querySelector(`#instanceStatus${dblClickedElIdUniqueCode}`).innerHTML = 'in Use';
-            instanceOwner.querySelector('small').innerHTML = ownerUpdModalInput.value.split('(')[0].trim();
+            dblClickedEl.querySelector('small').innerHTML = ownerUpdModalInput.value.split('(')[0].trim();
 
-            baseMessagesAlert(`the IT Assets was Re-assigned to [ ${ownerUpdModalInput.value} ] from [ ${instanceOwnerDataSet == '' ? "🈳" : instanceOwnerDataSet} ]`, 'success');
-            instanceOwnerDataSet = ownerUpdModalInput.value.split('(')[0].trim();
+            // instanceOwnerDataSet = ownerUpdModalInput.value.split('(')[0].trim();
         } else {
-            document.querySelector(`#instanceStatus${dblClickedElIdUniqueCode}`).innerHTML = 'Available';
-            instanceOwner.querySelector('small').innerHTML = "🈳";
+            baseMessagesAlert(`the IT Assets was Returned from [ ${dblClickedElInnerHTML} ]`, 'success');
 
-            baseMessagesAlert(`the IT Assets was Returned from [ ${instanceOwnerDataSet} ]`, 'success');
-            instanceOwnerDataSet = ownerUpdModalInput.value.split('(')[0].trim();
+            document.querySelector(`#instanceStatus${dblClickedElIdUniqueCode}`).innerHTML = 'Available';
+            dblClickedEl.querySelector('small').innerHTML = "🈳";
+
+            // instanceOwnerDataSet = ownerUpdModalInput.value.split('(')[0].trim();
         }
 
         const formData = new FormData();
         formData.append('owner_re_assign_to', ownerUpdModalInput.value);
         // formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
-        const instanceOwnerUpdUriDataSet = instanceOwner.dataset.instanceOwnerUpdUri;
+        const instanceOwnerUpdUriDataSet = dblClickedEl.dataset.instanceOwnerUpdUri;
         fetch(instanceOwnerUpdUriDataSet, {
             method: 'POST',
             headers: {'X-CSRFToken': csrftoken},
@@ -121,7 +124,7 @@ function ownerChk(e) {
     */
     // const ownerChg = ownerUpdModalInput.value.trim().split("(")[0].trim();
     const ownerChg = ownerUpdModalInput.value.trim();
-    if (ownerChg.split("(")[0].trim() === instanceOwnerDataSet) {
+    if (ownerChg.split("(")[0].trim() === dblClickedElInnerHTML) {
         ownerUpdModalInvalidSpan.innerHTML = `the given Owner [ ${ownerChg} ] looks no Change`;
         ownerUpdModalInvalidSpan.className = 'invalid-feedback';
 
