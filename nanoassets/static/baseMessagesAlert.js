@@ -13,9 +13,16 @@ const baseMessagesAlert = (message, type) => {
         // baseMessagesAlertPlaceholder.replaceChild(wrapper, baseMessagesAlertPlaceholder.firstChild);
         setTimeout(() => {
             baseMessagesAlertPlaceholder.removeChild(baseMessagesAlertPlaceholder.firstChild);
-        }, 3000); // 3000毫秒延迟后移除Alert
+        }, 3000); // 3000毫秒 延迟 后 移除 最早的那个 Alert
     }
     baseMessagesAlertPlaceholder.appendChild(wrapper);
-}
+    
+
+    if (baseMessagesAlertPlaceholder.lastChild) {
+        // baseMessagesAlertPlaceholder.replaceChild(wrapper, baseMessagesAlertPlaceholder.firstChild);
+        setTimeout(() => {
+            baseMessagesAlertPlaceholder.removeChild(baseMessagesAlertPlaceholder.lastChild);
+        }, 15000); // 15000毫秒 延迟 后 移除 最后的那个 Alert
+    }
 
 export {baseMessagesAlertPlaceholder, baseMessagesAlert};

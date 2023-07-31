@@ -629,11 +629,12 @@ def jsonResponse_branchSite_list(request):
 @login_required
 def branchSite_transferred_to(request):
     if request.method == 'POST':
-        selected_instances = request.POST.get('instanceChkedPost').split(',')
+        selected_instances = request.POST.get('instanceSelectedPost').split(',')
         try:
             branchSite_transferred_to = branchSite.objects.get(name=request.POST['branchSite_transferred_to'])
         except (KeyError, branchSite.DoesNotExist):
-            messages.info(request, 'the distination Branch Site given is invalid')
+            messages.info(request, 'the Branch Site given is invalid')
+            response = JsonResponse('the Branch Site given is invalid')
         else:
             selected_instance_list = {}
             for selected_instances_pk_index, selected_instance_pk in enumerate(selected_instances):
@@ -650,9 +651,10 @@ def branchSite_transferred_to(request):
                 selected_instance.branchSite = branchSite_transferred_to
                 selected_instance.save()
 
-            messages.info(request, 'the selected IT Assets were Transferred to ' + selected_instance_list.name)
+            messages.info(request, 'the selected IT Assets were Transferred to ' + branchSite_transferred_to.name)
             response = JsonResponse(selected_instance_list)
-            return response
+            
+        return response
 
 
 # -- contract Associated --
@@ -673,11 +675,12 @@ def jsonResponse_contract_list(request):
 @login_required
 def contract_associated_with(request):
     if request.method == 'POST':
-        selected_instances = request.POST.get('instanceChkedPost').split(',')
+        selected_instances = request.POST.get('instanceSelectedPost').split(',')
         try:
-            contract_associated_with = Contract.objects.get(name=request.POST['contract_associated_with'])
+            contract_associated_with = Contract.objects.filter(briefing__icontains=request.POST['contract_associated_with']).first()
         except (KeyError, Contract.DoesNotExist):
-            messages.info(request, 'the Contract briefing given is invalid')
+            messages.info(request, 'the Contract given is invalid')
+            response = JsonResponse('the Contract given is invalid')
         else:
             selected_instance_list = {}
             for selected_instances_pk_index, selected_instance_pk in enumerate(selected_instances):
@@ -696,4 +699,5 @@ def contract_associated_with(request):
 
             messages.info(request, 'the selected IT Assets were Associated with [ ' + contract_associated_with.briefing + ' ]')
             response = JsonResponse(selected_instance_list)
-            return response
+        
+        return response

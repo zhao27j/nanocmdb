@@ -1,5 +1,6 @@
-import { formsValidation } from './formsValidation.js';
+import { formsValidation } from './modalFormsValidation.js';
 import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
+import {modalInputChk} from './modalInputChk.js';
 
 'use strict'
 

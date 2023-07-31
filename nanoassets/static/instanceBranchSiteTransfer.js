@@ -1,5 +1,6 @@
-import { formsValidation } from './formsValidation.js';
+import { formsValidation } from './modalFormsValidation.js';
 import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
+import {modalInputChk} from './modalInputChk.js';
 
 'use strict'
 
@@ -26,10 +27,10 @@ fetch(jsonResponseBranchSiteListDataSet //  'http://127.0.0.1:8000/json_response
         json => branchSite_list = json
     ).catch(error => {console.error('Error:', error);})
 
-let instancesChked;
+let instanceSelected;
 branchSiteUpdModal.addEventListener('shown.bs.modal', () => {
-    instancesChked = document.querySelectorAll("input[type='checkbox']:checked");
-    if (instancesChked.length > 0) {
+    instanceSelected = document.querySelectorAll("input[type='checkbox']:checked");
+    if (instanceSelected.length > 0) {
         branchSiteUpdModalInput.focus();
         branchSiteUpdModalBtn.classList.add('disabled');
 
@@ -46,70 +47,43 @@ branchSiteUpdModal.addEventListener('shown.bs.modal', () => {
 }, {});
 
 const branchSiteUpdModalInputCtrl = new AbortController();
-branchSiteUpdModalInput.addEventListener('focusout', (e) => branchSiteChk(e), { signal: branchSiteUpdModalInputCtrl.signal });
+branchSiteUpdModalInput.addEventListener('focusout', (e) => modalInputChk(e, branchSite_list, branchSiteUpdModal, 'Branch Site'), { signal: branchSiteUpdModalInputCtrl.signal });
 
 branchSiteUpdModalForm.addEventListener('submit', (e) => { // listening Form Submission event
 
-    if (branchSiteChk(e)) {
+    if (modalInputChk(e, branchSite_list, branchSiteUpdModal, 'Branch Site')) {
         e.preventDefault();
         branchSiteUpdModalInputCtrl.abort(); // remove listener from modal Input element after validation
         branchSiteUpdModalInstance.hide();
 
         const branchSiteTransferredTo = branchSiteUpdModalInput.value.trim();
-        let instanceChkedPost = [];
-        instancesChked.forEach( i => {
-            instanceChkedPost.push(i.value);
-            const branchSiteDisplay = document.querySelector(`#instanceBranchSite${i.id.split('instance')[1]}`).querySelector('small')
-            branchSiteDisplay.innerHTML = branchSiteTransferredTo;
-
-            console.log(i);
+        let instanceSelectedPost = [];
+        instanceSelected.forEach( i => {
+            instanceSelectedPost.push(i.value);
         });
 
         const formData = new FormData();
         formData.append('branchSite_transferred_to', branchSiteTransferredTo);
-        formData.append('instanceChkedPost', instanceChkedPost);
+        formData.append('instanceSelectedPost', instanceSelectedPost);
 
-        const instanceBranchSiteTransferredUriDataSet = branchSiteUpdModal.dataset.instanceBranchsiteTransferredUri;
-        fetch(instanceBranchSiteTransferredUriDataSet, {
+        const instanceBranchSiteTransferredToUriDataSet = branchSiteUpdModal.dataset.instanceBranchsiteTransferredToUri;
+        fetch(instanceBranchSiteTransferredToUriDataSet, {
             method: 'POST',
             headers: {'X-CSRFToken': csrftoken},
             mode: 'same-origin', // Do not send CSRF token to another domain
             body: formData,
         }).then(response => {
             response.json();
-            baseMessagesAlert(`the selected IT Asset(s) [ ${instanceChkedPost} ] were Transferred to [ ${branchSiteTransferredTo} ]`, 'success');
+            
         }).then(result => {
+            baseMessagesAlert(`the selected IT Asset(s) [ ${instanceSelectedPost} ] were Transferred to [ ${branchSiteTransferredTo} ]`, 'success');
+
+            instanceSelected.forEach( i => {
+                const branchSiteDisplay = document.querySelector(`#instanceBranchSite${i.id.split('instance')[1]}`).querySelector('small')
+                branchSiteDisplay.innerHTML = branchSiteTransferredTo;
+            });
+    
             console.log('Success:', result);
         }).catch(error => {console.error('Error:', error)})
     }
 });
-
-function branchSiteChk(e) {
-    const branchSiteChg = branchSiteUpdModalInput.value.trim();
-    if ( !(branchSiteChg in branchSite_list) ) {
-        branchSiteUpdModalInvalidSpan.innerHTML = `the given Branch Site [ ${branchSiteChg} ] does NOT exist in the list`;
-        branchSiteUpdModalInvalidSpan.className = 'invalid-feedback';
-
-        baseMessagesAlert(`the given Branch Site [ ${branchSiteChg} ] does NOT exist in the list`, 'warning');
-
-        branchSiteUpdModalBtn.classList.add('disabled');
-
-        branchSiteUpdModalInput.setCustomValidity(`the given Branch Site [ ${branchSiteChg} ] does NOT exist in the list`);
-        branchSiteUpdModalInput.value = '';
-        branchSiteUpdModalInput.focus();
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        return false;
-
-    } else {
-        baseMessagesAlert(`the given Branch Site [ ${branchSiteChg} ] is Valid`, 'info');
-
-        branchSiteUpdModalInvalidSpan.innerHTML = "";
-        branchSiteUpdModalInput.setCustomValidity("");
-        branchSiteUpdModalBtn.classList.remove('disabled');
-
-        return true;
-    }
-}
