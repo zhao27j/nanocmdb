@@ -3,7 +3,7 @@ import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesA
 
 'use strict'
 
-// branch site Upd input validation
+// input validation - Branch Site Transferred
 const branchSiteUpdModal = document.querySelector('#branchSiteUpdModal');
 const branchSiteUpdModalInstance = bootstrap.Modal.getOrCreateInstance('#branchSiteUpdModal');
 const branchSiteUpdModalForm = document.querySelector('#branchSiteUpdModalForm');
@@ -55,29 +55,29 @@ branchSiteUpdModalForm.addEventListener('submit', (e) => { // listening Form Sub
         branchSiteUpdModalInputCtrl.abort(); // remove listener from modal Input element after validation
         branchSiteUpdModalInstance.hide();
 
-        const branchSiteTransferTo = branchSiteUpdModalInput.value.trim();
+        const branchSiteTransferredTo = branchSiteUpdModalInput.value.trim();
         let instanceChkedPost = [];
         instancesChked.forEach( i => {
             instanceChkedPost.push(i.value);
             const branchSiteDisplay = document.querySelector(`#instanceBranchSite${i.id.split('instance')[1]}`).querySelector('small')
-            branchSiteDisplay.innerHTML = branchSiteTransferTo;
+            branchSiteDisplay.innerHTML = branchSiteTransferredTo;
 
             console.log(i);
         });
 
         const formData = new FormData();
-        formData.append('branchSite_transfer_to', branchSiteTransferTo);
+        formData.append('branchSite_transferred_to', branchSiteTransferredTo);
         formData.append('instanceChkedPost', instanceChkedPost);
 
-        const instanceBranchSiteTransferUriDataSet = branchSiteUpdModal.dataset.instanceBranchsiteTransferUri;
-        fetch(instanceBranchSiteTransferUriDataSet, {
+        const instanceBranchSiteTransferredUriDataSet = branchSiteUpdModal.dataset.instanceBranchsiteTransferredUri;
+        fetch(instanceBranchSiteTransferredUriDataSet, {
             method: 'POST',
             headers: {'X-CSRFToken': csrftoken},
             mode: 'same-origin', // Do not send CSRF token to another domain
             body: formData,
         }).then(response => {
             response.json();
-            baseMessagesAlert(`the selected IT Asset(s) [ ${instanceChkedPost} ] were Transferred to [ ${branchSiteTransferTo} ]`, 'success');
+            baseMessagesAlert(`the selected IT Asset(s) [ ${instanceChkedPost} ] were Transferred to [ ${branchSiteTransferredTo} ]`, 'success');
         }).then(result => {
             console.log('Success:', result);
         }).catch(error => {console.error('Error:', error)})

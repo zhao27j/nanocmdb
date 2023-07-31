@@ -478,6 +478,7 @@ class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
                 sub_categories.append(instance.model_type.sub_category)
         context["sub_categories"] = sub_categories
 
+        """
         branchSites_name = []
         for site in branchSite.objects.all():
             branchSites_name.append(site)
@@ -493,6 +494,7 @@ class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
             if owner.username != 'admin' and 'tishmanspeyer.com' in owner.email:
                 owner_list.append('%s ( %s )' % (owner.get_full_name(), owner.username))
         context["owner_list"] = owner_list
+        """
 
         return context
 
@@ -611,6 +613,7 @@ def InstanceNew(request):
 
 
 # -- branch site Transfer --
+
 @login_required
 def jsonResponse_branchSite_list(request):
     if request.method == 'GET':
@@ -622,17 +625,18 @@ def jsonResponse_branchSite_list(request):
         response = JsonResponse(branchSite_list)
         return response
 
+
 @login_required
-def branchSite_transfer(request):
+def branchSite_transferred_to(request):
     if request.method == 'POST':
         selected_instances = request.POST.get('instanceChkedPost').split(',')
         try:
-            branchSite_transfer_to = branchSite.objects.get(name=request.POST['branchSite_transfer_to'])
+            branchSite_transferred_to = branchSite.objects.get(name=request.POST['branchSite_transferred_to'])
         except (KeyError, branchSite.DoesNotExist):
-            messages.info(request, 'distination Branch Site given is invalid')
+            messages.info(request, 'the distination Branch Site given is invalid')
         else:
-            transferred_instance_list = {}
-            for selected_instances_index, selected_instance_pk in enumerate(selected_instances):
+            selected_instance_list = {}
+            for selected_instances_pk_index, selected_instance_pk in enumerate(selected_instances):
                 selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
                 
                 ChangeHistory.objects.create(
@@ -640,12 +644,56 @@ def branchSite_transfer(request):
                     by=request.user,
                     db_table_name=selected_instance._meta.db_table,
                     db_table_pk=selected_instance.pk,
-                    detail='Transferred to [ ' + branchSite_transfer_to.name + ' ] from [ ' + selected_instance.branchSite.name + ' ]'
+                    detail='Transferred to [ ' + branchSite_transferred_to.name + ' ] from [ ' + selected_instance.branchSite.name + ' ]'
                     )
-                transferred_instance_list[selected_instance_pk] = selected_instances_index
-                selected_instance.branchSite = branchSite_transfer_to
+                selected_instance_list[selected_instance_pk] = selected_instances_pk_index
+                selected_instance.branchSite = branchSite_transferred_to
                 selected_instance.save()
 
-            # messages.info(request, 'the selected IT Assets were Transferred to ' + branchSite_transfer_to.name)
-            response = JsonResponse(transferred_instance_list)
+            messages.info(request, 'the selected IT Assets were Transferred to ' + selected_instance_list.name)
+            response = JsonResponse(selected_instance_list)
+            return response
+
+
+# -- contract Associated --
+
+@login_required
+def jsonResponse_contract_list(request):
+    if request.method == 'GET':
+        contracts = Contract.objects.all()
+        contract_list = {}
+        for contract in contracts:
+            # contract_list[contract.briefing] = contract.pk
+            contract_list[contract.briefing] = contract.get_absolute_url()
+
+        response = JsonResponse(contract_list)
+        return response
+
+
+@login_required
+def contract_associated_with(request):
+    if request.method == 'POST':
+        selected_instances = request.POST.get('instanceChkedPost').split(',')
+        try:
+            contract_associated_with = Contract.objects.get(name=request.POST['contract_associated_with'])
+        except (KeyError, Contract.DoesNotExist):
+            messages.info(request, 'the Contract briefing given is invalid')
+        else:
+            selected_instance_list = {}
+            for selected_instances_pk_index, selected_instance_pk in enumerate(selected_instances):
+                selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                
+                ChangeHistory.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=selected_instance._meta.db_table,
+                    db_table_pk=selected_instance.pk,
+                    detail='Associated with [ ' + contract_associated_with.briefing + ' ]'
+                    )
+                selected_instance_list[selected_instance_pk] = selected_instances_pk_index
+                contract_associated_with.assets.add(selected_instance)
+                contract_associated_with.save()
+
+            messages.info(request, 'the selected IT Assets were Associated with [ ' + contract_associated_with.briefing + ' ]')
+            response = JsonResponse(selected_instance_list)
             return response

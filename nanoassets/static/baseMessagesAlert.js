@@ -9,8 +9,13 @@ const baseMessagesAlert = (message, type) => {
         '</div>'
     ].join('')
 
-    // baseMessagesAlertPlaceholder.append(wrapper);
-    baseMessagesAlertPlaceholder.firstChild ? baseMessagesAlertPlaceholder.replaceChild(wrapper, baseMessagesAlertPlaceholder.firstChild) : baseMessagesAlertPlaceholder.appendChild(wrapper);
+    if (baseMessagesAlertPlaceholder.firstChild) {
+        // baseMessagesAlertPlaceholder.replaceChild(wrapper, baseMessagesAlertPlaceholder.firstChild);
+        setTimeout(() => {
+            baseMessagesAlertPlaceholder.removeChild(baseMessagesAlertPlaceholder.firstChild);
+        }, 3000); // 3000毫秒延迟后移除Alert
+    }
+    baseMessagesAlertPlaceholder.appendChild(wrapper);
 }
 
 export {baseMessagesAlertPlaceholder, baseMessagesAlert};

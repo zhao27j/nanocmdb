@@ -39,5 +39,9 @@ urlpatterns += [
 # Assets Instance - JSON Response
 urlpatterns += [
     path('json_response/branchSite_list', views.jsonResponse_branchSite_list, name='jsonResponse-branchSite-list'),
-    path('instance/branchSite_transfer', views.branchSite_transfer, name='instance-branchSite-transfer'),
+    path('instance/branchSite_transferred_to', views.branchSite_transferred_to, name='instance-branchSite-transferred-to'),
+
+    path('json_response/contract_list', views.jsonResponse_contract_list, name='jsonResponse-contract-list'),
+    path('instance/contract_associated_with', views.contract_associated_with, name='instance-contract-associated-with'),
+
 ]

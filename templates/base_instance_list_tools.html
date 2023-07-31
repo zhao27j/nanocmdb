@@ -14,10 +14,11 @@
   <input type="submit" name="branchsite-transfer" value="Transfer to" class="btn btn-outline-secondary d-inline-flex align-items-center"/>
   -->
   
-  <!-- Button trigger modal : Transfer to -->
+  <!-- Button trigger modal : Branch Site Transfer -->
   <button type="button" class="btn btn-outline-secondary d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#branchSiteUpdModal">Transfer to</button>
 
   {% if user|has_group:"IT China" and request.user.is_staff %}
+  <!--
   <input type="text" list="contracts" name="contract_selected" placeholder="contract ..." class="form-control"/>
   <datalist id="contracts">
     {% for contract in contracts %}
@@ -25,5 +26,9 @@
     {% endfor %}
   </datalist>
   <input type="submit" name="contract-associate" value="Associate with" class="btn btn-outline-secondary d-inline-flex align-items-center"/>
+  -->
+
+  <!-- Button trigger modal : Contract Associate with -->
+  <button type="button" class="btn btn-outline-secondary d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#contractUpdModal">Associate with</button>
   {% endif %}
 </div>
