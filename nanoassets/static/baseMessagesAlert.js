@@ -16,5 +16,6 @@ const baseMessagesAlert = (message, type) => {
         }, 3000); // 3000毫秒 延迟 后 移除 最早的那个 Alert
     }
     baseMessagesAlertPlaceholder.appendChild(wrapper);
+}
 
 export {baseMessagesAlertPlaceholder, baseMessagesAlert};

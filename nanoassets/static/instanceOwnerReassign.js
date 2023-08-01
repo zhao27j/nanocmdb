@@ -22,7 +22,7 @@ document.addEventListener('mouseover', e => {
     }
 })
 
-let dblClickedElIdUniqueCode, dblClickedEl, dblClickedElInnerHTML, instanceOwnerDataSet;
+let dblClickedElIdUniqueCode, dblClickedEl, dblClickedElInnerHTML; // instanceOwnerDataSet looks not required
 document.addEventListener('dblclick', e => { // listerning all Double Click events on the Document
     if (e.target.id.includes('instanceOwner') || e.target.parentElement.id.includes('instanceOwner')) {
         dblClickedEl = e.target;
