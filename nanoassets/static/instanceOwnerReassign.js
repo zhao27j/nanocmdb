@@ -12,7 +12,7 @@ const csrftoken = ownerUpdModalForm.querySelector('[name=csrfmiddlewaretoken]').
 const ownerUpdModalInput = document.querySelector('#ownerUpdModalInput');
 const ownerUpdModalDataList = document.querySelector('#ownerUpdModalDataList');
 const ownerUpdModalBtn = document.querySelector('#ownerUpdModalBtn');
-const ownerUpdModalInvalidSpan = document.querySelector('#ownerUpdModalInvalidSpan');
+// const ownerUpdModalInvalidSpan = document.querySelector('#ownerUpdModalInvalidSpan');
 
 document.addEventListener('mouseover', e => {
     if (e.target.id.includes('instanceOwner') || (e.target.parentElement ? e.target.parentElement.id.includes('instanceOwner') : false)) {
@@ -25,8 +25,8 @@ document.addEventListener('mouseover', e => {
 let dblClickedElIdUniqueCode, dblClickedEl, dblClickedElInnerHTML; // instanceOwnerDataSet looks not required
 document.addEventListener('dblclick', e => { // listerning all Double Click events on the Document
     if (e.target.id.includes('instanceOwner') || e.target.parentElement.id.includes('instanceOwner')) {
-        dblClickedEl = e.target;
-        dblClickedElIdUniqueCode = e.target.id.split('instanceOwner')[1];
+        dblClickedEl = e.target.id.includes('instanceOwner') ? e.target : e.target.parentElement;
+        dblClickedElIdUniqueCode = dblClickedEl.id.split('instanceOwner')[1];
         dblClickedElInnerHTML = dblClickedEl.querySelector('small').innerHTML === '🈳' ? '' : dblClickedEl.querySelector('small').innerHTML;
         // instanceOwnerDataSet = dblClickedEl.dataset.instanceOwner;
 
@@ -125,8 +125,8 @@ function ownerChk(e) {
     // const ownerChg = ownerUpdModalInput.value.trim().split("(")[0].trim();
     const ownerChg = ownerUpdModalInput.value.trim();
     if (ownerChg.split("(")[0].trim() === dblClickedElInnerHTML) {
-        ownerUpdModalInvalidSpan.innerHTML = `the given Owner [ ${ownerChg} ] looks no Change`;
-        ownerUpdModalInvalidSpan.className = 'invalid-feedback';
+        // ownerUpdModalInvalidSpan.innerHTML = `the given Owner [ ${ownerChg} ] looks no Change`;
+        // ownerUpdModalInvalidSpan.className = 'invalid-feedback';
 
         baseMessagesAlert(`the given Owner [ ${ownerChg} ] looks no Change`, 'warning');
 
@@ -141,8 +141,8 @@ function ownerChk(e) {
         return false;
 
     } else if (ownerChg !== '' && !(ownerChg in owner_list)) {
-        ownerUpdModalInvalidSpan.innerHTML = `the given Owner [ ${ownerChg} ] does NOT exist in the list`;
-        ownerUpdModalInvalidSpan.className = 'invalid-feedback';
+        // ownerUpdModalInvalidSpan.innerHTML = `the given Owner [ ${ownerChg} ] does NOT exist in the list`;
+        // ownerUpdModalInvalidSpan.className = 'invalid-feedback';
 
         baseMessagesAlert(`the given Owner [ ${ownerChg} ] does NOT exist in the list`, 'warning');
 
@@ -157,7 +157,7 @@ function ownerChk(e) {
         return false;
 
     } else {
-        ownerUpdModalInvalidSpan.innerHTML = "";
+        // ownerUpdModalInvalidSpan.innerHTML = "";
         ownerUpdModalInput.setCustomValidity("");
         ownerUpdModalBtn.classList.remove('disabled');
 

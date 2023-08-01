@@ -12,7 +12,7 @@ const csrftoken = contractUpdModalForm.querySelector('[name=csrfmiddlewaretoken]
 const contractUpdModalInput = document.querySelector('#contractUpdModalInput');
 const contractUpdModalDataList = document.querySelector('#contractUpdModalDataList');
 const contractUpdModalBtn = document.querySelector('#contractUpdModalBtn');
-const contractUpdModalInvalidSpan = document.querySelector('#contractUpdModalInvalidSpan');
+// const contractUpdModalInvalidSpan = document.querySelector('#contractUpdModalInvalidSpan');
 
 let contract_list;
 const jsonResponseContractListDataSet = contractUpdModal.dataset.jsonresponseContractList;
@@ -40,6 +40,8 @@ contractUpdModal.addEventListener('shown.bs.modal', () => {
                 dataListOpt.textContent = key;
                 contractUpdModalDataList.appendChild(dataListOpt);
             })}
+
+
     } else {
         baseMessagesAlert(`no IT Assets is selected`, 'warning');
         contractUpdModalInstance.hide();
@@ -59,6 +61,7 @@ contractUpdModalForm.addEventListener('submit', (e) => { // listening Form Submi
         let instanceSelectedPost = [];
         instancesSelected.forEach( i => {
             instanceSelectedPost.push(i.value);
+            i.checked = false;
         });
 
         const contractUpdModalInputValue = contractUpdModalInput.value.trim();

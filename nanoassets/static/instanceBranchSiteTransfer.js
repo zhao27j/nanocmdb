@@ -12,7 +12,7 @@ const csrftoken = branchSiteUpdModalForm.querySelector('[name=csrfmiddlewaretoke
 const branchSiteUpdModalInput = document.querySelector('#branchSiteUpdModalInput');
 const branchSiteUpdModalDataList = document.querySelector('#branchSiteUpdModalDataList');
 const branchSiteUpdModalBtn = document.querySelector('#branchSiteUpdModalBtn');
-const branchSiteUpdModalInvalidSpan = document.querySelector('#branchSiteUpdModalInvalidSpan');
+// const branchSiteUpdModalInvalidSpan = document.querySelector('#branchSiteUpdModalInvalidSpan');
 
 let branchSite_list;
 const jsonResponseBranchSiteListDataSet = branchSiteUpdModal.dataset.jsonresponseBranchsiteList;
@@ -56,12 +56,13 @@ branchSiteUpdModalForm.addEventListener('submit', (e) => { // listening Form Sub
         branchSiteUpdModalInputCtrl.abort(); // remove listener from modal Input element after validation
         branchSiteUpdModalInstance.hide();
 
-        const branchSiteTransferredTo = branchSiteUpdModalInput.value.trim();
         let instanceSelectedPost = [];
         instanceSelected.forEach( i => {
             instanceSelectedPost.push(i.value);
+            i.checked = false;
         });
 
+        const branchSiteTransferredTo = branchSiteUpdModalInput.value.trim();
         const formData = new FormData();
         formData.append('branchSite_transferred_to', branchSiteTransferredTo);
         formData.append('instanceSelectedPost', instanceSelectedPost);
