@@ -472,13 +472,13 @@ class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        """
         sub_categories = []
         for instance in self.object_list:
             if instance.model_type.sub_category not in sub_categories:
                 sub_categories.append(instance.model_type.sub_category)
         context["sub_categories"] = sub_categories
 
+        """
         branchSites_name = []
         for site in branchSite.objects.all():
             branchSites_name.append(site)
