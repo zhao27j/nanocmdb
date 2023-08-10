@@ -63,7 +63,7 @@
       <td id="instanceAssociatedContract{{ forloop.counter }}">
         &nbsp;
         {% if instance.contract_set.first %}
-          {% for contract in instance.contract_set.all %}
+          <!-- {% for contract in instance.contract_set.all %}
             {% if contract.type in 'MNR' %}
             <a href="{% url 'nanopay:contract-detail' contract.pk %}" class="text-decoration-none">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-check" viewBox="0 0 16 16">
@@ -73,7 +73,10 @@
               <small>{{ contract.get_type_display }}</small>
             </a>
             {% endif %}
-          {% endfor %}
+          {% endfor %} -->
+          <a href="{% url 'nanopay:contract-detail' instance.contract_set.first.pk %}" class="text-decoration-none">
+            <small>{{ instance.contract_set.first.get_type_display }}</small>
+          </a>
         {% else %}
         <small>🈳</small>
         {% endif %}

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import views, views_api
 
 
 app_name = 'nanoassets'
@@ -36,12 +36,11 @@ urlpatterns += [
     path('instance/<pk>/in_repair/', views.InstanceInRepair, name='instance-in-repair'),
 ]
 
-# Assets Instance - JSON Response
+# Assets Instance - JSON api
 urlpatterns += [
-    path('json_response/branchSite_list', views.jsonResponse_branchSite_list, name='jsonResponse-branchSite-list'),
-    path('instance/branchSite_transferred_to', views.branchSite_transferred_to, name='instance-branchSite-transferred-to'),
+    path('json_response/branchSite_lst/', views_api.jsonResponse_branchSite_lst, name='jsonResponse-branchSite-lst'),
+    path('instance/branchSite_transferring_to/', views_api.branchSite_transferring_to, name='instance-branchSite-transferring-to'),
 
-    path('json_response/contract_list', views.jsonResponse_contract_list, name='jsonResponse-contract-list'),
-    path('instance/contract_associated_with', views.contract_associated_with, name='instance-contract-associated-with'),
-
+    path('json_response/contract_lst/', views_api.jsonResponse_contract_lst, name='jsonResponse-contract-lst'),
+    path('instance/contract_associating_with/', views_api.contract_associating_with, name='instance-contract-associating-with'),
 ]

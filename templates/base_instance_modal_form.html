@@ -35,8 +35,8 @@
   {% csrf_token %}
   <!-- branch Site Transfer to - Modal -->
   <div class="modal fade" id="branchSiteUpdModal" tabindex="-1" aria-labelledby="branchSiteUpdModalLabel" aria-hidden="true"
-        data-jsonResponse-branchSite-list="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:jsonResponse-branchSite-list' %}"
-        data-instance-branchSite-transferred-to-uri="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:instance-branchSite-transferred-to' %}"
+        data-jsonResponse-branchSite-lst="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:jsonResponse-branchSite-lst' %}"
+        data-instance-branchSite-transferred-to-uri="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:instance-branchSite-transferring-to' %}"
         >
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -47,8 +47,8 @@
         <div class="modal-body">
           <div class="row">
             <div class="col"><b> ... </b></div>
-            <input type="text" list="branchSiteUpdModalDataList" id="branchSiteUpdModalInput" name="branchSite_transfer_to" placeholder="" class="form-control" required="" />
-            <datalist id="branchSiteUpdModalDataList">
+            <input type="text" list="branchSiteUpdModalDataLst" id="branchSiteUpdModalInput" name="branchSite_transfer_to" placeholder="" class="form-control" required="" />
+            <datalist id="branchSiteUpdModalDataLst">
               {# {% for owner in owner_list %}<option>{{ owner }}</option>{% endfor %} #}
             </datalist>
             {# <span class="invalid-feedback" id="branchSiteUpdModalInvalidSpan" aria-live="polite"></span> #}
@@ -68,8 +68,8 @@
   {% csrf_token %}
   <!-- contract Associated with - Modal -->
   <div class="modal fade" id="contractUpdModal" tabindex="-1" aria-labelledby="contractUpdModalLabel" aria-hidden="true"
-        data-jsonResponse-contract-list="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:jsonResponse-contract-list' %}"
-        data-instance-contract-associated-with-uri="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:instance-contract-associated-with' %}"
+        data-jsonResponse-contract-list="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:jsonResponse-contract-lst' %}"
+        data-instance-contract-associated-with-uri="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:instance-contract-associating-with' %}"
         >
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">

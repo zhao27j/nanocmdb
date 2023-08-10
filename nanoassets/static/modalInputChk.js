@@ -1,32 +1,44 @@
 import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
 
-export function modalInputChk(e, refLst, modalEl, modalInputTag) {
-    const modalInputEl = modalEl.querySelector('input');
-    const modalInputValue = modalInputEl.value.trim();
-    if ( !(modalInputValue in refLst) ) {
-        // contractUpdModalInvalidSpan.innerHTML = `the given Contract [ ${modalInputValue} ] does NOT exist in the list`;
-        // contractUpdModalInvalidSpan.className = 'invalid-feedback';
+export function modalInputChk(e, optLst, chkLst, modalEl, modalInputTag) {
+    const modalInput = modalEl.querySelector('input');
+    const modalInputValue = modalInput.value.trim();
+    if ( !(modalInputValue in optLst) || modalInputValue in chkLst) {
 
-        baseMessagesAlert(`the given ${modalInputTag} [ ${modalInputValue} ] does NOT exist in the list`, 'warning');
+        baseMessagesAlert(`the given ${modalInputTag} [ ${modalInputValue} ] does NOT exist in the Option List, OR has been applied on one of the IT Assets selected`, 'warning');
 
         modalEl.querySelector("button[type='submit']").classList.add('disabled');
 
-        modalInputEl.setCustomValidity(`the given ${modalInputTag} [ ${modalInputValue} ] does NOT exist in the list`);
-        modalInputEl.value = '';
-        modalInputEl.focus();
+        modalInput.setCustomValidity(`the given ${modalInputTag} [ ${modalInputValue} ] does NOT exist in the Option List, OR has been applied on one of the IT Assets selected`);
+        modalInput.value = '';
+        modalInput.focus();
 
         e.preventDefault();
         e.stopPropagation();
 
         return false;
 
-    } else {
-        baseMessagesAlert(`the given Contract [ ${modalInputValue} ] is Valid`, 'info');
+    } /* else if (modalInputValue in chkLst) {
+        
+        baseMessagesAlert(`the given ${modalInputTag} [ ${modalInputValue} ] has been applied on one of the IT Assets selected`, 'warning');
 
-        // contractUpdModalInvalidSpan.innerHTML = "";
-        modalInputEl.setCustomValidity("");
+        modalEl.querySelector("button[type='submit']").classList.add('disabled');
+
+        modalInput.setCustomValidity(`the given ${modalInputTag} [ ${modalInputValue} ] has been applied on one of the IT Assets selected`);
+        modalInput.value = '';
+        modalInput.focus();
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        return false;
+
+    } */ else {
+        baseMessagesAlert(`the given ${modalInputTag} [ ${modalInputValue} ] is Valid`, 'info');
+
+        modalInput.setCustomValidity("");
         modalEl.querySelector("button[type='submit']").classList.remove('disabled');
 
         return true;
-    }
+    };
 }
