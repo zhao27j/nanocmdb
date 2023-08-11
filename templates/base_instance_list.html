@@ -58,9 +58,9 @@
         {% else %}<small>🈳</small>{% endif %}
       </td>
       {% endif %}
-      <td id="instanceBranchSite{{ forloop.counter }}"><small>{{ instance.branchSite }}</small></td>
+      <td id="instancebranchSite{{ forloop.counter }}"><small>{{ instance.branchSite }}</small></td>
       {% if user|has_group:"IT China" and request.user.is_staff %}
-      <td id="instanceAssociatedContract{{ forloop.counter }}">
+      <td id="instanceContract{{ forloop.counter }}">
         &nbsp;
         {% if instance.contract_set.first %}
           <!-- {% for contract in instance.contract_set.all %}

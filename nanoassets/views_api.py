@@ -12,6 +12,9 @@ from nanopay.models import Contract
 from nanobase.models import ChangeHistory
 
 
+# --- owner Re-assign to ---
+
+
 # --- branch site Transferring to ---
 
 @login_required

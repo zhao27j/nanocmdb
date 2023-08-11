@@ -104,10 +104,12 @@ bulkUpdModalForm.addEventListener('submit', (e) => { // listening Form Submissio
         }).then(response => {
             response.json();
         }).then(result => {
+
+            
             baseMessagesAlert(`the selected IT Asset(s) [ ${instanceSelectedPk} ] were associated with [ ${bulkUpdModalInputValue} ]`, 'success');
 
             instanceSelected.forEach( i => {
-                const instanceBulkUpdEl = document.querySelector(`#instanceAssociated${modalInputTag}${i.id.split('instance')[1]}`);
+                const instanceBulkUpdEl = document.querySelector(`#instance${modalInputTag}${i.id.split('instance')[1]}`);
                 if (!instanceBulkUpdEl.querySelector('a')) {
                     instanceBulkUpdEl.querySelector('small').remove();
                 }
