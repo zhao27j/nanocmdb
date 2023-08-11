@@ -18,9 +18,9 @@ from nanobase.models import ChangeHistory
 def jsonResponse_branchSite_lst(request):
     if request.method == 'GET':
         branchSite_associated_with_instance_list = {}
-        selected_instances_pk = tuple(request.GET.get('instanceSelectedPkPost').split(','))
-        for selected_instances_pk_index, selected_instance_pk in enumerate(selected_instances_pk):
-            selected_instance = Instance.objects.get(pk=selected_instance_pk)
+        selected_instances_pk = tuple(request.GET.get('instanceSelectedPk').split(','))
+        for index, pk in enumerate(selected_instances_pk):
+            selected_instance = Instance.objects.get(pk=pk)
             # for branchSite in selected_instance.branchSite_set.all():
             branch_site = selected_instance.branchSite
             branchSite_associated_with_instance_list[branch_site.name] = branch_site.pk
@@ -38,16 +38,16 @@ def jsonResponse_branchSite_lst(request):
 @login_required
 def branchSite_transferring_to(request):
     if request.method == 'POST':
-        selected_instances = request.POST.get('instanceSelectedPkPost').split(',')
+        instance_selected_pk = request.POST.get('instanceSelectedPk').split(',')
         try:
-            branchSite_transferred_to = branchSite.objects.get(name=request.POST['branchSite_transferred_to'])
+            branchSite_transferred_to = branchSite.objects.get(name=request.POST['bulkUpdModalInputValue'])
         except (KeyError, branchSite.DoesNotExist):
             messages.info(request, 'the Branch Site given is invalid')
-            response = JsonResponse('the Branch Site given is invalid')
+            response = JsonResponse({'Error': 'the Branch Site given is invalid'})
         else:
             selected_instance_list = {}
-            for selected_instances_pk_index, selected_instance_pk in enumerate(selected_instances):
-                selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+            for index, pk in enumerate(instance_selected_pk):
+                selected_instance = get_object_or_404(Instance, pk=pk)
                 
                 ChangeHistory.objects.create(
                     on=timezone.now(),
@@ -56,7 +56,7 @@ def branchSite_transferring_to(request):
                     db_table_pk=selected_instance.pk,
                     detail='Transferred to [ ' + branchSite_transferred_to.name + ' ] from [ ' + selected_instance.branchSite.name + ' ]'
                     )
-                selected_instance_list[selected_instance_pk] = selected_instances_pk_index
+                selected_instance_list[pk] = index
                 selected_instance.branchSite = branchSite_transferred_to
                 selected_instance.save()
 
@@ -72,9 +72,9 @@ def branchSite_transferring_to(request):
 def jsonResponse_contract_lst(request):
     if request.method == 'GET':
         contract_associated_with_instance_list = {}
-        selected_instances_pk = tuple(request.GET.get('instanceSelectedPkPost').split(','))
-        for selected_instances_pk_index, selected_instance_pk in enumerate(selected_instances_pk):
-            selected_instance = Instance.objects.get(pk=selected_instance_pk)
+        selected_instances_pk = tuple(request.GET.get('instanceSelectedPk').split(','))
+        for index, pk in enumerate(selected_instances_pk):
+            selected_instance = Instance.objects.get(pk=pk)
             for contract in selected_instance.contract_set.all():
                 contract_associated_with_instance_list[contract.briefing] = contract.pk
 
@@ -91,16 +91,16 @@ def jsonResponse_contract_lst(request):
 @login_required
 def contract_associating_with(request):
     if request.method == 'POST':
-        selected_instances = request.POST.get('instanceSelectedPkPost').split(',')
+        instance_selected_pk = request.POST.get('instanceSelectedPk').split(',')
         try:
-            contract_associated_with = Contract.objects.filter(briefing__icontains=request.POST['contract_associated_with']).first()
+            contract_associated_with = Contract.objects.filter(briefing__icontains=request.POST['bulkUpdModalInputValue']).first()
         except (KeyError, Contract.DoesNotExist):
             messages.info(request, 'the Contract given is invalid')
-            response = JsonResponse('the Contract given is invalid')
+            response = JsonResponse({'Error': 'the Contract given is invalid'})
         else:
             selected_instance_list = {}
-            for selected_instances_pk_index, selected_instance_pk in enumerate(selected_instances):
-                selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+            for index, pk in enumerate(instance_selected_pk):
+                selected_instance = get_object_or_404(Instance, pk=pk)
                 
                 ChangeHistory.objects.create(
                     on=timezone.now(),
@@ -109,7 +109,7 @@ def contract_associating_with(request):
                     db_table_pk=selected_instance.pk,
                     detail='Associated with [ ' + contract_associated_with.briefing + ' ]'
                     )
-                selected_instance_list[selected_instance_pk] = selected_instances_pk_index
+                selected_instance_list[pk] = index
                 contract_associated_with.assets.add(selected_instance)
                 contract_associated_with.save()
 

@@ -53,6 +53,20 @@
                 {% if user|has_group:"IT China" %}
                 <li><a class="dropdown-item" href="{% url 'nanoassets:supported-instance-list' %}"><small>Supported</small></a></li>
                 <li><hr class="dropdown-divider"></li>
+                <li>
+                  {% if user|has_group:"IT China" and request.user.is_staff %}
+                  <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#bulkUpdModal">
+                    <small>Associate with</small>
+                  </button>
+                  {% endif %}
+                </li>
+                <li>
+                  <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#bulkUpdModal">
+                    <small>Transfer to</small>
+                  </button>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li><small><input class="dropdown-item" type="submit" name="scrapping-request" value="Apply for Scrapping" /></small></li>
                 <li><a class="dropdown-item" href="{% url 'nanoassets:instance-scrapping-request-list' %}"><small>Scrapping Requests</small></a></li>
                 {% endif %}
               </ul>
@@ -85,11 +99,7 @@
                   {% else %}
                   {{ user.get_full_name|truncatechars:8 }}
                   {% endif %}
-                  {% if user|has_group:"IT China" %}
-                    (IT staff)
-                  {% else %}
-                    ({{ user.username }})
-                  {% endif %}
+                  {% if user|has_group:"IT China" %}(IT staff){% else %}({{ user.username }}){% endif %}
                 </span>
               </li>
               <li><a class="nav-link active" href="{% url 'logout' %}?next={{ request.path }}">Logout</a></li>
