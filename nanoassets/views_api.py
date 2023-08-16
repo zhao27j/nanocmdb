@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
@@ -12,7 +13,70 @@ from nanopay.models import Contract
 from nanobase.models import ChangeHistory
 
 
-# --- owner Re-assign to ---
+# --- owner Re-assigning to ---
+
+@login_required
+def jsonResponse_owner_lst(request):
+
+    if request.method == 'GET':
+        chk_lst = {}
+        selected_instances_pk = tuple(request.GET.get('instanceSelectedPk').split(','))
+        for index, pk in enumerate(selected_instances_pk):
+            selected_instance = Instance.objects.get(pk=pk)
+            if selected_instance.owner:
+                owner = selected_instance.owner
+                chk_lst[owner.username] = owner.pk
+            else:
+                chk_lst[''] = selected_instance.pk
+
+        owners = User.objects.filter(email__icontains='tishmanspeyer')
+        opt_lst = {}
+        for owner in owners:
+            if not owner.username in chk_lst:
+                opt_lst['%s ( %s )' % (owner.get_full_name(), owner.username)] = owner.pk
+                # opt_lst[owner.get_full_name()] = owner.pk
+
+        response = [opt_lst, chk_lst]
+        return JsonResponse(response, safe=False)
+
+
+def owner_re_assigning_to(request):
+    if request.method == 'POST':
+        instance_selected_pk = request.POST.get('instanceSelectedPk').split(',')
+        owner_re_assigned_to = request.POST.get('bulkUpdModalInputValue').strip(")").split("(")[-1].strip()
+        owner_re_assigned_to = get_object_or_404(User, username=owner_re_assigned_to) if owner_re_assigned_to != '' else owner_re_assigned_to
+        selected_instance_list = {}
+        for index, pk in enumerate(instance_selected_pk):
+            selected_instance = get_object_or_404(Instance, pk=pk)
+            if owner_re_assigned_to == '' and selected_instance.owner:
+                change_history_detail = 'Returned from [ ' + selected_instance.owner.get_full_name() + ' ]'
+                msg = 'the IT Asset(s) [ ' + selected_instance.serial_number + ' ] was Returned from ' + selected_instance.owner.get_full_name()
+
+                selected_instance.status = 'AVAILABLE'
+                selected_instance.owner = None
+
+            elif owner_re_assigned_to != '' and owner_re_assigned_to != selected_instance.owner:
+                change_history_detail = 'Re-assigned to [ ' + selected_instance.get_full_name() + ' ] from [ ' + (selected_instance.owner.get_full_name() if instance.owner else ' 🈳 ') + ' ]'
+                msg = 'the IT Asset(s) [ ' + selected_instance.serial_number + ' ] was Re-assigned to ' + owner_re_assigned_to.get_full_name() + ' from ' + (selected_instance.owner.get_full_name() if selected_instance.owner else ' 🈳 ')
+
+                selected_instance.status = 'inUSE'
+                selected_instance.owner = owner_re_assigned_to
+
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=selected_instance._meta.db_table,
+                db_table_pk=selected_instance.pk,
+                detail=change_history_detail
+                )
+                
+            messages.info(request, msg)
+
+            selected_instance.save()
+            selected_instance_list[pk] = index
+
+        response = JsonResponse(selected_instance_list)
+        return response
 
 
 # --- branch site Transferring to ---

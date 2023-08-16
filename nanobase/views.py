@@ -13,7 +13,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
-from django.http import Http404, FileResponse, JsonResponse
+from django.http import Http404, FileResponse
 
 from django.views.generic.edit import CreateView
 
@@ -24,18 +24,6 @@ from nanopay.models import LegalEntity
 from .forms import UserProfileUpdateForm, UserCreateForm
 
 # Create your views here.
-
-@login_required
-def jsonResponse_owner_list(request):
-    if request.method == 'GET':
-        owners = User.objects.filter(email__icontains='tishmanspeyer')
-        owner_list = {}
-        for owner in owners:
-            owner_list['%s ( %s )' % (owner.get_full_name(), owner.username)] = owner.pk
-            # owner_list[owner.get_full_name()] = owner.pk
-
-        response = JsonResponse(owner_list)
-        return response
 
 
 class UserCreateView(LoginRequiredMixin, CreateView):

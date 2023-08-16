@@ -1,12 +1,13 @@
 from django.urls import path
 
-from . import views
+from . import views, views_api
 
 app_name = 'nanobase'
 
 urlpatterns = [
     path('index/', views.index, name='index'),
 ]
+
 
 urlpatterns += [
     # path('user/new/', views.UserCreateView.as_view(), name='user-new'),
@@ -22,10 +23,6 @@ urlpatterns += [
     path('digital_copy/<int:pk>/<db_table_name>/add/', views.get_digital_copy_add, name='digital-copy-add'),
 ]
 
-# json response
-urlpatterns += [
-    path('json_response/owner_list', views.jsonResponse_owner_list, name='jsonResponse-owner-list'),
-]
 
 # temp - data migrations
 urlpatterns += [

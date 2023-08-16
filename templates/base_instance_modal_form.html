@@ -21,7 +21,7 @@
 
         <div class="modal-footer">
           {# <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> #}
-          <button type="submit" id="bulkUpdModalBtn" class="btn btn-primary">Associated with</button>
+          <button type="submit" id="bulkUpdModalBtn" class="btn btn-primary">submit</button>
         </div>
       </div>
     </div>
@@ -34,7 +34,7 @@
   {% csrf_token %}
   <!-- contract Update - Modal -->
   <div class="modal fade" id="ownerUpdModal" tabindex="-1" aria-labelledby="ownerUpdModalLabel" aria-hidden="true"
-        data-jsonResponse-owner-list="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanobase:jsonResponse-owner-list' %}"
+        data-jsonResponse-owner-lst="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanobase:jsonResponse-owner-lst' %}"
         >
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
