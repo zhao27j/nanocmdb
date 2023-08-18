@@ -47,7 +47,7 @@
         <small>{{ instance.model_type }}</small>
       </td>
       <td><small>{{ instance.hostname }}</small></td>
-      <td><small id="instanceStatus{{ forloop.counter }}">{{ instance.get_status_display }}</small></td>
+      <td><small id="instanceStatus{{ instance.pk }}">{{ instance.get_status_display }}</small></td>
       {% if user|has_group:"IT China" %}
       <td id="instanceOwner{{ instance.pk }}"
           data-instance-owner="{{ instance.owner.get_full_name }}"

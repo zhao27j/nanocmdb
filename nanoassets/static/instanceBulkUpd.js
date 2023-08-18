@@ -40,6 +40,7 @@ let modalLable, modalInputTag, getLstUri, optLst, chkLst, postUpdUri, instanceSe
 bulkUpdModal.addEventListener('show.bs.modal', (e) => {
 
     if (e.relatedTarget) {
+        dblClickedEl = undefined;
         if (e.relatedTarget.innerHTML.includes('Associate with')) {
             modalLable = 'Associate with ...';
             modalInputTag = 'Contract';
@@ -59,7 +60,7 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
             modalInputTag = 'Owner';
 
             getLstUri = window.location.origin + '/json_response/owner_lst/';
-            postUpdUri = window.location.origin + '/instance/owner_reassigning_to/';
+            postUpdUri = window.location.origin + '/instance/owner_re_assigning_to/';
         }
     }
 
@@ -69,7 +70,7 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
     if (dblClickedEl) {
         instanceSelected = [];
         instanceSelected.push(dblClickedEl);
-        instanceSelectedPk.push(dblClickedEl.id.split('instanceOwner')[1]);
+        instanceSelectedPk.push(dblClickedEl.id.split(`instance${modalInputTag}`)[1]);
     } else {
         instanceSelected = document.querySelectorAll("input[type='checkbox']:checked");
         if (instanceSelected.length > 0) {
@@ -143,22 +144,24 @@ bulkUpdModalForm.addEventListener('submit', (e) => { // listening Form Submissio
         }).then(result => {
 
             instanceSelected.forEach( i => {
+                let instanceBulkUpdEl;
                 if (modalInputTag == 'Owner') {
                     if (bulkUpdModalInputValue == '') {
                         baseMessagesAlert(`the IT Asset(s) [ ${instanceSelectedPk} ] was Returned from [ ${dblClickedElInnerHTML} ]`, 'success');
                         document.querySelector(`#instanceStatus${i.id.split(`instance${modalInputTag}`)[1]}`).innerHTML = 'Available';
                     } else {
-                        baseMessagesAlert(`the IT Asset(s) [ ${instanceSelectedPk} ] was Re-assigned to [ ${ownerUpdModalInput} ] from [ ${dblClickedElInnerHTML == '' ? "🈳" : dblClickedElInnerHTML} ]`, 'success');
-                        document.querySelector(`#instanceStatus${i.id.split('instanceOwner')[1]}`).innerHTML = 'in Use';
+                        baseMessagesAlert(`the IT Asset(s) [ ${instanceSelectedPk} ] was Re-assigned to [ ${bulkUpdModalInputValue} ] from [ ${dblClickedElInnerHTML == '' ? "🈳" : dblClickedElInnerHTML} ]`, 'success');
+                        document.querySelector(`#instanceStatus${i.id.split(`instance${modalInputTag}`)[1]}`).innerHTML = 'in Use';
                     }
-
+                    instanceBulkUpdEl = document.querySelector(`#instance${modalInputTag}${i.id.split(`instance${modalInputTag}`)[1]}`);
                 } else if (modalInputTag == 'Contract') {
                     baseMessagesAlert(`the selected IT Asset(s) [ ${instanceSelectedPk} ] were associated with [ ${bulkUpdModalInputValue} ]`, 'success');
+                    instanceBulkUpdEl = document.querySelector(`#instance${modalInputTag}${i.id.split('instance')[1]}`);
                 } else if (modalInputTag == 'branchSite') {
                     baseMessagesAlert(`the selected IT Asset(s) [ ${instanceSelectedPk} ] were transfered to [ ${bulkUpdModalInputValue} ]`, 'success');
+                    instanceBulkUpdEl = document.querySelector(`#instance${modalInputTag}${i.id.split('instance')[1]}`);
                 }
 
-                const instanceBulkUpdEl = document.querySelector(`#instance${modalInputTag}${i.id.split(`instance${modalInputTag}`)[1]}`);
                 const instanceBulkUpdElHyperLink = instanceBulkUpdEl.querySelector('a');
                 if (instanceBulkUpdElHyperLink) {
                     instanceBulkUpdElHyperLink.href = window.location.origin + optLst[bulkUpdModalInputValue];
@@ -166,7 +169,7 @@ bulkUpdModalForm.addEventListener('submit', (e) => { // listening Form Submissio
                 }
                 const instanceBulkUpdElSmall = instanceBulkUpdEl.querySelector('small');
                 if (instanceBulkUpdElSmall) {
-                    instanceBulkUpdElSmall.innerHTML = bulkUpdModalInputValue;
+                    bulkUpdModalInputValue == '' ? instanceBulkUpdElSmall.innerHTML = "🈳" : instanceBulkUpdElSmall.innerHTML = bulkUpdModalInputValue;
                 }
 
                 // if (!instanceBulkUpdEl.querySelector('a')) {instanceBulkUpdEl.querySelector('small').remove();}

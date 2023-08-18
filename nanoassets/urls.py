@@ -41,6 +41,7 @@ urlpatterns += [
 
 urlpatterns += [
     path('json_response/owner_lst/', views_api.jsonResponse_owner_lst, name='jsonResponse-owner-lst'),
+    path('instance/owner_re_assigning_to/', views_api.owner_re_assigning_to, name='instance-owner-reassigning-to'),
 
     path('json_response/branchSite_lst/', views_api.jsonResponse_branchSite_lst, name='jsonResponse-branchSite-lst'),
     path('instance/branchSite_transferring_to/', views_api.branchSite_transferring_to, name='instance-branchSite-transferring-to'),

@@ -3,9 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from django.utils import timezone
-
 from django.http import JsonResponse
-
 from django.shortcuts import get_object_or_404
 
 from .models import Instance, branchSite
@@ -50,14 +48,14 @@ def owner_re_assigning_to(request):
             selected_instance = get_object_or_404(Instance, pk=pk)
             if owner_re_assigned_to == '' and selected_instance.owner:
                 change_history_detail = 'Returned from [ ' + selected_instance.owner.get_full_name() + ' ]'
-                msg = 'the IT Asset(s) [ ' + selected_instance.serial_number + ' ] was Returned from ' + selected_instance.owner.get_full_name()
+                # msg = 'the IT Asset(s) [ ' + selected_instance.serial_number + ' ] was Returned from ' + selected_instance.owner.get_full_name()
 
                 selected_instance.status = 'AVAILABLE'
                 selected_instance.owner = None
 
             elif owner_re_assigned_to != '' and owner_re_assigned_to != selected_instance.owner:
-                change_history_detail = 'Re-assigned to [ ' + selected_instance.get_full_name() + ' ] from [ ' + (selected_instance.owner.get_full_name() if instance.owner else ' 🈳 ') + ' ]'
-                msg = 'the IT Asset(s) [ ' + selected_instance.serial_number + ' ] was Re-assigned to ' + owner_re_assigned_to.get_full_name() + ' from ' + (selected_instance.owner.get_full_name() if selected_instance.owner else ' 🈳 ')
+                change_history_detail = 'Re-assigned to [ ' + owner_re_assigned_to.get_full_name() + ' ] from [ ' + (selected_instance.owner.get_full_name() if selected_instance.owner else ' 🈳 ') + ' ]'
+                # msg = 'the IT Asset(s) [ ' + selected_instance.serial_number + ' ] was Re-assigned to [ ' + owner_re_assigned_to.get_full_name() + ' ] from [ ' + (selected_instance.owner.get_full_name() if selected_instance.owner else ' 🈳 ') + ' ]'
 
                 selected_instance.status = 'inUSE'
                 selected_instance.owner = owner_re_assigned_to
@@ -70,7 +68,7 @@ def owner_re_assigning_to(request):
                 detail=change_history_detail
                 )
                 
-            messages.info(request, msg)
+            # messages.info(request, msg)
 
             selected_instance.save()
             selected_instance_list[pk] = index

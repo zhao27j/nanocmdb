@@ -33,9 +33,9 @@
 <form action="" method="" id="ownerUpdModalForm" class="g-3 needs-validation" novalidate="">
   {% csrf_token %}
   <!-- contract Update - Modal -->
-  <div class="modal fade" id="ownerUpdModal" tabindex="-1" aria-labelledby="ownerUpdModalLabel" aria-hidden="true"
-        data-jsonResponse-owner-lst="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanobase:jsonResponse-owner-lst' %}"
-        >
+  <div class="modal fade" id="ownerUpdModal" tabindex="-1" aria-labelledby="ownerUpdModalLabel" aria-hidden="true">
+        {# data-jsonResponse-owner-lst="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanobase:jsonResponse-owner-lst' %}" #}
+
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
