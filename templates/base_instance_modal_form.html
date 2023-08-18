@@ -1,10 +1,7 @@
 <form action="" method="" id="bulkUpdModalForm" class="g-3 needs-validation" novalidate="">
   {% csrf_token %}
   <!-- bulk Associated with - Modal -->
-  <div class="modal fade" id="bulkUpdModal" tabindex="-1" aria-labelledby="bulkUpdModalLabel" aria-hidden="true"
-        data-jsonResponse-contract-list="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:jsonResponse-contract-lst' %}"
-        data-instance-contract-associated-with-uri="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:instance-contract-associating-with' %}"
-        >
+  <div class="modal fade" id="bulkUpdModal" tabindex="-1" aria-labelledby="bulkUpdModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -34,8 +31,6 @@
   {% csrf_token %}
   <!-- contract Update - Modal -->
   <div class="modal fade" id="ownerUpdModal" tabindex="-1" aria-labelledby="ownerUpdModalLabel" aria-hidden="true">
-        {# data-jsonResponse-owner-lst="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanobase:jsonResponse-owner-lst' %}" #}
-
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -65,10 +60,7 @@
 <form action="" method="" id="branchSiteUpdModalForm" class="g-3 needs-validation" novalidate="">
   {% csrf_token %}
   <!-- branch Site Transfer to - Modal -->
-  <div class="modal fade" id="branchSiteUpdModal" tabindex="-1" aria-labelledby="branchSiteUpdModalLabel" aria-hidden="true"
-        data-jsonResponse-branchSite-lst="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:jsonResponse-branchSite-lst' %}"
-        data-instance-branchSite-transferred-to-uri="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:instance-branchSite-transferring-to' %}"
-        >
+  <div class="modal fade" id="branchSiteUpdModal" tabindex="-1" aria-labelledby="branchSiteUpdModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -98,10 +90,7 @@
 <form action="" method="" id="contractUpdModalForm" class="g-3 needs-validation" novalidate="">
   {% csrf_token %}
   <!-- contract Associated with - Modal -->
-  <div class="modal fade" id="contractUpdModal" tabindex="-1" aria-labelledby="contractUpdModalLabel" aria-hidden="true"
-        data-jsonResponse-contract-list="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:jsonResponse-contract-lst' %}"
-        data-instance-contract-associated-with-uri="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:instance-contract-associating-with' %}"
-        >
+  <div class="modal fade" id="contractUpdModal" tabindex="-1" aria-labelledby="contractUpdModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">

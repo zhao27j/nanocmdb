@@ -49,10 +49,7 @@
       <td><small>{{ instance.hostname }}</small></td>
       <td><small id="instanceStatus{{ instance.pk }}">{{ instance.get_status_display }}</small></td>
       {% if user|has_group:"IT China" %}
-      <td id="instanceOwner{{ instance.pk }}"
-          data-instance-owner="{{ instance.owner.get_full_name }}"
-          data-instance-owner-upd-uri="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:instance-owner-upd' instance.pk %}"
-          >
+      <td id="instanceOwner{{ instance.pk }}">
         {% if instance.owner %}
         <small>{{ instance.owner.get_full_name }}</small>
         {% else %}<small>🈳</small>{% endif %}

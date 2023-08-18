@@ -170,10 +170,7 @@
                 <li class="list-group-item">
                   <b>Status :</b> <small id="instanceStatus{{ instance.pk }}">{{ instance.get_status_display }}</small>
                 </li>
-                <li class="list-group-item" id="instanceOwner{{ instance.pk }}"
-                    data-instance-owner="{{ instance.owner.get_full_name }}"
-                    data-instance-owner-upd-uri="{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% url 'nanoassets:instance-owner-upd' instance.pk %}"
-                    >
+                <li class="list-group-item" id="instanceOwner{{ instance.pk }}">
                   <b>Owner :</b>
                   {% if user|has_group:"IT China" %}
                   <!-- Button trigger modal : Owner -->
