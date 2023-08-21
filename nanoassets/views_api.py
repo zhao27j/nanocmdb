@@ -6,16 +6,127 @@ from django.utils import timezone
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
-from .models import Instance, branchSite
+from .models import ModelType, Instance, branchSite
 from nanopay.models import Contract
-from nanobase.models import ChangeHistory
+from nanobase.models import ChangeHistory, SubCategory
+
+
+# --- Model / Type changing to ---
+
+@login_required
+def jsonResponse_model_type_lst(request):
+    if request.method == 'GET':
+        chk_lst = {}
+        selected_instances_pk = tuple(request.GET.get('instanceSelectedPk').split(','))
+        for index, pk in enumerate(selected_instances_pk):
+            selected_instance = Instance.objects.get(pk=pk)
+            if selected_instance.model_type:
+                model_type = selected_instance.model_type
+                chk_lst[model_type.name] = model_type.pk
+            else:
+                chk_lst[''] = selected_instance.pk
+
+        model_types = ModelType.objects.all()
+        opt_lst = {}
+        for model_type in model_types:
+            if not model_type.name in chk_lst:
+                opt_lst[model_type.name] = model_type.pk
+
+        response = [opt_lst, chk_lst]
+        return JsonResponse(response, safe=False)
+
+
+@login_required
+def model_type_changing_to(request):
+    if request.method == 'POST':
+        instance_selected_pk = request.POST.get('instanceSelectedPk').split(',')
+        try:
+            model_type_changed_to = ModelType.objects.get(name=request.POST['bulkUpdModalInputValue'])
+        except (KeyError, SubCategory.DoesNotExist):
+            messages.info(request, 'the Model / Type given is invalid')
+            response = JsonResponse({'Error': 'the Model / Type given is invalid'})
+        else:
+            updated_instance_lst = {}
+            for index, pk in enumerate(instance_selected_pk):
+                selected_instance = get_object_or_404(Instance, pk=pk)
+                
+                ChangeHistory.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=selected_instance._meta.db_table,
+                    db_table_pk=selected_instance.pk,
+                    detail='Model / Type of this IT Assets was changed to [ ' + model_type_changed_to.name + ' ] from [ ' + selected_instance.model_type.name + ' ]'
+                    )
+                updated_instance_lst[pk] = index
+                selected_instance.model_type = model_type_changed_to
+                selected_instance.save()
+
+            # messages.info(request, 'the selected IT Assets were Transferred to ' + model_type_changed_to.name)
+            response = JsonResponse(updated_instance_lst)
+            
+        return response
+
+
+# --- Re-categorizing to ---
+
+@login_required
+def jsonResponse_sub_category_lst(request):
+    if request.method == 'GET':
+        chk_lst = {}
+        selected_instances_pk = tuple(request.GET.get('instanceSelectedPk').split(','))
+        for index, pk in enumerate(selected_instances_pk):
+            selected_instance = Instance.objects.get(pk=pk)
+            if selected_instance.model_type and selected_instance.model_type.sub_category:
+                sub_category = selected_instance.model_type.sub_category
+                chk_lst[sub_category.name] = sub_category.pk
+            else:
+                chk_lst[''] = selected_instance.pk
+
+        sub_categories = SubCategory.objects.all()
+        opt_lst = {}
+        for sub_category in sub_categories:
+            if not sub_category.name in chk_lst:
+                opt_lst[sub_category.name] = sub_category.pk
+
+        response = [opt_lst, chk_lst]
+        return JsonResponse(response, safe=False)
+
+
+@login_required
+def re_subcategorizing_to(request):
+    if request.method == 'POST':
+        instance_selected_pk = request.POST.get('instanceSelectedPk').split(',')
+        try:
+            re_subcategorized_to = SubCategory.objects.get(name=request.POST['bulkUpdModalInputValue'])
+        except (KeyError, SubCategory.DoesNotExist):
+            messages.info(request, 'the Sub-Category given is invalid')
+            response = JsonResponse({'Error': 'the Sub-Category given is invalid'})
+        else:
+            updated_instance_lst = {}
+            for index, pk in enumerate(instance_selected_pk):
+                selected_instance = get_object_or_404(Instance, pk=pk)
+                
+                ChangeHistory.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=selected_instance._meta.db_table,
+                    db_table_pk=selected_instance.pk,
+                    detail='Model Type of this IT Assets was re-sub-categorized to [ ' + re_subcategorized_to.name + ' ] from [ ' + str(selected_instance.model_type.sub_category) + ' ]'
+                    )
+                updated_instance_lst[pk] = index
+                selected_instance.model_type.sub_category = re_subcategorized_to
+                selected_instance.model_type.save()
+
+            # messages.info(request, 'Model Type of this IT Assets was re-sub-categorized to ' + re_subcategorized_to.name)
+            response = JsonResponse(updated_instance_lst)
+            
+        return response
 
 
 # --- owner Re-assigning to ---
 
 @login_required
 def jsonResponse_owner_lst(request):
-
     if request.method == 'GET':
         chk_lst = {}
         selected_instances_pk = tuple(request.GET.get('instanceSelectedPk').split(','))
@@ -38,12 +149,13 @@ def jsonResponse_owner_lst(request):
         return JsonResponse(response, safe=False)
 
 
+@login_required
 def owner_re_assigning_to(request):
     if request.method == 'POST':
         instance_selected_pk = request.POST.get('instanceSelectedPk').split(',')
         owner_re_assigned_to = request.POST.get('bulkUpdModalInputValue').strip(")").split("(")[-1].strip()
         owner_re_assigned_to = get_object_or_404(User, username=owner_re_assigned_to) if owner_re_assigned_to != '' else owner_re_assigned_to
-        selected_instance_list = {}
+        updated_instance_lst = {}
         for index, pk in enumerate(instance_selected_pk):
             selected_instance = get_object_or_404(Instance, pk=pk)
             if owner_re_assigned_to == '' and selected_instance.owner:
@@ -71,9 +183,9 @@ def owner_re_assigning_to(request):
             # messages.info(request, msg)
 
             selected_instance.save()
-            selected_instance_list[pk] = index
+            updated_instance_lst[pk] = index
 
-        response = JsonResponse(selected_instance_list)
+        response = JsonResponse(updated_instance_lst)
         return response
 
 
@@ -82,21 +194,21 @@ def owner_re_assigning_to(request):
 @login_required
 def jsonResponse_branchSite_lst(request):
     if request.method == 'GET':
-        branchSite_associated_with_instance_list = {}
+        chk_lst = {}
         selected_instances_pk = tuple(request.GET.get('instanceSelectedPk').split(','))
         for index, pk in enumerate(selected_instances_pk):
             selected_instance = Instance.objects.get(pk=pk)
             # for branchSite in selected_instance.branchSite_set.all():
             branch_site = selected_instance.branchSite
-            branchSite_associated_with_instance_list[branch_site.name] = branch_site.pk
+            chk_lst[branch_site.name] = branch_site.pk
 
         branchSites = branchSite.objects.all()
-        branchSite_opt_list = {}
+        opt_lst = {}
         for branch_site in branchSites:
-            if not branch_site.name in branchSite_associated_with_instance_list:
-                branchSite_opt_list[branch_site.name] = branch_site.pk
+            if not branch_site.name in chk_lst:
+                opt_lst[branch_site.name] = branch_site.pk
 
-        response = [branchSite_opt_list, branchSite_associated_with_instance_list]
+        response = [opt_lst, chk_lst]
         return JsonResponse(response, safe=False)
 
 
@@ -110,7 +222,7 @@ def branchSite_transferring_to(request):
             messages.info(request, 'the Branch Site given is invalid')
             response = JsonResponse({'Error': 'the Branch Site given is invalid'})
         else:
-            selected_instance_list = {}
+            updated_instance_lst = {}
             for index, pk in enumerate(instance_selected_pk):
                 selected_instance = get_object_or_404(Instance, pk=pk)
                 
@@ -121,12 +233,12 @@ def branchSite_transferring_to(request):
                     db_table_pk=selected_instance.pk,
                     detail='Transferred to [ ' + branchSite_transferred_to.name + ' ] from [ ' + selected_instance.branchSite.name + ' ]'
                     )
-                selected_instance_list[pk] = index
+                updated_instance_lst[pk] = index
                 selected_instance.branchSite = branchSite_transferred_to
                 selected_instance.save()
 
-            messages.info(request, 'the selected IT Assets were Transferred to ' + branchSite_transferred_to.name)
-            response = JsonResponse(selected_instance_list)
+            # messages.info(request, 'the selected IT Assets were Transferred to ' + branchSite_transferred_to.name)
+            response = JsonResponse(updated_instance_lst)
             
         return response
 
@@ -136,20 +248,20 @@ def branchSite_transferring_to(request):
 @login_required
 def jsonResponse_contract_lst(request):
     if request.method == 'GET':
-        contract_associated_with_instance_list = {}
+        chk_lst = {}
         selected_instances_pk = tuple(request.GET.get('instanceSelectedPk').split(','))
         for index, pk in enumerate(selected_instances_pk):
             selected_instance = Instance.objects.get(pk=pk)
             for contract in selected_instance.contract_set.all():
-                contract_associated_with_instance_list[contract.briefing] = contract.pk
+                chk_lst[contract.briefing] = contract.pk
 
         contracts = Contract.objects.all()
-        contract_opt_list = {}
+        opt_lst = {}
         for contract in contracts:
-            if not contract.briefing in contract_associated_with_instance_list:
-                contract_opt_list[contract.briefing] = contract.get_absolute_url()
+            if not contract.briefing in chk_lst:
+                opt_lst[contract.briefing] = contract.get_absolute_url()
         
-        response = [contract_opt_list, contract_associated_with_instance_list]
+        response = [opt_lst, chk_lst]
         return JsonResponse(response, safe=False)
 
 
@@ -163,7 +275,7 @@ def contract_associating_with(request):
             messages.info(request, 'the Contract given is invalid')
             response = JsonResponse({'Error': 'the Contract given is invalid'})
         else:
-            selected_instance_list = {}
+            updated_instance_lst = {}
             for index, pk in enumerate(instance_selected_pk):
                 selected_instance = get_object_or_404(Instance, pk=pk)
                 
@@ -174,11 +286,11 @@ def contract_associating_with(request):
                     db_table_pk=selected_instance.pk,
                     detail='Associated with [ ' + contract_associated_with.briefing + ' ]'
                     )
-                selected_instance_list[pk] = index
+                updated_instance_lst[pk] = index
                 contract_associated_with.assets.add(selected_instance)
                 contract_associated_with.save()
 
-            messages.info(request, 'the selected IT Assets were Associated with [ ' + contract_associated_with.briefing + ' ]')
-            response = JsonResponse(selected_instance_list)
+            # messages.info(request, 'the selected IT Assets were Associated with [ ' + contract_associated_with.briefing + ' ]')
+            response = JsonResponse(updated_instance_lst)
         
         return response

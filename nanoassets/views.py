@@ -308,79 +308,6 @@ def InstanceInRepair(request, pk):
 
 
 @login_required
-def InstanceSubcategoryUpdate(request, pk):
-    if request.method == 'POST':
-        previous_url = request.META.get('HTTP_REFERER')
-
-        instance = Instance.objects.get(pk=pk)
-        if not instance.model_type or instance.model_type.name.strip() == '' or not ModelType.objects.get(name=instance.model_type.name):
-            messages.warning(request, 'please Assign a Model Type to this IT Assets first')
-            return redirect(previous_url)
-        
-        re_subcategorize_to = request.POST.get('re_subcategorize_to').strip()
-        if instance.model_type.sub_category and re_subcategorize_to == instance.model_type.sub_category.name:
-            messages.warning(request, 'the Sub Category given [ ' + re_subcategorize_to + ' ] is the same as the orginal')
-            return redirect(previous_url)
-
-        if re_subcategorize_to != '' and SubCategory.objects.filter(name=re_subcategorize_to):
-            sub_category = SubCategory.objects.get(name=re_subcategorize_to)
-            model_type = ModelType.objects.get(name=instance.model_type.name)
-
-            ChangeHistory.objects.create(
-                on=timezone.now(),
-                by=request.user,
-                db_table_name=instance._meta.db_table,
-                db_table_pk=instance.pk,
-                detail='Model Type of this IT Assets was re-sub-categorized to [ ' + re_subcategorize_to + ' ] from [ ' + str(instance.model_type.sub_category) + ' ]'
-                )
-
-            messages.info(request, 'Model Type of this IT Assets was re-sub-categorized to [ ' + re_subcategorize_to + ' ] from [ ' + str(instance.model_type.sub_category) + ' ]')
-
-            model_type.sub_category = sub_category
-            model_type.save()
-
-            return redirect(previous_url)
-
-        else:
-            messages.warning(request, 'the Sub Category given [ ' + re_subcategorize_to + ' ] is invalid')
-            return redirect(previous_url)
-
-
-@login_required
-def InstanceModelTypeUpdate(request, pk):
-    if request.method == 'POST':
-        previous_url = request.META.get('HTTP_REFERER')
-        instance = Instance.objects.get(pk=pk)
-        
-        change_model_type_to = request.POST.get('change_model_type_to').split("-")[-1].strip()
-        if instance.model_type and change_model_type_to == instance.model_type.name:
-            messages.warning(request, 'the Model / Type given [ ' + change_model_type_to + ' ] is the same as the orginal')
-            return redirect(previous_url)
-
-        if change_model_type_to != '' and ModelType.objects.filter(name=change_model_type_to):
-            model_type = ModelType.objects.get(name=change_model_type_to)
-
-            ChangeHistory.objects.create(
-                on=timezone.now(),
-                by=request.user,
-                db_table_name=instance._meta.db_table,
-                db_table_pk=instance.pk,
-                detail='Model Type of this IT Assets was changed to [ ' + request.POST.get('change_model_type_to').strip() + ' ] from [ ' + str(instance.model_type) + ' ]'
-                )
-
-            messages.info(request, 'Model Type of this IT Assets was changed to [ ' + request.POST.get('change_model_type_to').strip() + ' ] from [ ' + str(instance.model_type) + ' ]')
-
-            instance.model_type = model_type
-            instance.save()
-
-            return redirect(previous_url)
-
-        else:
-            messages.warning(request, 'the Sub Category given [ ' + request.POST.get('change_model_type_to').strip() + ' ] is invalid')
-            return redirect(previous_url)
-
-
-@login_required
 def InstanceHostnameUpdate(request, pk):
     if request.method == 'POST':
         previous_url = request.META.get('HTTP_REFERER')
@@ -402,64 +329,6 @@ def InstanceHostnameUpdate(request, pk):
             return redirect(previous_url)
         else:
             messages.warning(request, 'the Hostname got nothing to change')
-            return redirect(previous_url)
-
-
-@login_required
-def InstanceOwnerUpdate(request, pk):
-    if request.method == 'POST':
-        previous_url = request.META.get('HTTP_REFERER')
-        re_assign_to = request.POST.get('owner_re_assign_to').strip(")").split("(")[-1].strip()
-        if re_assign_to == 'admin':
-            messages.warning(request, 'IT Assets can NOT be re-assignedd to Admin account')
-            return redirect(previous_url)
-
-        if re_assign_to == '' or User.objects.filter(username=re_assign_to) :
-            re_assign_to = get_object_or_404(User, username=re_assign_to) if re_assign_to != '' else re_assign_to
-            instance = get_object_or_404(Instance, pk=pk)
-            if re_assign_to == '' and instance.owner:
-                
-                ChangeHistory.objects.create(
-                    on=timezone.now(),
-                    by=request.user,
-                    db_table_name=instance._meta.db_table,
-                    db_table_pk=instance.pk,
-                    detail='Returned from [ ' + instance.owner.get_full_name() + ' ]'
-                    )
-
-                messages.info(request, 'the IT Assets [ ' + instance.serial_number + ' ] was Returned from ' + instance.owner.username)
-
-                instance.status = 'AVAILABLE'
-                instance.owner = None
-                instance.save()
-
-                return redirect(previous_url)
-            
-            elif re_assign_to != '' and re_assign_to != instance.owner:
-                
-                ChangeHistory.objects.create(
-                    on=timezone.now(),
-                    by=request.user,
-                    db_table_name=instance._meta.db_table,
-                    db_table_pk=instance.pk,
-                    detail='Re-assigned to [ ' + re_assign_to.get_full_name() + ' ] from [ ' + (instance.owner.get_full_name() if instance.owner else ' 🈳 ') + ' ]'
-                    )
-                
-                messages.info(request, 'the IT Assets [ ' + instance.serial_number + ' ] was Re-assigned to ' +
-                                re_assign_to.get_full_name() + ' from ' + (instance.owner.get_full_name() if instance.owner else ' 🈳 '))
-
-                instance.status = 'inUSE'
-                instance.owner = re_assign_to
-                instance.save()
-
-                return redirect(previous_url)
-
-            else:
-                messages.warning(request, 'the ownership of IT Assets [ ' + instance.serial_number + ' ] got Nothing to change')
-                return redirect('nanoassets:instance-detail', pk=instance.pk)
-
-        else:
-            messages.warning(request, 'the new Owner given [ ' + re_assign_to + ' ] does NOT exist')
             return redirect(previous_url)
 
 
@@ -519,11 +388,6 @@ class InstanceDetailView(LoginRequiredMixin, generic.DetailView):
         changes = ChangeHistory.objects.filter(db_table_name=self.object._meta.db_table, db_table_pk=self.object.pk).order_by("-on")
         context["changes"] = changes
 
-        subcategory_list = []
-        for subcategory in SubCategory.objects.all():
-            subcategory_list.append(subcategory)
-        context["subcategory_list"] = subcategory_list
-
         model_type_list = []
         for model_type in ModelType.objects.all():
             model_type_list.append('%s - %s' % (model_type.manufacturer, model_type.name))
@@ -541,6 +405,11 @@ class InstanceDetailView(LoginRequiredMixin, generic.DetailView):
             if owner.username != 'admin' and 'tishmanspeyer.com' in owner.email:
                 owner_list.append('%s ( %s )' % (owner.get_full_name(), owner.username))
         context["owner_list"] = owner_list
+
+        subcategory_list = []
+        for subcategory in SubCategory.objects.all():
+            subcategory_list.append(subcategory)
+        context["subcategory_list"] = subcategory_list
         """
 
         return context
