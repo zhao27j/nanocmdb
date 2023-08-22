@@ -146,7 +146,7 @@
                   {% endif %}
                 </li>
                 <li class="list-group-item"><b>Serial # :</b> <small id="serial_number">{{ instance.serial_number }}</small></li>
-                <li class="list-group-item">
+                <li class="list-group-item" id="instanceHostname{{ instance.pk }}">
                   <b>Hostname :</b>
                   {% if user|has_group:"IT China" %}
                   <!-- Button trigger modal : Hostname -->

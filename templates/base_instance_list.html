@@ -19,16 +19,16 @@
   </tr>
   {% for instance in instances %}
     <tr>
-      <td><input type="checkbox" name="instance" id="instance{{ forloop.counter }}" value="{{ instance.pk }}"/></td>
+      <td><input type="checkbox" name="instance" id="instance{{ instance.pk }}" value="{{ instance.pk }}"/></td>
       <td>
-        <label for="instance{{ forloop.counter }}">
+        <label for="instance{{ instance.pk }}">
           <a href="{% url 'nanoassets:instance-detail' instance.pk %}" class="text-decoration-none">
             <small>{{ instance.serial_number }}</small>
           </a>
         </label>
       </td>
       {# <td><small>{{ instance.model_type.sub_category }}</small></td> #}
-      <td>
+      <td id="instanceModelType{{ instance.pk }}">
         {% if user|has_group:"IT China" %}
         <a href="{% url 'nanoassets:instance-in-repair' instance.pk %}" class="text-decoration-none">
           {% if instance.status == 'inREPAIR' %}
@@ -46,7 +46,7 @@
         {% endif %}
         <small>{{ instance.model_type }}</small>
       </td>
-      <td><small>{{ instance.hostname }}</small></td>
+      <td id="instanceHostname{{ instance.pk }}"><small>{{ instance.hostname }}</small></td>
       <td><small id="instanceStatus{{ instance.pk }}">{{ instance.get_status_display }}</small></td>
       {% if user|has_group:"IT China" %}
       <td id="instanceOwner{{ instance.pk }}">
@@ -55,9 +55,9 @@
         {% else %}<small>🈳</small>{% endif %}
       </td>
       {% endif %}
-      <td id="instancebranchSite{{ forloop.counter }}"><small>{{ instance.branchSite }}</small></td>
+      <td id="instancebranchSite{{ instance.pk }}"><small>{{ instance.branchSite }}</small></td>
       {% if user|has_group:"IT China" and request.user.is_staff %}
-      <td id="instanceContract{{ forloop.counter }}">
+      <td id="instanceContract{{ instance.pk }}">
         &nbsp;
         {% if instance.contract_set.first %}
           <!-- {% for contract in instance.contract_set.all %}

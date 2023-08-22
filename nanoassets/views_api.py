@@ -30,7 +30,10 @@ def jsonResponse_model_type_lst(request):
         opt_lst = {}
         for model_type in model_types:
             if not model_type.name in chk_lst:
-                opt_lst[model_type.name] = model_type.pk
+                if model_type.manufacturer:
+                    opt_lst['%s, %s' % (model_type.name, model_type.manufacturer.name)] = model_type.pk
+                else:
+                    opt_lst[model_type.name] = model_type.pk
 
         response = [opt_lst, chk_lst]
         return JsonResponse(response, safe=False)
@@ -41,7 +44,9 @@ def model_type_changing_to(request):
     if request.method == 'POST':
         instance_selected_pk = request.POST.get('instanceSelectedPk').split(',')
         try:
-            model_type_changed_to = ModelType.objects.get(name=request.POST['bulkUpdModalInputValue'])
+            bulkUpdModalInputValue = request.POST.get('bulkUpdModalInputValue').strip().split(",")[0].strip()
+            # model_type_changed_to = ModelType.objects.get(name=request.POST['bulkUpdModalInputValue'])
+            model_type_changed_to = ModelType.objects.get(name=bulkUpdModalInputValue)
         except (KeyError, SubCategory.DoesNotExist):
             messages.info(request, 'the Model / Type given is invalid')
             response = JsonResponse({'Error': 'the Model / Type given is invalid'})
@@ -55,7 +60,7 @@ def model_type_changing_to(request):
                     by=request.user,
                     db_table_name=selected_instance._meta.db_table,
                     db_table_pk=selected_instance.pk,
-                    detail='Model / Type of this IT Assets was changed to [ ' + model_type_changed_to.name + ' ] from [ ' + selected_instance.model_type.name + ' ]'
+                    detail='Model / Type was changed to [ ' + model_type_changed_to.name + ' ] from [ ' + selected_instance.model_type.name + ' ]'
                     )
                 updated_instance_lst[pk] = index
                 selected_instance.model_type = model_type_changed_to

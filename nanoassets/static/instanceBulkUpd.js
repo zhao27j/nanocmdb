@@ -14,7 +14,7 @@ document.addEventListener('mouseover', e => {
     ) {
         e.target.style.cursor = 'pointer';
         e.target.style.color = 'orange'; // 突出显示鼠标悬停目标
-        setTimeout(() => { e.target.style.color = "";}, 500); // 短暂延迟后重置颜色
+        setTimeout(() => { e.target.style.color = "";}, 300); // 短暂延迟后重置颜色
     }
 })
 

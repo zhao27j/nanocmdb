@@ -27,7 +27,6 @@
   {% if instance_list %}
   <form action="{% url 'nanoassets:instance-bulk-upd' %}" method="post">
     {% csrf_token %}
-    {% include 'base_instance_list_tools.html' %}
 
     <div class="accordion accordion-flush mt-3" id="accordionFlushExample">
       {% for sub_category in sub_categories %}
