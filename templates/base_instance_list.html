@@ -6,6 +6,7 @@
     <th></th>
     <th><small>Serial #</small></th>
     {# <th><small>Sub Catagory</small></th> #}
+    <th></th>
     <th><small>Model / Type</small></th>
     <th><small>Hostname</small></th>
     <th><small>Status</small></th>
@@ -28,9 +29,9 @@
         </label>
       </td>
       {# <td><small>{{ instance.model_type.sub_category }}</small></td> #}
-      <td id="instanceModelType{{ instance.pk }}">
+      <td id="instanceInRepair{{ instance.pk }}">
         {% if user|has_group:"IT China" %}
-        <a href="{% url 'nanoassets:instance-in-repair' instance.pk %}" class="text-decoration-none">
+        {# <a href="{% url 'nanoassets:instance-in-repair' instance.pk %}" class="text-decoration-none"> #}
           {% if instance.status == 'inREPAIR' %}
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send-exclamation" viewBox="0 0 16 16">
             <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855a.75.75 0 0 0-.124 1.329l4.995 3.178 1.531 2.406a.5.5 0 0 0 .844-.536L6.637 10.07l7.494-7.494-1.895 4.738a.5.5 0 1 0 .928.372l2.8-7Zm-2.54 1.183L5.93 9.363 1.591 6.602l11.833-4.733Z"></path>
@@ -42,17 +43,15 @@
             <path d="M11.5 9c.653 0 1.273-.139 1.833-.39L12 5.5 11 3l3.826-1.53A4.5 4.5 0 0 0 7.29 6.092l-6.116 5.096a2.583 2.583 0 1 0 3.638 3.638L9.908 8.71A4.49 4.49 0 0 0 11.5 9Zm-1.292-4.361-.596.893.809-.27a.25.25 0 0 1 .287.377l-.596.893.809-.27.158.475-1.5.5a.25.25 0 0 1-.287-.376l.596-.893-.809.27a.25.25 0 0 1-.287-.377l.596-.893-.809.27-.158-.475 1.5-.5a.25.25 0 0 1 .287.376ZM3 14a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/>
           </svg>
           {% endif %}
-        </a>
+        <!-- </a> -->
         {% endif %}
-        <small>{{ instance.model_type }}</small>
       </td>
+      <td id="instanceModelType{{ instance.pk }}"><small>{{ instance.model_type }}</small></td>
       <td id="instanceHostname{{ instance.pk }}"><small>{{ instance.hostname }}</small></td>
       <td><small id="instanceStatus{{ instance.pk }}">{{ instance.get_status_display }}</small></td>
       {% if user|has_group:"IT China" %}
       <td id="instanceOwner{{ instance.pk }}">
-        {% if instance.owner %}
-        <small>{{ instance.owner.get_full_name }}</small>
-        {% else %}<small>🈳</small>{% endif %}
+        <small>{% if instance.owner %}{{ instance.owner.get_full_name }}{% else %}🈳{% endif %}</small>
       </td>
       {% endif %}
       <td id="instancebranchSite{{ instance.pk }}"><small>{{ instance.branchSite }}</small></td>
@@ -82,3 +81,7 @@
     </tr>
   {% endfor %}
 </table>
+
+<!-- customized js -->
+
+<script type="module" src="{% static 'instanceInRepair.js' %}"></script>

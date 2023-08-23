@@ -258,56 +258,6 @@ class InstanceSearchResultsListView(LoginRequiredMixin, generic.ListView):
 
 
 @login_required
-def InstanceInRepair(request, pk):
-    # 测试 组 权限 user.groups.filter(name__in=['group1', 'group2']).exists()
-    if request.user.groups.filter(name='IT China').exists:
-        instance = get_object_or_404(Instance, pk=pk)
-        if instance.status != 'inREPAIR':
-            instance.status = 'inREPAIR'
-            # instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Sent to repair by ' + request.user.get_full_name())
-            
-            ChangeHistory.objects.create(
-                on=timezone.now(),
-                by=request.user,
-                db_table_name=instance._meta.db_table,
-                db_table_pk=instance.pk,
-                detail='Sent to repair'
-                )
-            
-            messages.info(request, instance.serial_number + ' (' + instance.model_type.name + ') ' + "was sent to repair")
-        elif instance.status == 'inREPAIR' and instance.owner:
-            instance.status = 'inUSE'
-            # instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Got back from repairing by ' + request.user.get_full_name())
-            
-            ChangeHistory.objects.create(
-                on=timezone.now(),
-                by=request.user,
-                db_table_name=instance._meta.db_table,
-                db_table_pk=instance.pk,
-                detail='Got back from repairing'
-                )
-            
-            messages.info(request, instance.serial_number + ' (' + instance.model_type.name + ') ' + "was Repaired")
-        elif instance.status == 'inREPAIR' and not instance.owner:
-            instance.status = 'AVAILABLE'
-            # instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Got back from repairing by ' + request.user.get_full_name())
-            
-            ChangeHistory.objects.create(
-                on=timezone.now(),
-                by=request.user,
-                db_table_name=instance._meta.db_table,
-                db_table_pk=instance.pk,
-                detail='Got back from repairing'
-                )
-            
-            messages.info(request, instance.serial_number + ' (' + instance.model_type.name + ') ' + "was Repaired")
-
-        instance.save()
-
-    return redirect('nanoassets:supported-instance-list')
-
-
-@login_required
 def InstanceHostnameUpdate(request, pk):
     if request.method == 'POST':
         previous_url = request.META.get('HTTP_REFERER')

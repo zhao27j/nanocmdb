@@ -165,28 +165,28 @@ bulkUpdModalForm.addEventListener('submit', (e) => { // listening Form Submissio
                 let instanceBulkUpdEl;
                 if (modalInputTag == 'Owner') {
                     if (bulkUpdModalInputValue == '') {
-                        baseMessagesAlert(`the IT Asset(s) [ ${instanceSelectedPk} ] was Returned from [ ${dblClickedElInnerHTML} ]`, 'success');
+                        baseMessagesAlert(`the IT Assets [ ${instanceSelectedPk} ] was Returned from [ ${dblClickedElInnerHTML} ]`, 'success');
                         document.querySelector(`#instanceStatus${i.id.split(`instance${modalInputTag}`)[1]}`).innerHTML = 'Available';
                     } else {
-                        baseMessagesAlert(`the IT Asset(s) [ ${instanceSelectedPk} ] was Re-assigned to [ ${bulkUpdModalInputValue} ] from [ ${dblClickedElInnerHTML == '' ? "🈳" : dblClickedElInnerHTML} ]`, 'success');
+                        baseMessagesAlert(`the IT Assets [ ${instanceSelectedPk} ] was Re-assigned to [ ${bulkUpdModalInputValue} ] from [ ${dblClickedElInnerHTML == '' ? "🈳" : dblClickedElInnerHTML} ]`, 'success');
                         document.querySelector(`#instanceStatus${i.id.split(`instance${modalInputTag}`)[1]}`).innerHTML = 'in Use';
                     }
                     instanceBulkUpdEl = document.querySelector(`#instance${modalInputTag}${i.id.split(`instance${modalInputTag}`)[1]}`);
                 }
                 else if (modalInputTag == 'Contract') {
-                    baseMessagesAlert(`the selected IT Asset(s) [ ${instanceSelectedPk} ] were associated with [ ${bulkUpdModalInputValue} ]`, 'success');
+                    baseMessagesAlert(`the selected IT Assets [ ${instanceSelectedPk} ] were Associated with [ ${bulkUpdModalInputValue} ]`, 'success');
                     instanceBulkUpdEl = document.querySelector(`#instance${modalInputTag}${i.id.split('instance')[1]}`);
                 }
                 else if (modalInputTag == 'branchSite') {
-                    baseMessagesAlert(`the selected IT Asset(s) [ ${instanceSelectedPk} ] were transfered to [ ${bulkUpdModalInputValue} ]`, 'success');
+                    baseMessagesAlert(`the selected IT Assets [ ${instanceSelectedPk} ] were Transfered to [ ${bulkUpdModalInputValue} ]`, 'success');
                     instanceBulkUpdEl = document.querySelector(`#instance${modalInputTag}${i.id.split('instance')[1]}`);
                 }
                 else if (modalInputTag == 'Subcategory') {
-                    baseMessagesAlert(`the selected IT Asset(s) [ ${instanceSelectedPk} ] were re-subcategorized to [ ${bulkUpdModalInputValue} ]`, 'success');
+                    baseMessagesAlert(`the selected IT Assets [ ${instanceSelectedPk} ] was re-subCategorized to [ ${bulkUpdModalInputValue} ]`, 'success');
                     instanceBulkUpdEl = document.querySelector(`#instance${modalInputTag}${i.id.split(`instance${modalInputTag}`)[1]}`);
                 }
                 else if (modalInputTag == 'ModelType') {
-                    baseMessagesAlert(`the Model / Type of the selected IT Asset(s) [ ${instanceSelectedPk} ] were changed to [ ${bulkUpdModalInputValue} ]`, 'success');
+                    baseMessagesAlert(`the Model / Type of the selected IT Assets [ ${instanceSelectedPk} ] was Changed to [ ${bulkUpdModalInputValue} ]`, 'success');
                     instanceBulkUpdEl = document.querySelector(`#instance${modalInputTag}${i.id.split(`instance${modalInputTag}`)[1]}`);
                 }
 

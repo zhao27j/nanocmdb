@@ -28,18 +28,15 @@ urlpatterns += [
     path('instance/<pk>/detail/', views.InstanceDetailView.as_view(), name='instance-detail'),
     path('instance/new/', views.InstanceNew, name='instance-new'),
 
-    # path('instance/<pk>/owner_upd/', views.InstanceOwnerUpdate, name='instance-owner-upd'),
     path('instance/<pk>/hostname_upd/', views.InstanceHostnameUpdate, name='instance-hostname-upd'),
-    # path('instance/<pk>/model_type_upd/', views.InstanceModelTypeUpdate, name='instance-model-type-upd'),
-    # path('instance/<pk>/subcategory_upd/', views.InstanceSubcategoryUpdate, name='instance-subcategory-upd'),
-    
-    path('instance/<pk>/in_repair/', views.InstanceInRepair, name='instance-in-repair'),
 ]
 
 
 # Assets Instance - JSON api
 
 urlpatterns += [
+
+    path('instance/in_repair/', views_api.in_repair, name='instance-in-repair'),
     
     path('json_response/model_type_lst/', views_api.jsonResponse_model_type_lst, name='jsonResponse-model-type-lst'),
     path('instance/model_type_changing_to/', views_api.model_type_changing_to, name='instance-model-type-changing-to'),

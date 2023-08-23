@@ -11,7 +11,39 @@ from nanopay.models import Contract
 from nanobase.models import ChangeHistory, SubCategory
 
 
-# --- Model / Type changing to ---
+# --- In Repairing ---
+
+@login_required
+def in_repair(request):
+    if request.method == 'POST':
+        instance_selected_pk = request.POST.get('instanceSelectedPk').split(',')
+        instanceSelectedStatus = request.POST.get('instanceSelectedStatus')
+        updated_instance_lst = {}
+        for index, pk in enumerate(instance_selected_pk):
+            selected_instance = get_object_or_404(Instance, pk=pk)
+
+            if instanceSelectedStatus == 'inREPAIR':
+                change_history_detail = 'Sent for repairing'
+            else:
+                change_history_detail = 'Got back from repairing'
+            
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=selected_instance._meta.db_table,
+                db_table_pk=selected_instance.pk,
+                detail=change_history_detail
+                )
+            selected_instance.status = request.POST.get('instanceSelectedStatus')
+            selected_instance.save()
+
+            updated_instance_lst[pk] = instanceSelectedStatus
+
+        response = JsonResponse(updated_instance_lst)
+        return response
+
+
+# --- model / type Changing to ---
 
 @login_required
 def jsonResponse_model_type_lst(request):
@@ -72,7 +104,7 @@ def model_type_changing_to(request):
         return response
 
 
-# --- Re-categorizing to ---
+# --- Re-sub-categorizing to ---
 
 @login_required
 def jsonResponse_sub_category_lst(request):
