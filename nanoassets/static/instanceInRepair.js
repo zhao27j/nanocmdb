@@ -1,41 +1,27 @@
 import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
 
-document.addEventListener('mouseover', e => {
-    if (
-        // (e.target.id.includes('instanceInRepair') || (e.target.parentElement ? e.target.parentElement.id.includes('instanceInRepair') : false))
-        e.target.closest('td').id.includes('instanceInRepair')
-    ) {
-        e.target.style.cursor = 'pointer';
-        e.target.style.color = 'orange'; // 突出显示鼠标悬停目标
-        setTimeout(() => { e.target.style.color = "";}, 500); // 短暂延迟后重置颜色
-    }
-})
+'use strict'
 
 const csrftoken = bulkUpdModalForm.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
 let clickedEl, instanceSelectedPk, instanceSelectedIsAssigned, instanceSelectedStatus, cnfrm;
 document.addEventListener('click', e => { // listerning all Click events on the Document
-    // if (e.target.id.includes('instanceInRepair') || e.target.parentElement.id.includes('instanceInRepair') || e.target.closest('td').id.includes('instanceInRepair')) {
-    if (e.target.closest('td').id.includes('instanceInRepair')) {
-        // clickedEl = e.target.id.includes('instanceInRepair') ? e.target : e.target.parentElement;
-        clickedEl = e.target.closest('td');
+    if (e.target.closest("[id^='inRepairInstance']")) {
+        clickedEl = e.target.closest("[id^='inRepairInstance']");
 
-        instanceSelectedPk = clickedEl.id.split(`instanceInRepair`)[1];
-        instanceSelectedIsAssigned = document.querySelector(`#instanceOwner${instanceSelectedPk}`).querySelector('small').innerHTML != '🈳' ? true : false;
-        instanceSelectedStatus = document.querySelector(`#instanceStatus${instanceSelectedPk}`);
+        instanceSelectedPk = clickedEl.id.split(`inRepairInstance`)[1];
+        instanceSelectedIsAssigned = document.querySelector(`#ownerInstance${instanceSelectedPk}`).querySelector('small').innerHTML != '🈳' ? true : false;
+        instanceSelectedStatus = document.querySelector(`#statusInstance${instanceSelectedPk}`);
 
         const formData = new FormData();
         if (instanceSelectedStatus.innerHTML == 'in Repair') {
             if (instanceSelectedIsAssigned) {
                 formData.append('instanceSelectedStatus', 'inUSE');
-                instanceSelectedStatus.innerHTML = 'in Use';
             } else {
                 formData.append('instanceSelectedStatus', 'AVAILABLE');
-                instanceSelectedStatus.innerHTML = 'Available';
             }
             cnfrm = `Do you really wnat to get this IT Assets [ ${instanceSelectedPk} ] back from Repairing`
         } else {
             formData.append('instanceSelectedStatus', 'inREPAIR');
-            instanceSelectedStatus.innerHTML = 'in Repair';
             cnfrm = `Do you really wnat to send this IT Assets [ ${instanceSelectedPk} ] for Repairing`
         }
 
@@ -55,6 +41,7 @@ document.addEventListener('click', e => { // listerning all Click events on the 
                 }
             }).then(json => {
                 if (json[instanceSelectedPk] == 'inREPAIR') {
+                    instanceSelectedStatus.innerHTML = 'in Repair';
                     clickedEl.querySelector('svg').remove();
                     clickedEl.innerHTML = [
                         `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send-exclamation" viewBox="0 0 16 16">`,
@@ -64,6 +51,9 @@ document.addEventListener('click', e => { // listerning all Click events on the 
                     ].join('');
                     baseMessagesAlert(`the selected IT Assets [ ${instanceSelectedPk} ] was sent for Repairing`, 'success');
                 } else {
+                    if (json[instanceSelectedPk] == 'inUSE') {instanceSelectedStatus.innerHTML = 'in Use';}
+                    if (json[instanceSelectedPk] == 'AVAILABLE') {instanceSelectedStatus.innerHTML = 'Available';}
+
                     clickedEl.querySelector('svg').remove();
                     clickedEl.innerHTML = [
                         `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-wrench-adjustable" viewBox="0 0 16 16">`,

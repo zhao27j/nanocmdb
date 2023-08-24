@@ -1,11 +1,11 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% load auth_extras %}
 {% load static %}
 
 {% block page_content %}
 
-{% include 'base_messages.html' %}
+{% include "base_messages.html" %}
 
 {% if form.non_field_errors %}
   {% for message in form.non_field_errors %}
@@ -58,7 +58,7 @@
   </div>
 </form>
 
-{% include 'base_instance_modal_form.html' %}
+{% include "base_instance_modal_form.html" %}
 
 <div class="card mt-4">
   <div class="card text-start">
@@ -95,7 +95,7 @@
     </div>
     <div class="row g-0">
       <div class="col-md-4">
-        {% include 'base_carousel_portrait.html' %}
+        {% include "base_carousel_portrait.html" %}
       </div>
       <div class="col-md">
         <div class="card-body">
@@ -104,9 +104,9 @@
               <h5 class="card-title text-body-secondary">{{ instance.model_type }} - {{ instance.serial_number }}</h5>
               <ul class="list-group list-group-flush">
                 <li class="list-group-item">
-                  <b>Status :</b> <small id="instanceStatus{{ instance.pk }}">{{ instance.get_status_display }}</small>
+                  <b>Status :</b> <small id="statusInstance{{ instance.pk }}">{{ instance.get_status_display }}</small>
                 </li>
-                <li class="list-group-item" id="instanceOwner{{ instance.pk }}">
+                <li class="list-group-item" id="ownerInstance{{ instance.pk }}">
                   <b>Owner :</b>
                   {% if user|has_group:"IT China" %}
                   <!-- Button trigger modal : Owner -->
@@ -123,7 +123,7 @@
             <div class="tab-pane fade" id="configuration-tab-pane" role="tabpanel" aria-labelledby="configuration-tab" tabindex="0">
               <h5 class="card-title text-body-secondary">{{ instance.model_type }} - {{ instance.serial_number }}</h5>
               <ul class="list-group list-group-flush">
-                <li class="list-group-item" id="instanceSubcategory{{ instance.pk }}">
+                <li class="list-group-item" id="subCategoryInstance{{ instance.pk }}">
                   <b>Subcategory :</b>
                   {% if user|has_group:"IT China" and request.user.is_staff %}
                   <!-- Button trigger modal : Sub-category -->
@@ -134,7 +134,7 @@
                   <small>{% if instance.model_type.sub_category %}{{ instance.model_type.sub_category }}{% else %}🈳{% endif %}</small>
                   {% endif %}
                 </li>
-                <li class="list-group-item" id="instanceModelType{{ instance.pk }}">
+                <li class="list-group-item" id="modelTypeInstance{{ instance.pk }}">
                   <b>Model / Type :</b>
                   {% if user|has_group:"IT China" and request.user.is_staff %}
                   <!-- Button trigger modal : Model / Type -->
@@ -146,7 +146,7 @@
                   {% endif %}
                 </li>
                 <li class="list-group-item"><b>Serial # :</b> <small id="serial_number">{{ instance.serial_number }}</small></li>
-                <li class="list-group-item" id="instanceHostname{{ instance.pk }}">
+                <li class="list-group-item" id="hostnameInstance{{ instance.pk }}">
                   <b>Hostname :</b>
                   {% if user|has_group:"IT China" %}
                   <!-- Button trigger modal : Hostname -->
@@ -185,7 +185,7 @@
             <div class="tab-pane fade" id="contract-tab-pane" role="tabpanel" aria-labelledby="contract-tab" tabindex="0">
               <h5 class="card-title text-body-secondary">Associated with ...</h5>
 
-              {% include 'base_contract_list.html' with contracts=instance.contract_set.all %}
+              {% include "base_contract_list.html" with contracts=instance.contract_set.all %}
 
             </div>
             {% endif %}
@@ -200,18 +200,16 @@
   <div class="card-body">
     {% if user|has_group:"IT China" %}
     
-    {% include 'base_change_history.html' with changes=changes %}
+    {% include "base_change_history.html" with changes=changes %}
 
     {% endif %}
   </div>
 </div>
 
-<!-- customized JS -->
+<!-- js -->
 
+<script type="module" src="{% static 'mouseOverToPointer.js' %}" defer></script>
+<script type="module" src="{% static 'instanceInRepair.js' %}" defer></script>
 <script type="module" src="{% static 'instanceBulkUpd.js' %}" defer ></script>
-
-<!--
-  <script type="module" src="{% static 'instanceOwnerReassign.js' %}" defer ></script>
--->
 
 {% endblock page_content %}

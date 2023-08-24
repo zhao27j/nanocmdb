@@ -4,7 +4,7 @@ export function modalInputChk(e, optLst, chkLst, modalEl, modalInputTag) {
     const modalInput = modalEl.querySelector('input');
     const modalInputValue = modalInput.value.trim();
     
-    if ( (modalInputTag != 'Owner' || modalInputValue != '') && !(modalInputValue in optLst) || modalInputValue in chkLst ) {
+    if ( (modalInputTag != 'owner' || modalInputValue != '') && !(modalInputValue in optLst) || modalInputValue in chkLst ) {
 
         baseMessagesAlert(`the given ${modalInputTag} [ ${modalInputValue} ] does NOT exist in the Option List, OR has been applied on one of the IT Assets selected`, 'warning');
 

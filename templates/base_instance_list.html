@@ -20,7 +20,7 @@
   </tr>
   {% for instance in instances %}
     <tr>
-      <td><input type="checkbox" name="instance" id="instance{{ instance.pk }}" value="{{ instance.pk }}"/></td>
+      <td><input type="checkbox" name="instance" id="Instance{{ instance.pk }}" value="{{ instance.pk }}"/></td>
       <td>
         <label for="instance{{ instance.pk }}">
           <a href="{% url 'nanoassets:instance-detail' instance.pk %}" class="text-decoration-none">
@@ -29,7 +29,7 @@
         </label>
       </td>
       {# <td><small>{{ instance.model_type.sub_category }}</small></td> #}
-      <td id="instanceInRepair{{ instance.pk }}">
+      <td id="inRepairInstance{{ instance.pk }}">
         {% if user|has_group:"IT China" %}
         {# <a href="{% url 'nanoassets:instance-in-repair' instance.pk %}" class="text-decoration-none"> #}
           {% if instance.status == 'inREPAIR' %}
@@ -46,17 +46,17 @@
         <!-- </a> -->
         {% endif %}
       </td>
-      <td id="instanceModelType{{ instance.pk }}"><small>{{ instance.model_type }}</small></td>
-      <td id="instanceHostname{{ instance.pk }}"><small>{{ instance.hostname }}</small></td>
-      <td><small id="instanceStatus{{ instance.pk }}">{{ instance.get_status_display }}</small></td>
+      <td id="modelTypeInstance{{ instance.pk }}"><small>{{ instance.model_type }}</small></td>
+      <td id="hostnameInstance{{ instance.pk }}"><small>{{ instance.hostname }}</small></td>
+      <td><small id="statusInstance{{ instance.pk }}">{{ instance.get_status_display }}</small></td>
       {% if user|has_group:"IT China" %}
-      <td id="instanceOwner{{ instance.pk }}">
+      <td id="ownerInstance{{ instance.pk }}">
         <small>{% if instance.owner %}{{ instance.owner.get_full_name }}{% else %}🈳{% endif %}</small>
       </td>
       {% endif %}
-      <td id="instancebranchSite{{ instance.pk }}"><small>{{ instance.branchSite }}</small></td>
+      <td id="branchSiteInstance{{ instance.pk }}"><small>{{ instance.branchSite }}</small></td>
       {% if user|has_group:"IT China" and request.user.is_staff %}
-      <td id="instanceContract{{ instance.pk }}">
+      <td id="contractInstance{{ instance.pk }}">
         &nbsp;
         {% if instance.contract_set.first %}
           <!-- {% for contract in instance.contract_set.all %}
@@ -82,6 +82,10 @@
   {% endfor %}
 </table>
 
-<!-- customized js -->
+<!-- js -->
 
-<script type="module" src="{% static 'instanceInRepair.js' %}"></script>
+<script type="module" src="{% static 'mouseOverToPointer.js' %}" defer></script>
+<script type="module" src="{% static 'instanceInRepair.js' %}" defer></script>
+<script type="module" src="{% static 'instanceBulkUpd.js' %}" defer ></script>
+
+

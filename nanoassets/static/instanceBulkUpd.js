@@ -6,18 +6,6 @@ import {modalInputChk} from './modalInputChk.js';
 
 // Instance Bulk Update
 
-document.addEventListener('mouseover', e => {
-    if (
-        (e.target.id.includes('instanceOwner') || (e.target.parentElement ? e.target.parentElement.id.includes('instanceOwner') : false)) ||
-        (e.target.id.includes('instanceSubcategory') || (e.target.parentElement ? e.target.parentElement.id.includes('instanceSubcategory') : false)) ||
-        (e.target.id.includes('instanceModelType') || (e.target.parentElement ? e.target.parentElement.id.includes('instanceModelType') : false))
-    ) {
-        e.target.style.cursor = 'pointer';
-        e.target.style.color = 'orange'; // 突出显示鼠标悬停目标
-        setTimeout(() => { e.target.style.color = "";}, 300); // 短暂延迟后重置颜色
-    }
-})
-
 const bulkUpdModal = document.querySelector('#bulkUpdModal');
 const bulkUpdModalInstance = bootstrap.Modal.getOrCreateInstance('#bulkUpdModal');
 const bulkUpdModalForm = document.querySelector('#bulkUpdModalForm');
@@ -26,31 +14,74 @@ const bulkUpdModalInput = document.querySelector('#bulkUpdModalInput');
 const bulkUpdModalDatalist = document.querySelector('#bulkUpdModalDatalist');
 const bulkUpdModalBtn = document.querySelector('#bulkUpdModalBtn');
 
-let dblClickedEl, dblClickedElInnerHTML;
+let dblClickedEl = null, dblClickedElInnerHTML, dblClickedInstancePk;
+let modalLbl, modalInputTag, getLstUri, optLst, chkLst, postUpdUri, instanceSelected, instanceSelectedPk;
 document.addEventListener('dblclick', e => { // listerning all Double Click events on the Document
-    if (e.target.id.includes('instanceOwner') || e.target.parentElement.id.includes('instanceOwner')) {
-        dblClickedEl = e.target.id.includes('instanceOwner') ? e.target : e.target.parentElement; // dblClickedElIdUniqueCode = dblClickedEl.id.split('instanceOwner')[1];
+    dblClickedEl = e.target.closest("[id*='Instance']");
+    if (dblClickedEl) {
+        dblClickedElInnerHTML = dblClickedEl.querySelector('small').innerHTML === '🈳' ? '' : dblClickedEl.querySelector('small').innerHTML;
+        dblClickedInstancePk = dblClickedEl.id.split('Instance')[1];
+        switch (dblClickedEl.id.split('Instance')[0]) {
+            case 'inRepair':
+                break;
+            case 'subCategory':
+                if (document.querySelector(`#modelTypeInstance${dblClickedInstancePk}`).querySelector('small').innerHTML != '') {
+                    modalLbl = 'Re-categorize to ...';
+                    modalInputTag = 'subCategory';
+                    getLstUri = window.location.origin + '/json_response/sub_category_lst/';
+                    postUpdUri = window.location.origin + '/instance/re_subcategorizing_to/';
+                    bulkUpdModalInstance.show();
+                } else {
+                    baseMessagesAlert(`please apply a Model / Type to this IT Assets first`, 'warning');
+                    bulkUpdModalInstance.hide();
+                }
+                break;
+            case 'modelType':
+                modalLbl = 'Change to ...';
+                modalInputTag = 'modelType';
+                getLstUri = window.location.origin + '/json_response/model_type_lst/';
+                postUpdUri = window.location.origin + '/instance/model_type_changing_to/';
+                bulkUpdModalInstance.show();
+                break;
+            case 'hostname':
+                break;
+            case 'owner':
+                modalLbl = 'Re-assign to ...';
+                modalInputTag = 'owner';
+                getLstUri = window.location.origin + '/json_response/owner_lst/';
+                postUpdUri = window.location.origin + '/instance/owner_re_assigning_to/';
+                bulkUpdModalInstance.show();
+                break;
+            case 'branchSite':
+                break;
+            case 'contract':
+                break;
+
+        }
+    }
+/*
+    if (e.target.closest("[id^='instanceOwner']")) {
+        dblClickedEl = e.target.closest("[id^='instanceOwner']");
         dblClickedElInnerHTML = dblClickedEl.querySelector('small').innerHTML === '🈳' ? '' : dblClickedEl.querySelector('small').innerHTML; // instanceOwnerDataSet = dblClickedEl.dataset.instanceOwner;
         bulkUpdModalInstance.show();
     }
-    else if (e.target.id.includes('instanceSubcategory') || e.target.parentElement.id.includes('instanceSubcategory')) {
-        dblClickedEl = e.target.id.includes('instanceSubcategory') ? e.target : e.target.parentElement;
+    else if (e.target.closest("[id^='instanceSubcategory']")) {
+        dblClickedEl = e.target.closest("[id^='instanceSubcategory']");
         dblClickedElInnerHTML = dblClickedEl.querySelector('small').innerHTML === '🈳' ? '' : dblClickedEl.querySelector('small').innerHTML;
-        if (document.querySelector(`#instanceModelType${dblClickedEl.id.split('instanceSubcategory')[1]}`).querySelector('small').innerHTML != '') {
+        if (document.querySelector(`#modelTypeInstance${dblClickedEl.id.split('instanceSubcategory')[1]}`).querySelector('small').innerHTML != '') {
             bulkUpdModalInstance.show();
         } else {
-            baseMessagesAlert(`please assign Model Type to this IT Assets first`, 'warning');
+            baseMessagesAlert(`please apply a Model / Type to this IT Assets first`, 'warning');
             bulkUpdModalInstance.hide();
         }
     }
-    else if (e.target.id.includes('instanceModelType') || e.target.parentElement.id.includes('instanceModelType')) {
-        dblClickedEl = e.target.id.includes('instanceModelType') ? e.target : e.target.parentElement;
+    else if (e.target.closest("[id^='instanceModelType']")) {
+        dblClickedEl = e.target.closest("[id^='instanceModelType']");
         dblClickedElInnerHTML = dblClickedEl.querySelector('small').innerHTML === '🈳' ? '' : dblClickedEl.querySelector('small').innerHTML;
         bulkUpdModalInstance.show();
     }
+*/
 });
-
-let modalLbl, modalInputTag, getLstUri, optLst, chkLst, postUpdUri, instanceSelected, instanceSelectedPk;
 
 bulkUpdModal.addEventListener('show.bs.modal', (e) => {
 
@@ -58,7 +89,7 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
         dblClickedEl = undefined;
         if (e.relatedTarget.innerHTML.includes('Associate with')) {
             modalLbl = 'Associate with ...';
-            modalInputTag = 'Contract';
+            modalInputTag = 'contract';
             getLstUri = window.location.origin + '/json_response/contract_lst/';
             postUpdUri = window.location.origin + '/instance/contract_associating_with/';
         }
@@ -68,34 +99,22 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
             getLstUri = window.location.origin + '/json_response/branchSite_lst/';
             postUpdUri = window.location.origin + '/instance/branchSite_transferring_to/';
         }
-    } else {
-        if (dblClickedEl.id.includes('instanceOwner')) {
-            modalLbl = 'Re-assign to ...';
-            modalInputTag = 'Owner';
-            getLstUri = window.location.origin + '/json_response/owner_lst/';
-            postUpdUri = window.location.origin + '/instance/owner_re_assigning_to/';
-        }
-        else if (dblClickedEl.id.includes('instanceSubcategory')) {
-            modalLbl = 'Re-categorize to ...';
-            modalInputTag = 'Subcategory';
-            getLstUri = window.location.origin + '/json_response/sub_category_lst/';
-            postUpdUri = window.location.origin + '/instance/re_subcategorizing_to/';
-        }
-        else if (dblClickedEl.id.includes('instanceModelType')) {
-            modalLbl = 'Change to ...';
-            modalInputTag = 'ModelType';
-            getLstUri = window.location.origin + '/json_response/model_type_lst/';
-            postUpdUri = window.location.origin + '/instance/model_type_changing_to/';
-        }
     }
-
+/*
+    else {
+        if (dblClickedEl.id.includes('instanceOwner')) {}
+        else if (dblClickedEl.id.includes('instanceSubcategory')) {}
+        else if (dblClickedEl.id.includes('instanceModelType')) {}
+    }
+*/
     bulkUpdModal.querySelector('#bulkUpdModalLabel').innerHTML = modalLbl;
     
     instanceSelectedPk = [];
     if (dblClickedEl) {
         instanceSelected = [];
         instanceSelected.push(dblClickedEl);
-        instanceSelectedPk.push(dblClickedEl.id.split(`instance${modalInputTag}`)[1]);
+        // instanceSelectedPk.push(dblClickedEl.id.split('Instance')[1]);
+        instanceSelectedPk.push(dblClickedEl.id.split('Instance')[1]);
     } else {
         instanceSelected = document.querySelectorAll("input[type='checkbox']:checked");
         if (instanceSelected.length > 0) {
@@ -162,34 +181,28 @@ bulkUpdModalForm.addEventListener('submit', (e) => { // listening Form Submissio
         }).then(result => {
 
             instanceSelected.forEach( i => {
-                let instanceBulkUpdEl;
-                if (modalInputTag == 'Owner') {
+                if (modalInputTag == 'owner') {
                     if (bulkUpdModalInputValue == '') {
                         baseMessagesAlert(`the IT Assets [ ${instanceSelectedPk} ] was Returned from [ ${dblClickedElInnerHTML} ]`, 'success');
-                        document.querySelector(`#instanceStatus${i.id.split(`instance${modalInputTag}`)[1]}`).innerHTML = 'Available';
+                        document.querySelector(`#statusInstance${i.id.split('Instance')[1]}`).innerHTML = 'Available';
                     } else {
                         baseMessagesAlert(`the IT Assets [ ${instanceSelectedPk} ] was Re-assigned to [ ${bulkUpdModalInputValue} ] from [ ${dblClickedElInnerHTML == '' ? "🈳" : dblClickedElInnerHTML} ]`, 'success');
-                        document.querySelector(`#instanceStatus${i.id.split(`instance${modalInputTag}`)[1]}`).innerHTML = 'in Use';
+                        document.querySelector(`#statusInstance${i.id.split('Instance')[1]}`).innerHTML = 'in Use';
                     }
-                    instanceBulkUpdEl = document.querySelector(`#instance${modalInputTag}${i.id.split(`instance${modalInputTag}`)[1]}`);
                 }
-                else if (modalInputTag == 'Contract') {
+                else if (modalInputTag == 'contract') {
                     baseMessagesAlert(`the selected IT Assets [ ${instanceSelectedPk} ] were Associated with [ ${bulkUpdModalInputValue} ]`, 'success');
-                    instanceBulkUpdEl = document.querySelector(`#instance${modalInputTag}${i.id.split('instance')[1]}`);
                 }
                 else if (modalInputTag == 'branchSite') {
                     baseMessagesAlert(`the selected IT Assets [ ${instanceSelectedPk} ] were Transfered to [ ${bulkUpdModalInputValue} ]`, 'success');
-                    instanceBulkUpdEl = document.querySelector(`#instance${modalInputTag}${i.id.split('instance')[1]}`);
                 }
-                else if (modalInputTag == 'Subcategory') {
+                else if (modalInputTag == 'subCategory') {
                     baseMessagesAlert(`the selected IT Assets [ ${instanceSelectedPk} ] was re-subCategorized to [ ${bulkUpdModalInputValue} ]`, 'success');
-                    instanceBulkUpdEl = document.querySelector(`#instance${modalInputTag}${i.id.split(`instance${modalInputTag}`)[1]}`);
                 }
-                else if (modalInputTag == 'ModelType') {
+                else if (modalInputTag == 'modelType') {
                     baseMessagesAlert(`the Model / Type of the selected IT Assets [ ${instanceSelectedPk} ] was Changed to [ ${bulkUpdModalInputValue} ]`, 'success');
-                    instanceBulkUpdEl = document.querySelector(`#instance${modalInputTag}${i.id.split(`instance${modalInputTag}`)[1]}`);
                 }
-
+                const instanceBulkUpdEl = document.querySelector(`#${modalInputTag}Instance${i.id.split('Instance')[1]}`);
                 const instanceBulkUpdElHyperLink = instanceBulkUpdEl.querySelector('a');
                 if (instanceBulkUpdElHyperLink) {
                     instanceBulkUpdElHyperLink.href = window.location.origin + optLst[bulkUpdModalInputValue];
