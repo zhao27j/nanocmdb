@@ -53,8 +53,18 @@ document.addEventListener('dblclick', e => { // listerning all Double Click even
                 bulkUpdModalInstance.show();
                 break;
             case 'branchSite':
+                modalLbl = 'Transfer to ...';
+                modalInputTag = 'branchSite';
+                getLstUri = window.location.origin + '/json_response/branchSite_lst/';
+                postUpdUri = window.location.origin + '/instance/branchSite_transferring_to/';
+                bulkUpdModalInstance.show();
                 break;
             case 'contract':
+                modalLbl = 'Associate with ...';
+                modalInputTag = 'contract';
+                getLstUri = window.location.origin + '/json_response/contract_lst/';
+                postUpdUri = window.location.origin + '/instance/contract_associating_with/';
+                bulkUpdModalInstance.show();
                 break;
 
         }
@@ -113,7 +123,6 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
     if (dblClickedEl) {
         instanceSelected = [];
         instanceSelected.push(dblClickedEl);
-        // instanceSelectedPk.push(dblClickedEl.id.split('Instance')[1]);
         instanceSelectedPk.push(dblClickedEl.id.split('Instance')[1]);
     } else {
         instanceSelected = document.querySelectorAll("input[type='checkbox']:checked");
