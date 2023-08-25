@@ -13,7 +13,7 @@
         Hi Approver,
         <br>
         <br>
-        <p>Please follow the <a href="{{ protocol }}://{{ domain }}{% url 'nanoassets:instance-scrapping-request-detail' new_scrap_request.pk %}"> link <a> to complete the request, many thanks !
+        <p>Please follow the <a href="{{ protocol }}://{{ domain }}{% url 'nanoassets:instance-scrapping-request-detail' new_req.pk %}"> link <a> to complete the request, many thanks !
         <hr>
         <h3>Scrapping Request Details:</h3>
         <br>
@@ -26,7 +26,7 @@
                 <th>Site</th>
                 <th>EOL</th>
             </tr>
-            {% for instance in new_scrap_request.instance_set.all %}
+            {% for instance in new_req.instance_set.all %}
                 <tr>
                     <td>{{ instance.serial_number }}</td>
                     <td>
@@ -41,7 +41,7 @@
         </table>
         <br>
         <hr>
-        <p>Requested by {{ new_scrap_request.requested_by.get_full_name }} on {{ new_scrap_request.requested_on }}</p>
+        <p>Requested by {{ new_req.requested_by.get_full_name }} on {{ new_req.requested_on }}</p>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"
                 integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N"

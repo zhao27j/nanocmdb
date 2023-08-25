@@ -1,3 +1,5 @@
+from django.core.mail import EmailMessage
+
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -5,13 +7,94 @@ from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.template.loader import get_template
 
-from .models import ModelType, Instance, branchSite
+from .models import ModelType, Instance, branchSite, ScrapRequest
 from nanopay.models import Contract
 from nanobase.models import ChangeHistory, SubCategory
 
 
-# --- In Repairing ---
+# --- disposing ---
+
+@login_required
+def status_applying_for(request):
+    if request.method == 'POST':
+        instance_selected_pk = request.POST.get('instanceSelectedPk').split(',')
+        bulkUpdModalInputValue = request.POST.get('bulkUpdModalInputValue').strip().split(",")[0].strip()
+        if bulkUpdModalInputValue == 'Scraping':
+            new_req = ScrapRequest.objects.create(requested_by=request.user)
+            new_req.save()
+            updated_instance_lst = {}
+            for index, pk in enumerate(instance_selected_pk):
+                selected_instance = get_object_or_404(Instance, pk=pk)
+                selected_instance.scrap_request = new_req
+                selected_instance.save()
+
+                ChangeHistory.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=selected_instance._meta.db_table,
+                    db_table_pk=selected_instance.pk,
+                    detail='Scraping requested'
+                    )
+
+                updated_instance_lst[pk] = index
+
+        elif bulkUpdModalInputValue == 'Reusing':
+            pass
+        elif bulkUpdModalInputValue == 'Buying back':
+            pass
+
+        if new_req:
+            IT_reviewer_emails = []
+            for reviewer in User.objects.filter(groups__name='IT Reviewer'):
+                IT_reviewer_emails.append(reviewer.email)
+
+            message = get_template("nanoassets/instance_scrapping_request_email.html").render({
+                'protocol': 'http',
+                'domain': '127.0.0.1:8000',
+                'new_req': new_req,
+            })
+            mail = EmailMessage(
+                subject='ITS express - Please approve - scrapping IT assets requested by ' + new_req.requested_by.get_full_name(),
+                body=message,
+                from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
+                to=IT_reviewer_emails,
+                cc=[request.user.email],
+                # reply_to=[EMAIL_ADMIN],
+                # connection=
+            )
+            mail.content_subtype = "html"
+            mail.send()
+            messages.success(request, "the notification email with the request detail is sent")
+
+            response = JsonResponse(updated_instance_lst)
+            return response
+            # return redirect('nanoassets:instance-scrapping-request-list')
+
+
+@login_required
+def jsonResponse_status_lst(request):
+    if request.method == 'GET':
+        chk_lst = {}
+        selected_instances_pk = tuple(request.GET.get('instanceSelectedPk').split(','))
+        for index, pk in enumerate(selected_instances_pk):
+            selected_instance = Instance.objects.get(pk=pk)
+            if selected_instance.scrap_request:
+                chk_lst[selected_instance.pk] = 'scrappingRequested'
+            else:
+                chk_lst[selected_instance.pk] = selected_instance.status
+
+        opt_lst = {}
+        opt_lst['Scraping'] = 'SCRAPPED'
+        opt_lst['Reusing'] = 'reUSE'
+        opt_lst['Buying back'] = 'buyBACK'
+
+        response = [opt_lst, chk_lst]
+        return JsonResponse(response, safe=False)
+
+
+# --- in Repairing ---
 
 @login_required
 def in_repair(request):
@@ -180,7 +263,7 @@ def jsonResponse_owner_lst(request):
         for owner in owners:
             if not owner.username in chk_lst:
                 opt_lst['%s ( %s )' % (owner.get_full_name(), owner.username)] = owner.pk
-                # opt_lst[owner.get_full_name()] = owner.pk
+        opt_lst[''] = ''
 
         response = [opt_lst, chk_lst]
         return JsonResponse(response, safe=False)

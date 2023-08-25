@@ -66,8 +66,13 @@
                   </button>
                 </li>
                 <li><hr class="dropdown-divider"></li>
-                <li><small><input class="dropdown-item" type="submit" name="scrapping-request" value="Apply for Scrapping" /></small></li>
-                <li><a class="dropdown-item" href="{% url 'nanoassets:instance-scrapping-request-list' %}"><small>Scrapping Requests</small></a></li>
+                <li>
+                  <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#bulkUpdModal">
+                    <small>Apply for Disposal</small>
+                  </button>
+                  <!-- <small><input class="dropdown-item" type="submit" name="scrapping-request" value="Scrapping / Reusing" /></small> -->
+                </li>
+                <li><a class="dropdown-item" href="{% url 'nanoassets:instance-scrapping-request-list' %}"><small>Disposal Requests</small></a></li>
                 {% endif %}
               </ul>
             </li>

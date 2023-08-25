@@ -69,7 +69,8 @@ class ScrapRequest(models.Model):
         return str(self.case_id)
 
     def get_absolute_url(self):
-        return reverse("nanoassets:scrap-request-detail", kwargs={"pk": self.pk})
+        # return reverse("nanoassets:scrap-request-detail", kwargs={"pk": self.pk})
+        return reverse("nanoassets:instance-scrapping-request-detail", kwargs={"pk": self.pk})
 
     class Meta:
         ordering = ['requested_on',]

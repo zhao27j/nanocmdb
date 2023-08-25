@@ -22,6 +22,13 @@ document.addEventListener('dblclick', e => { // listerning all Double Click even
         dblClickedElInnerHTML = dblClickedEl.querySelector('small').innerHTML === '🈳' ? '' : dblClickedEl.querySelector('small').innerHTML;
         dblClickedInstancePk = dblClickedEl.id.split('Instance')[1];
         switch (dblClickedEl.id.split('Instance')[0]) {
+            case 'status':
+                modalLbl = 'Apply for ...';
+                modalInputTag = 'status';
+                getLstUri = window.location.origin + '/json_response/status_lst/';
+                postUpdUri = window.location.origin + '/instance/status_applying_for/';
+                bulkUpdModalInstance.show();
+                break;
             case 'inRepair':
                 break;
             case 'subCategory':
@@ -109,6 +116,12 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
             getLstUri = window.location.origin + '/json_response/branchSite_lst/';
             postUpdUri = window.location.origin + '/instance/branchSite_transferring_to/';
         }
+        else if (e.relatedTarget.innerHTML.includes('Apply for Disposal')) {
+            modalLbl = 'Apply for ...';
+            modalInputTag = 'status';
+            getLstUri = window.location.origin + '/json_response/status_lst/';
+            postUpdUri = window.location.origin + '/instance/status_applying_for/';
+        }
     }
 /*
     else {
@@ -117,8 +130,6 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
         else if (dblClickedEl.id.includes('instanceModelType')) {}
     }
 */
-    bulkUpdModal.querySelector('#bulkUpdModalLabel').innerHTML = modalLbl;
-    
     instanceSelectedPk = [];
     if (dblClickedEl) {
         instanceSelected = [];
@@ -130,6 +141,10 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
             instanceSelected.forEach( i => {instanceSelectedPk.push(i.value);})
         }
     }
+
+    bulkUpdModal.querySelector('#bulkUpdModalLabel').innerHTML = modalLbl;
+    bulkUpdModal.querySelector('span').innerHTML = instanceSelectedPk.join(', ');
+
     if (instanceSelectedPk.length > 0) {
         getLstUri += `?instanceSelectedPk=${instanceSelectedPk}`;
 
@@ -192,24 +207,27 @@ bulkUpdModalForm.addEventListener('submit', (e) => { // listening Form Submissio
             instanceSelected.forEach( i => {
                 if (modalInputTag == 'owner') {
                     if (bulkUpdModalInputValue == '') {
-                        baseMessagesAlert(`the IT Assets [ ${instanceSelectedPk} ] was Returned from [ ${dblClickedElInnerHTML} ]`, 'success');
+                        baseMessagesAlert(`the IT Assets [ ${instanceSelectedPk.join(', ')} ] was Returned from [ ${dblClickedElInnerHTML} ]`, 'success');
                         document.querySelector(`#statusInstance${i.id.split('Instance')[1]}`).innerHTML = 'Available';
                     } else {
-                        baseMessagesAlert(`the IT Assets [ ${instanceSelectedPk} ] was Re-assigned to [ ${bulkUpdModalInputValue} ] from [ ${dblClickedElInnerHTML == '' ? "🈳" : dblClickedElInnerHTML} ]`, 'success');
+                        baseMessagesAlert(`the IT Assets [ ${instanceSelectedPk.join(', ')} ] was Re-assigned to [ ${bulkUpdModalInputValue} ] from [ ${dblClickedElInnerHTML == '' ? "🈳" : dblClickedElInnerHTML} ]`, 'success');
                         document.querySelector(`#statusInstance${i.id.split('Instance')[1]}`).innerHTML = 'in Use';
                     }
                 }
                 else if (modalInputTag == 'contract') {
-                    baseMessagesAlert(`the selected IT Assets [ ${instanceSelectedPk} ] were Associated with [ ${bulkUpdModalInputValue} ]`, 'success');
+                    baseMessagesAlert(`the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] were Associated with [ ${bulkUpdModalInputValue} ]`, 'success');
                 }
                 else if (modalInputTag == 'branchSite') {
-                    baseMessagesAlert(`the selected IT Assets [ ${instanceSelectedPk} ] were Transfered to [ ${bulkUpdModalInputValue} ]`, 'success');
+                    baseMessagesAlert(`the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] were Transfered to [ ${bulkUpdModalInputValue} ]`, 'success');
                 }
                 else if (modalInputTag == 'subCategory') {
-                    baseMessagesAlert(`the selected IT Assets [ ${instanceSelectedPk} ] was re-subCategorized to [ ${bulkUpdModalInputValue} ]`, 'success');
+                    baseMessagesAlert(`the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] was re-subCategorized to [ ${bulkUpdModalInputValue} ]`, 'success');
                 }
                 else if (modalInputTag == 'modelType') {
-                    baseMessagesAlert(`the Model / Type of the selected IT Assets [ ${instanceSelectedPk} ] was Changed to [ ${bulkUpdModalInputValue} ]`, 'success');
+                    baseMessagesAlert(`the Model / Type of the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] was Changed to [ ${bulkUpdModalInputValue} ]`, 'success');
+                }
+                else if (modalInputTag == 'status') {
+                    baseMessagesAlert(`${bulkUpdModalInputValue} request for the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] was sent`, 'success');
                 }
                 const instanceBulkUpdEl = document.querySelector(`#${modalInputTag}Instance${i.id.split('Instance')[1]}`);
                 const instanceBulkUpdElHyperLink = instanceBulkUpdEl.querySelector('a');
@@ -221,11 +239,11 @@ bulkUpdModalForm.addEventListener('submit', (e) => { // listening Form Submissio
                 if (instanceBulkUpdElSmall) {
                     bulkUpdModalInputValue == '' ? instanceBulkUpdElSmall.innerHTML = "🈳" : instanceBulkUpdElSmall.innerHTML = bulkUpdModalInputValue;
                 }
-
-                // if (!instanceBulkUpdEl.querySelector('a')) {instanceBulkUpdEl.querySelector('small').remove();}
-                // const instanceBulkUpdElHyperLink = instanceBulkUpdEl.appendChild(document.createElement('a'));
-                // instanceBulkUpdElHyperLink.appendChild(document.createElement('small')).innerHTML = bulkUpdModalInputValue;
-
+                /*
+                if (!instanceBulkUpdEl.querySelector('a')) {instanceBulkUpdEl.querySelector('small').remove();}
+                const instanceBulkUpdElHyperLink = instanceBulkUpdEl.appendChild(document.createElement('a'));
+                instanceBulkUpdElHyperLink.appendChild(document.createElement('small')).innerHTML = bulkUpdModalInputValue;
+                */
                 i.checked = false; // uncheck
             });
 

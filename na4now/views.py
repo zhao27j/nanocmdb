@@ -389,3 +389,117 @@ def InstanceInRepair(request, pk):
         instance.save()
 
     return redirect('nanoassets:supported-instance-list')
+
+
+@login_required
+def InstanceBulkUpd(request):
+    if request.method == 'POST':
+        if request.POST.getlist('instance'):
+            if 'scrapping-request' in request.POST or 'branchsite-transfer' in request.POST:
+                for selected_instance_pk in request.POST.getlist('instance'):
+                    selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                    if selected_instance.status != 'AVAILABLE':
+                        messages.warning(request, "only Available IT Assets can be Transferred or Scrapped")
+                        return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
+                    elif selected_instance.scrap_request:
+                        messages.warning(request, "looks this IT Assets has been requested for Scrapping")
+                        return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
+
+            if 'scrapping-request' in request.POST:
+                new_scrap_request = ScrapRequest.objects.create(requested_by=request.user)
+                new_scrap_request.save()
+
+                for selected_instance_pk in request.POST.getlist('instance'):
+                    selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                    selected_instance.scrap_request = new_scrap_request
+                    selected_instance.save()
+
+                IT_reviewer_emails = []
+                for reviewer in User.objects.filter(groups__name='IT Reviewer'):
+                    IT_reviewer_emails.append(reviewer.email)
+
+                message = get_template("nanoassets/instance_scrapping_request_email.html").render({
+                    'protocol': 'http',
+                    'domain': '127.0.0.1:8000',
+                    'new_scrap_request': new_scrap_request,
+                })
+                mail = EmailMessage(
+                    subject='ITS express - Please approve - scrapping IT assets requested by ' + new_scrap_request.requested_by.get_full_name(),
+                    body=message,
+                    from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
+                    to=IT_reviewer_emails,
+                    cc=[request.user.email],
+                    # reply_to=[EMAIL_ADMIN],
+                    # connection=
+                )
+                mail.content_subtype = "html"
+                mail.send()
+                messages.success(request, "the notification email with the request detail is sent")
+
+                return redirect('nanoassets:instance-scrapping-request-list')
+
+            elif 'branchsite-transfer' in request.POST:
+                try:
+                    branchsite_selected = branchSite.objects.get(name=request.POST['branchsite_selected'])
+                except (KeyError, branchSite.DoesNotExist):
+                    messages.info(request, 'distination Site given is invalid')
+                else:
+                    for selected_instance_pk in request.POST.getlist('instance'):
+                        selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                        # selected_instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Transferred to ' + request.POST['branchsite_selected'] + ' from ' + selected_instance.branchSite.name + ' by ' + request.user.get_full_name())
+                        
+                        ChangeHistory.objects.create(
+                            on=timezone.now(),
+                            by=request.user,
+                            db_table_name=selected_instance._meta.db_table,
+                            db_table_pk=selected_instance.pk,
+                            detail='Transferred to ' + request.POST['branchsite_selected'] + ' from ' + selected_instance.branchSite.name
+                            )
+                        
+                        selected_instance.branchSite = get_object_or_404(branchSite, name=request.POST['branchsite_selected'])
+                        
+                        selected_instance.save()
+
+                    messages.info(request, 'the selected IT Assets were Transferred to ' + request.POST['branchsite_selected'])
+
+                # return redirect('nanoassets:supported-instance-list')
+            elif 'contract-associate' in request.POST:
+                try:
+                    contract_selected = Contract.objects.get(briefing=request.POST['contract_selected'])
+                except (KeyError, Contract.DoesNotExist):
+                    messages.info(request, 'Contract given is invalid')
+                else:
+                    for selected_instance_pk in request.POST.getlist('instance'):
+                        selected_instance = get_object_or_404(Instance, pk=selected_instance_pk)
+                        contract_selected.assets.add(selected_instance)
+                        # contract_selected.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Associated with the IT Assets [ ' + selected_instance.serial_number + ' ] by ' + request.user.get_full_name())
+                        
+                        ChangeHistory.objects.create(
+                            on=timezone.now(),
+                            by=request.user,
+                            db_table_name=contract_selected._meta.db_table,
+                            db_table_pk=contract_selected.pk,
+                            detail='Associated with the IT Assets [ ' + selected_instance.serial_number + ' ]'
+                            )
+                        
+                        contract_selected.save()
+
+                        # selected_instance.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'Associated with the Contract [ ' + contract_selected.briefing + ' ] by ' + request.user.get_full_name())
+                        
+                        ChangeHistory.objects.create(
+                            on=timezone.now(),
+                            by=request.user,
+                            db_table_name=selected_instance._meta.db_table,
+                            db_table_pk=selected_instance.pk,
+                            detail='Associated with the Contract [ ' + contract_selected.briefing + ' ]'
+                            )
+                        
+                        selected_instance.save()
+
+                    messages.info(request, 'the selected IT Assets were Associated with the Contract [ ' + request.POST['contract_selected'] + ' ]')
+                    
+            return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
+        else:
+            messages.info(request, "no IT Assets were selected")
+            # return redirect('nanoassets:supported-instance-list')
+            return redirect(request.META.get('HTTP_REFERER')) # 重定向 至 前一个 页面
