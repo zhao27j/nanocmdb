@@ -20,41 +20,41 @@ from django.utils import timezone
 from django.db.models import Q
 
 from .forms import NewInstanceForm, InstnaceOwnerUpdateForm, InstanceHostnameUpdateForm
-from .models import ModelType, Instance, ScrapRequest, branchSite
+from .models import ModelType, Instance, branchSite, disposalRequest, ScrapRequest
 from nanopay.models import Contract
 from nanobase.models import ChangeHistory, SubCategory
 
 # Create your views here.
 
 @login_required
-def InstanceScrappingRequestApproved(request, pk):
+def InstanceDisposalRequestApproved(request, pk):
     if request.method == 'POST':
-        scrapRequest = get_object_or_404(ScrapRequest, pk=pk)
-        scrapRequest.status = 'AVAILABLE'
-        scrapRequest.approved_by = request.user
-        scrapRequest.approved_on = timezone.now()
-        scrapRequest.save()
+        disposalRequest = get_object_or_404(disposalRequest, pk=pk)
+        disposalRequest.status = 'AVAILABLE'
+        disposalRequest.approved_by = request.user
+        disposalRequest.approved_on = timezone.now()
+        disposalRequest.save()
 
-        for scrappedInstance in scrapRequest.instance_set.all():
-            scrappedInstance.status = 'SCRAPPED'
-            scrappedInstance.save()
+        for dispoasedInstance in disposalRequest.instance_set.all():
+            dispoasedInstance.status = 'SCRAPPED'
+            dispoasedInstance.save()
 
         IT_reviewer_emails = []
         for reviewer in User.objects.filter(groups__name='IT Reviewer'):
             IT_reviewer_emails.append(reviewer.email)
 
-        message = get_template("nanoassets/instance_scrapping_request_approved_email.html").render({
+        message = get_template("nanoassets/instance_Disposal_request_approved_email.html").render({
             'protocol': 'http',
             'domain': '127.0.0.1:8000',
             # 'instances': request.POST.getlist('instance'),
-            'scrapRequest': scrapRequest,
+            'disposalRequest': disposalRequest,
         })
         mail = EmailMessage(
-            subject='ITS express - Please notice - Scrapping Request is approved by ' +
-            scrapRequest.approved_by.get_full_name(),
+            subject='ITS express - Please notice - Disposal Request is approved by ' +
+            disposalRequest.approved_by.get_full_name(),
             body=message,
             from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
-            to=[scrapRequest.requested_by.email],
+            to=[disposalRequest.requested_by.email],
             cc=IT_reviewer_emails,
             # reply_to=[EMAIL_ADMIN],
             # connection=
@@ -64,17 +64,17 @@ def InstanceScrappingRequestApproved(request, pk):
         messages.success(
             request, "the notification email with the apprival decision is sent.")
 
-        return redirect('nanoassets:instance-scrapping-request-list')
+        return redirect('nanoassets:instance-Disposal-request-list')
 
 
-class InstanceScrappingRequestDetailView(LoginRequiredMixin, generic.DetailView):
-    model = ScrapRequest
-    template_name = 'nanoassets/instance_scrapping_request_detail.html'
+class InstanceDisposalRequestDetailView(LoginRequiredMixin, generic.DetailView):
+    model = disposalRequest
+    template_name = 'nanoassets/instance_disposal_request_detail.html'
 
 
-class InstanceScrappingRequestListView(LoginRequiredMixin, generic.ListView):
-    model = ScrapRequest
-    template_name = 'nanoassets/instance_scrapping_request_list.html'
+class InstanceDisposalRequestListView(LoginRequiredMixin, generic.ListView):
+    model = disposalRequest
+    template_name = 'nanoassets/instance_disposal_request_list.html'
     # paginate_by = 10
 
 

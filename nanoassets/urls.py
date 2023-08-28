@@ -9,11 +9,11 @@ urlpatterns = [
     # path('', views.index, name='index'),
 ]
 
-# Scrapping
+# Disposal
 urlpatterns += [
-    path('instance_scrapping_request_list/', views.InstanceScrappingRequestListView.as_view(), name='instance-scrapping-request-list'),
-    path('instance_scrapping_request_detail/<pk>/', views.InstanceScrappingRequestDetailView.as_view(), name='instance-scrapping-request-detail'),
-    path('instance_scrapping_request_detail/<pk>/approved/', views.InstanceScrappingRequestApproved, name='instance-scrapping-request-approved'),
+    path('instance_disposal_request_list/', views.InstanceDisposalRequestListView.as_view(), name='instance-disposal-request-list'),
+    path('instance_disposal_request_detail/<pk>/', views.InstanceDisposalRequestDetailView.as_view(), name='instance-disposal-request-detail'),
+    path('instance_disposal_request_detail/<pk>/approved/', views.InstanceDisposalRequestApproved, name='instance-disposal-request-approved'),
 ]
 
 # Assets Instance
@@ -33,8 +33,8 @@ urlpatterns += [
 
 urlpatterns += [
 
-    path('instance/status_applying_for/', views_api.status_applying_for, name='instance-status-applying-for'),
-    path('json_response/status_lst/', views_api.jsonResponse_status_lst, name='jsonResponse-status-lst'),
+    path('instance/disposal_applying_for/', views_api.disposal_applying_for, name='instance-disposal-applying-for'),
+    path('json_response/disposal_lst/', views_api.jsonResponse_disposal_lst, name='jsonResponse-disposal-lst'),
     
     path('instance/in_repair/', views_api.in_repair, name='instance-in-repair'),
     

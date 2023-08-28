@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 
-from .models import ModelType, Instance, branchSite, ScrapRequest
+from .models import ModelType, Instance, branchSite, disposalRequest, ScrapRequest
 from nanopay.models import Contract
 from nanobase.models import ChangeHistory, SubCategory
 
@@ -17,46 +17,54 @@ from nanobase.models import ChangeHistory, SubCategory
 # --- disposing ---
 
 @login_required
-def status_applying_for(request):
+def disposal_applying_for(request):
     if request.method == 'POST':
         instance_selected_pk = request.POST.get('instanceSelectedPk').split(',')
         bulkUpdModalInputValue = request.POST.get('bulkUpdModalInputValue').strip().split(",")[0].strip()
         if bulkUpdModalInputValue == 'Scraping':
-            new_req = ScrapRequest.objects.create(requested_by=request.user)
-            new_req.save()
-            updated_instance_lst = {}
-            for index, pk in enumerate(instance_selected_pk):
-                selected_instance = get_object_or_404(Instance, pk=pk)
-                selected_instance.scrap_request = new_req
-                selected_instance.save()
-
-                ChangeHistory.objects.create(
-                    on=timezone.now(),
-                    by=request.user,
-                    db_table_name=selected_instance._meta.db_table,
-                    db_table_pk=selected_instance.pk,
-                    detail='Scraping requested'
-                    )
-
-                updated_instance_lst[pk] = index
-
+            type = 'S'
+            detail='Scraping requested'
         elif bulkUpdModalInputValue == 'Reusing':
-            pass
+            type = 'R'
+            detail='Reusing requested'
         elif bulkUpdModalInputValue == 'Buying back':
-            pass
+            type = 'B'
+            detail='Buying back requested'
+
+        new_req = disposalRequest.objects.create(
+                type=type,
+                requested_by=request.user
+                )
+        new_req.save()
+        
+        updated_instance_lst = {}
+        for index, pk in enumerate(instance_selected_pk):
+            selected_instance = get_object_or_404(Instance, pk=pk)
+            selected_instance.disposal_request = new_req
+            selected_instance.save()
+
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=selected_instance._meta.db_table,
+                db_table_pk=selected_instance.pk,
+                detail=detail
+                )
+
+            updated_instance_lst[pk] = index
 
         if new_req:
             IT_reviewer_emails = []
             for reviewer in User.objects.filter(groups__name='IT Reviewer'):
                 IT_reviewer_emails.append(reviewer.email)
 
-            message = get_template("nanoassets/instance_scrapping_request_email.html").render({
+            message = get_template("nanoassets/instance_disposal_request_email.html").render({
                 'protocol': 'http',
                 'domain': '127.0.0.1:8000',
                 'new_req': new_req,
             })
             mail = EmailMessage(
-                subject='ITS express - Please approve - scrapping IT assets requested by ' + new_req.requested_by.get_full_name(),
+                subject='ITS express - Please approve - disposal IT assets requested by ' + new_req.requested_by.get_full_name(),
                 body=message,
                 from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
                 to=IT_reviewer_emails,
@@ -70,18 +78,18 @@ def status_applying_for(request):
 
             response = JsonResponse(updated_instance_lst)
             return response
-            # return redirect('nanoassets:instance-scrapping-request-list')
+            # return redirect('nanoassets:instance-disposal-request-list')
 
 
 @login_required
-def jsonResponse_status_lst(request):
+def jsonResponse_disposal_lst(request):
     if request.method == 'GET':
         chk_lst = {}
         selected_instances_pk = tuple(request.GET.get('instanceSelectedPk').split(','))
         for index, pk in enumerate(selected_instances_pk):
             selected_instance = Instance.objects.get(pk=pk)
-            if selected_instance.scrap_request:
-                chk_lst[selected_instance.pk] = 'scrappingRequested'
+            if selected_instance.disposal_request:
+                chk_lst[selected_instance.pk] = 'disposalRequested'
             else:
                 chk_lst[selected_instance.pk] = selected_instance.status
 

@@ -13,9 +13,9 @@
         Hi Approver,
         <br>
         <br>
-        <p>Please follow the <a href="{{ protocol }}://{{ domain }}{% url 'nanoassets:instance-scrapping-request-detail' new_req.pk %}"> link <a> to complete the request, many thanks !
+        <p>Please follow the <a href="{{ protocol }}://{{ domain }}{% url 'nanoassets:instance-disposal-request-detail' new_req.pk %}"> link </a> to complete the request, many thanks ! </p>
         <hr>
-        <h3>Scrapping Request Details:</h3>
+        <h3>{{ new_req.get_type_display }} Request Details:</h3>
         <br>
         <table class="table table-striped table-hover">
             <tr>

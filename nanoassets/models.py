@@ -5,11 +5,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 # from django.utils import timezone
-
-from smart_selects.db_fields import ChainedForeignKey
-
 from django.utils.translation import gettext_lazy as _
 
+from smart_selects.db_fields import ChainedForeignKey
 
 # Create your models here.
 
@@ -70,7 +68,40 @@ class ScrapRequest(models.Model):
 
     def get_absolute_url(self):
         # return reverse("nanoassets:scrap-request-detail", kwargs={"pk": self.pk})
-        return reverse("nanoassets:instance-scrapping-request-detail", kwargs={"pk": self.pk})
+        return reverse("nanoassets:instance-disposal-request-detail", kwargs={"pk": self.pk})
+
+    class Meta:
+        ordering = ['requested_on',]
+
+
+class disposalRequest(models.Model):
+    case_id = models.UUIDField(_("Request case ID"), primary_key=True, default=uuid.uuid4, help_text='Unique ID for the particular request')
+    # instance = models.ForeignKey("nanoassets.Instance", verbose_name=(_("Instance")), on_delete=models.SET_NULL, null=True, blank=True)
+    
+    REQUEST_STATUS = (
+        ('I', 'Initialized'),
+        ('A', 'Approved'),
+    )
+    status = models.CharField(_("Request status"), max_length=1, choices=REQUEST_STATUS, default='I')
+    REQUEST_TYPE = (
+        ('S', 'Scraping'),
+        ('R', 'Reusing'),
+        ('B', 'Buying back'),
+    )
+    type = models.CharField(_("Request type"), max_length=1, choices=REQUEST_TYPE, default='S')
+    
+    requested_by = models.ForeignKey(User, verbose_name=(_("Requested by")), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
+    requested_on = models.DateField(_("Requested on"), auto_now=False, auto_now_add=True, blank=True, null=True)
+    approved_by = models.ForeignKey(User, verbose_name=(_("Approved by")), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
+    approved_on = models.DateField(_("Approved on"), auto_now=False, auto_now_add=False, blank=True, null=True)
+
+    def __str__(self):
+        # return '%s Scrapping Request %s by %s on %s, Approved by %s on %s' % (self.case_id, self.status, self.requested_by, str(self.requested_on), self.approved_by, str(self.approved_on))
+        return str(self.case_id)
+
+    def get_absolute_url(self):
+        # return reverse("nanoassets:scrap-request-detail", kwargs={"pk": self.pk})
+        return reverse("nanoassets:instance-disposal-request-detail", kwargs={"pk": self.pk})
 
     class Meta:
         ordering = ['requested_on',]
@@ -93,7 +124,8 @@ class Instance(models.Model):
     hostname = models.CharField(_("Hostname"), max_length=64, null=True, blank=True)
     # configuragion = models.ForeignKey("nanoassets.Configuragion", verbose_name=(_("Configuragion")), on_delete=models.SET_NULL, null=True, blank=True)
 
-    scrap_request = models.ForeignKey("nanoassets.ScrapRequest", verbose_name=(_("Scrap Request")), on_delete=models.SET_NULL, null=True, blank=True)
+    # scrap_request = models.ForeignKey("nanoassets.ScrapRequest", verbose_name=(_("Scrap Request")), on_delete=models.SET_NULL, null=True, blank=True)
+    disposal_request = models.ForeignKey("nanoassets.disposalRequest", verbose_name=(_("Disposal Request")), on_delete=models.SET_NULL, null=True, blank=True)
 
     eol_date = models.DateField(null=True, blank=True)
 

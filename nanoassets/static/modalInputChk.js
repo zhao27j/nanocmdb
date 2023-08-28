@@ -8,15 +8,15 @@ export function modalInputChk(e, optLst, chkLst, modalEl, modalInputTag) {
     // if ( (modalInputTag != 'owner' || modalInputValue != '') && !(modalInputValue in optLst) || modalInputValue in chkLst ) {    
     chkResult = true;
     if (modalInputTag == 'status' && modalInputValue in optLst) {
-        const chkLstDisposal = Object.values(chkLst);
+        const chkLstValues = Object.values(chkLst);
         if (
-            modalInputValue == 'Scraping' && ['inUSE', 'inREPAIR', 'SCRAPPED', 'scrappingRequested', 'buyBACK', 'reUSE'].some(i => chkLstDisposal.includes(i))
+            modalInputValue == 'Scraping' && ['inUSE', 'inREPAIR', 'SCRAPPED', 'scrappingRequested', 'buyBACK', 'reUSE'].some(i => chkLstValues.includes(i))
         ) {
             chkResult = false;
             chkAlert = "only Available IT assets could be applied for Scrapping";
         }
         else if (
-            (modalInputValue == 'Reusing' || modalInputValue == 'Buying back') && ['inUSE', 'inREPAIR', 'AVAILABLE', 'scrappingRequested', 'buyBACK', 'reUSE'].some(i => chkLstDisposal.includes(i))
+            (modalInputValue == 'Reusing' || modalInputValue == 'Buying back') && ['inUSE', 'inREPAIR', 'AVAILABLE', 'scrappingRequested', 'buyBACK', 'reUSE'].some(i => chkLstValues.includes(i))
         ) {
             chkResult = false;
             chkAlert = "only Scrapped IT assets could be applied for Resuing / Buying back";

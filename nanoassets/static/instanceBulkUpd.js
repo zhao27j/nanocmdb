@@ -23,10 +23,10 @@ document.addEventListener('dblclick', e => { // listerning all Double Click even
         dblClickedInstancePk = dblClickedEl.id.split('Instance')[1];
         switch (dblClickedEl.id.split('Instance')[0]) {
             case 'status':
-                modalLbl = 'Apply for ...';
+                modalLbl = 'Apply for disposal ...';
                 modalInputTag = 'status';
-                getLstUri = window.location.origin + '/json_response/status_lst/';
-                postUpdUri = window.location.origin + '/instance/status_applying_for/';
+                getLstUri = window.location.origin + '/json_response/disposal_lst/';
+                postUpdUri = window.location.origin + '/instance/disposal_applying_for/';
                 bulkUpdModalInstance.show();
                 break;
             case 'inRepair':
@@ -117,10 +117,10 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
             postUpdUri = window.location.origin + '/instance/branchSite_transferring_to/';
         }
         else if (e.relatedTarget.innerHTML.includes('Apply for Disposal')) {
-            modalLbl = 'Apply for ...';
+            modalLbl = 'Apply for disposal ...';
             modalInputTag = 'status';
-            getLstUri = window.location.origin + '/json_response/status_lst/';
-            postUpdUri = window.location.origin + '/instance/status_applying_for/';
+            getLstUri = window.location.origin + '/json_response/disposal_lst/';
+            postUpdUri = window.location.origin + '/instance/disposal_applying_for/';
         }
     }
 /*
