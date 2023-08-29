@@ -9,12 +9,15 @@ urlpatterns = [
     # path('', views.index, name='index'),
 ]
 
+
 # Disposal
+
 urlpatterns += [
     path('instance_disposal_request_list/', views.InstanceDisposalRequestListView.as_view(), name='instance-disposal-request-list'),
     path('instance_disposal_request_detail/<pk>/', views.InstanceDisposalRequestDetailView.as_view(), name='instance-disposal-request-detail'),
-    path('instance_disposal_request_detail/<pk>/approved/', views.InstanceDisposalRequestApproved, name='instance-disposal-request-approved'),
+    path('instance_disposal_request_detail/<pk>/approve/', views.InstanceDisposalRequestApprove, name='instance-disposal-request-approve'),
 ]
+
 
 # Assets Instance
 
@@ -33,7 +36,8 @@ urlpatterns += [
 
 urlpatterns += [
 
-    path('instance/disposal_applying_for/', views_api.disposal_applying_for, name='instance-disposal-applying-for'),
+    path('instance/disposal_request_approve/', views_api.disposal_request_approve, name='instance-disposal-request-approve'),
+    path('instance/disposal_request/', views_api.disposal_request, name='instance-disposal-request'),
     path('json_response/disposal_lst/', views_api.jsonResponse_disposal_lst, name='jsonResponse-disposal-lst'),
     
     path('instance/in_repair/', views_api.in_repair, name='instance-in-repair'),

@@ -27,16 +27,22 @@ from nanobase.models import ChangeHistory, SubCategory
 # Create your views here.
 
 @login_required
-def InstanceDisposalRequestApproved(request, pk):
+def InstanceDisposalRequestApprove(request, pk):
     if request.method == 'POST':
         disposalRequest = get_object_or_404(disposalRequest, pk=pk)
-        disposalRequest.status = 'AVAILABLE'
+        disposalRequest.status = 'A'
         disposalRequest.approved_by = request.user
         disposalRequest.approved_on = timezone.now()
         disposalRequest.save()
 
         for dispoasedInstance in disposalRequest.instance_set.all():
-            dispoasedInstance.status = 'SCRAPPED'
+            if disposalRequest.type == 'S':
+                dispoasedInstance.status = 'SCRAPPED'
+            elif disposalRequest.type == 'R':
+                dispoasedInstance.status = 'reUSE'
+            elif dispoasedInstance.type == 'B':
+                dispoasedInstance.status = 'buyBACK'
+                
             dispoasedInstance.save()
 
         IT_reviewer_emails = []
@@ -50,8 +56,7 @@ def InstanceDisposalRequestApproved(request, pk):
             'disposalRequest': disposalRequest,
         })
         mail = EmailMessage(
-            subject='ITS express - Please notice - Disposal Request is approved by ' +
-            disposalRequest.approved_by.get_full_name(),
+            subject='ITS express - Please notice - Disposal Request is approved by ' + disposalRequest.approved_by.get_full_name(),
             body=message,
             from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
             to=[disposalRequest.requested_by.email],

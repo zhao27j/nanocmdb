@@ -26,7 +26,7 @@ document.addEventListener('dblclick', e => { // listerning all Double Click even
                 modalLbl = 'Apply for disposal ...';
                 modalInputTag = 'status';
                 getLstUri = window.location.origin + '/json_response/disposal_lst/';
-                postUpdUri = window.location.origin + '/instance/disposal_applying_for/';
+                postUpdUri = window.location.origin + '/instance/disposal_request/';
                 bulkUpdModalInstance.show();
                 break;
             case 'inRepair':
@@ -120,7 +120,7 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
             modalLbl = 'Apply for disposal ...';
             modalInputTag = 'status';
             getLstUri = window.location.origin + '/json_response/disposal_lst/';
-            postUpdUri = window.location.origin + '/instance/disposal_applying_for/';
+            postUpdUri = window.location.origin + '/instance/disposal_request/';
         }
     }
 /*

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
+from django.urls import reverse
 from django.utils import timezone
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -17,7 +18,60 @@ from nanobase.models import ChangeHistory, SubCategory
 # --- disposing ---
 
 @login_required
-def disposal_applying_for(request):
+def disposal_request_approve(request):
+    if request.method == 'POST':
+        disposal_request_pk = request.POST.get('disposalRequestPk').strip()
+
+        disposal_request = get_object_or_404(disposalRequest, pk=disposal_request_pk)
+        disposal_request.status = 'A'
+        disposal_request.approved_by = request.user
+        disposal_request.approved_on = timezone.now()
+
+        disposal_request.save()
+
+        # updated_instance_lst = {}
+        for dispoasedInstance in disposal_request.instance_set.all():
+            if disposal_request.type == 'S':
+                dispoasedInstance.status = 'SCRAPPED'
+            elif disposal_request.type == 'R':
+                dispoasedInstance.status = 'reUSE'
+            elif dispoasedInstance.type == 'B':
+                dispoasedInstance.status = 'buyBACK'
+                
+            dispoasedInstance.save()
+
+            # updated_instance_lst[dispoasedInstance.pk] = dispoasedInstance.status
+
+        IT_reviewer_emails = []
+        for reviewer in User.objects.filter(groups__name='IT Reviewer'):
+            IT_reviewer_emails.append(reviewer.email)
+
+        message = get_template("nanoassets/instance_disposal_request_approve_email.html").render({
+            'protocol': 'http',
+            'domain': '127.0.0.1:8000',
+            # 'instances': request.POST.getlist('instance'),
+            'disposal_request': disposal_request,
+        })
+        mail = EmailMessage(
+            subject='ITS express - Please notice - disposal Request is approved by ' + disposal_request.approved_by.get_full_name(),
+            body=message,
+            from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
+            to=[disposal_request.requested_by.email],
+            cc=IT_reviewer_emails,
+            # reply_to=[EMAIL_ADMIN],
+            # connection=
+        )
+        mail.content_subtype = "html"
+        mail.send()
+        messages.success(request, "the notification email with the apprival decision is sent.")
+
+        # return redirect('nanoassets:instance-disposal-request-list')
+        response = JsonResponse({"url_redirect": reverse("nanoassets:instance-disposal-request-list")})
+        return response
+
+
+@login_required
+def disposal_request(request):
     if request.method == 'POST':
         instance_selected_pk = request.POST.get('instanceSelectedPk').split(',')
         bulkUpdModalInputValue = request.POST.get('bulkUpdModalInputValue').strip().split(",")[0].strip()
@@ -64,7 +118,7 @@ def disposal_applying_for(request):
                 'new_req': new_req,
             })
             mail = EmailMessage(
-                subject='ITS express - Please approve - disposal IT assets requested by ' + new_req.requested_by.get_full_name(),
+                subject='ITS express - Please approve - IT assets disposal requested by ' + new_req.requested_by.get_full_name(),
                 body=message,
                 from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
                 to=IT_reviewer_emails,

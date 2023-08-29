@@ -21,7 +21,7 @@ class ScrapRequestAdmin(admin.ModelAdmin):
 
 @admin.register(disposalRequest)
 class disposalRequestAdmin(admin.ModelAdmin):
-    list_display = ['case_id', 'instance', 'type', 'status', 'requested_by', 'requested_on', 'approved_by', 'approved_on',]
+    list_display = ['case_id', 'type', 'status', 'requested_by', 'requested_on', 'approved_by', 'approved_on',]
 
 
 @admin.register(Instance)
