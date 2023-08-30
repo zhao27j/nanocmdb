@@ -18,9 +18,13 @@ if (document.querySelector('#disposalRequestApproveBtn')) {
                 mode: 'same-origin', // Do not send CSRF token to another domain
                 body: formData,
             }).then(response => {
-                if (!response.ok) { throw new Error(`HTTP error: ${response.status}`); } else { return response.json(); }
-            }).then((json) => {
-                window.location.href = json.url_redirect;
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error(`HTTP error: ${response.status}`);
+                }
+            }).then((result) => {
+                // window.location.href = json.url_redirect;
                 baseMessagesAlert(`this Disposal Request [ ${disposalRequestPk} ] was Approved`, 'success');
                 // console.log(json);
                 

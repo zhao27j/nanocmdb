@@ -57,7 +57,7 @@ def disposal_request_approve(request):
         for reviewer in User.objects.filter(groups__name='IT Reviewer'):
             IT_reviewer_emails.append(reviewer.email)
 
-        message = get_template("nanoassets/instance_disposal_request_approve_email.html").render({
+        message = get_template("nanoassets/instance_disposal_request_email_approve.html").render({
             'protocol': 'http',
             'domain': '127.0.0.1:8000',
             # 'instances': request.POST.getlist('instance'),

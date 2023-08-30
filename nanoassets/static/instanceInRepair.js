@@ -3,9 +3,10 @@ import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesA
 'use strict'
 
 const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
-let clickedEl, instanceSelectedPk, instanceSelectedIsAssigned, instanceSelectedStatus, cnfrm;
+let clickedEl, instanceSelectedPk, instanceSelectedIsAssigned, instanceSelectedStatus;
 document.addEventListener('click', e => { // listerning all Click events on the Document
     if (e.target.closest("[id^='inRepairInstance']")) {
+        let cnfrm = undefined;
         clickedEl = e.target.closest("[id^='inRepairInstance']");
 
         instanceSelectedPk = clickedEl.id.split(`inRepairInstance`)[1];
@@ -13,19 +14,19 @@ document.addEventListener('click', e => { // listerning all Click events on the 
         instanceSelectedStatus = document.querySelector(`#statusInstance${instanceSelectedPk}`);
 
         const formData = new FormData();
-        if (instanceSelectedStatus.innerHTML == 'in Repair') {
+        if (instanceSelectedStatus.innerHTML.includes('in Repair')) {
             if (instanceSelectedIsAssigned) {
                 formData.append('instanceSelectedStatus', 'inUSE');
             } else {
                 formData.append('instanceSelectedStatus', 'AVAILABLE');
             }
             cnfrm = `Do you really wnat to get this IT Assets [ ${instanceSelectedPk} ] back from Repairing`
-        } else {
+        } else if (instanceSelectedStatus.innerHTML.includes('Available') || instanceSelectedStatus.innerHTML.includes('in Use')) {
             formData.append('instanceSelectedStatus', 'inREPAIR');
             cnfrm = `Do you really wnat to send this IT Assets [ ${instanceSelectedPk} ] for Repairing`
         }
 
-        if (window.confirm(cnfrm)) {
+        if (cnfrm && window.confirm(cnfrm)) {
             formData.append('instanceSelectedPk', instanceSelectedPk);
             const postUpdUri = window.location.origin + '/instance/in_repair/';
             fetch(postUpdUri, {
