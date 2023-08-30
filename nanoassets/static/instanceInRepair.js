@@ -2,7 +2,7 @@ import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesA
 
 'use strict'
 
-const csrftoken = bulkUpdModalForm.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
+const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
 let clickedEl, instanceSelectedPk, instanceSelectedIsAssigned, instanceSelectedStatus, cnfrm;
 document.addEventListener('click', e => { // listerning all Click events on the Document
     if (e.target.closest("[id^='inRepairInstance']")) {

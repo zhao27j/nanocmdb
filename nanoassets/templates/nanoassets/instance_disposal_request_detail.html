@@ -1,9 +1,9 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load auth_extras %}
 {% load static %}
 {% block page_content %}
 
-{% include 'base_messages.html' %}
+{% include "base_messages.html" %}
 
 {% if form.non_field_errors %}
   {% for message in form.non_field_errors %}
@@ -17,6 +17,8 @@
   </div>
   {% endfor %}
 {% endif %}
+
+{% include "base_instance_modal_form.html" %}
 
 <!-- <form action="{% url 'nanoassets:instance-disposal-request-approve' disposalrequest.pk %}" method="post"> -->
 <form action="" method="">
@@ -37,27 +39,8 @@
     </div>
     {% endif %}
   {% endif %}
-  <div>
-    <p class="lead">{{ disposalrequest.get_type_display }} IT Asset List</p>
-    <table class="table table-striped table-hover">
-      <tr>
-        <th><small>Serial #</th></small>
-        <th><small>Model / Type</th></small>
-        <th><small>Status</th></small>
-        <th><small>Owner</th></small>
-        <th><small>EOL</th></small>
-      </tr>
-      {% for instance in disposalrequest.instance_set.all %}
-      <tr>
-        <td><small>{{ instance.serial_number }}</small></td>
-        <td><em><small>{{ instance.model_type }}</small></em></td>
-        <td><small>{{ instance.get_status_display }}</small></td>
-        <td><small>{{ instance.owner }}</small></td>
-        <td><small>{{ instance.eol_date }}</small></td>
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
+  <p class="lead">{{ disposalrequest.get_type_display }} IT Assets List</p>
+  {% include "base_instance_list.html" with instances=disposalrequest.instance_set.all %}
 </form>
 
 <script type="module" src="{% static 'instanceDisposalRequestApprove.js' %}" defer></script>

@@ -29,7 +29,7 @@ def disposal_request_approve(request):
 
         disposal_request.save()
 
-        # updated_instance_lst = {}
+        updated_instance_lst = {}
         for dispoasedInstance in disposal_request.instance_set.all():
             if disposal_request.type == 'S':
                 dispoasedInstance.status = 'SCRAPPED'
@@ -51,7 +51,7 @@ def disposal_request_approve(request):
                 detail=detail
                 )
 
-            # updated_instance_lst[dispoasedInstance.pk] = dispoasedInstance.status
+            updated_instance_lst[dispoasedInstance.pk] = dispoasedInstance.status
 
         IT_reviewer_emails = []
         for reviewer in User.objects.filter(groups__name='IT Reviewer'):
@@ -64,7 +64,7 @@ def disposal_request_approve(request):
             'disposal_request': disposal_request,
         })
         mail = EmailMessage(
-            subject='ITS express - Please notice - disposal Request is approved by ' + disposal_request.approved_by.get_full_name(),
+            subject='ITS express - Please notice - Disposal request was Approved by ' + disposal_request.approved_by.get_full_name(),
             body=message,
             from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
             to=[disposal_request.requested_by.email],
@@ -77,7 +77,8 @@ def disposal_request_approve(request):
         messages.success(request, "the notification email with Approval decision was sent.")
 
         # return redirect('nanoassets:instance-disposal-request-list')
-        response = JsonResponse({"url_redirect": reverse("nanoassets:instance-disposal-request-list")})
+        # response = JsonResponse({"url_redirect": reverse("nanoassets:instance-disposal-request-list")})
+        response = JsonResponse(updated_instance_lst)
         return response
 
 

@@ -21,6 +21,13 @@ export function modalInputChk(e, optLst, chkLst, modalEl, modalInputTag) {
             chkResult = false;
             chkAlert = "only Scrapped IT assets could be applied for Resuing / Buying back";
         }
+        const chkLstKeys = Object.keys(chkLst);
+        chkLstKeys.forEach(i => {
+            if (document.querySelector(`#${modalInputTag}Instance${i}`).querySelector('svg')) {
+                chkResult = false;
+                chkAlert = "some IT Assets selected are in process for Disposal";
+            }
+        })
     } else if (!(modalInputValue in optLst) || modalInputValue in chkLst) {
         chkResult = false;
         chkAlert = `the given ${modalInputTag} [ ${modalInputValue} ] does NOT exist in the Option List, Or has been applied on one of the IT Assets selected`;
