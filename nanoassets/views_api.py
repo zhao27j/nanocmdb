@@ -33,12 +33,23 @@ def disposal_request_approve(request):
         for dispoasedInstance in disposal_request.instance_set.all():
             if disposal_request.type == 'S':
                 dispoasedInstance.status = 'SCRAPPED'
+                detail = 'Scrapping request was Approved'
             elif disposal_request.type == 'R':
                 dispoasedInstance.status = 'reUSE'
+                detail = 'Reusing request was Approved'
             elif dispoasedInstance.type == 'B':
                 dispoasedInstance.status = 'buyBACK'
+                detail = 'Buy-back request was Approved'
                 
             dispoasedInstance.save()
+
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=dispoasedInstance._meta.db_table,
+                db_table_pk=dispoasedInstance.pk,
+                detail=detail
+                )
 
             # updated_instance_lst[dispoasedInstance.pk] = dispoasedInstance.status
 
@@ -63,7 +74,7 @@ def disposal_request_approve(request):
         )
         mail.content_subtype = "html"
         mail.send()
-        messages.success(request, "the notification email with the apprival decision is sent.")
+        messages.success(request, "the notification email with Approval decision was sent.")
 
         # return redirect('nanoassets:instance-disposal-request-list')
         response = JsonResponse({"url_redirect": reverse("nanoassets:instance-disposal-request-list")})
