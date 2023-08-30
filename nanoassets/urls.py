@@ -15,7 +15,7 @@ urlpatterns = [
 urlpatterns += [
     path('instance_disposal_request_list/', views.InstanceDisposalRequestListView.as_view(), name='instance-disposal-request-list'),
     path('instance_disposal_request_detail/<pk>/', views.InstanceDisposalRequestDetailView.as_view(), name='instance-disposal-request-detail'),
-    path('instance_disposal_request_detail/<pk>/approve/', views.InstanceDisposalRequestApprove, name='instance-disposal-request-approve'),
+    # path('instance_disposal_request_detail/<pk>/approve/', views.InstanceDisposalRequestApprove, name='instance-disposal-request-approve'),
 ]
 
 

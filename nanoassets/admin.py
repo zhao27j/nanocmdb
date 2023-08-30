@@ -3,7 +3,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin, ImportExportMixin
 
 from .resources import InstanceResource
-from .models import Instance, ModelType, Manufacturer, branchSite, disposalRequest, ScrapRequest
+from .models import Instance, ModelType, Manufacturer, branchSite, disposalRequest
 
 # Register your models here.
 
@@ -13,11 +13,11 @@ class branchSiteAdmin(admin.ModelAdmin):
     list_display = ['name', 'display_onSiteTech', 'city', 'addr',]
     autocomplete_fields = ['country',]
 
-
+"""
 @admin.register(ScrapRequest)
 class ScrapRequestAdmin(admin.ModelAdmin):
     list_display = ['case_id', 'status', 'requested_by', 'requested_on', 'approved_by', 'approved_on',]
-
+"""
 
 @admin.register(disposalRequest)
 class disposalRequestAdmin(admin.ModelAdmin):

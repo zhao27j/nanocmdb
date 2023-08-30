@@ -11,21 +11,6 @@ from smart_selects.db_fields import ChainedForeignKey
 
 # Create your models here.
 
-"""
-class ActivityHistory(models.Model):
-    description = models.TextField(_("Description"))
-    # created_on = models.DateTimeField(_("Created on"), auto_now=False, auto_now_add=True)
-    # created_by = models.ForeignKey(User, verbose_name=(_("Created by")), on_delete=models.SET_NULL, null=True)
-    Instance = models.ForeignKey("nanoassets.Instance", verbose_name=(_("IT Assets")), on_delete=models.SET_NULL, null=True, blank=True)
-    Contract = models.ForeignKey("nanopay.Contract", verbose_name=(_("Contract")), on_delete=models.SET_NULL, null=True, blank=True)
-
-    def __str__(self):
-        return self.description
-    
-    class Meta:
-        ordering = ['-description',]
-"""
-
 class branchSite(models.Model):
     name = models.CharField(_("Site / Branch Office Name"), max_length=64, null=True)
     # project = models.ForeignKey("nanoassets.Model", verbose_name=(_("Affiliated with a project")), on_delete=models.SET_NULL, blank=True, null=True)
@@ -47,31 +32,6 @@ class branchSite(models.Model):
     def display_onSiteTech(self):
         """ Creates a string for the Onsite IT Support. This is required to display Onsite IT Support in Admin. """
         return ", ".join([onSiteTech.get_full_name() for onSiteTech in self.onSiteTech.all()[:5]])
-
-
-class ScrapRequest(models.Model):
-    case_id = models.UUIDField(_("Request case ID"), primary_key=True, default=uuid.uuid4, help_text='Unique ID for the particular request')
-    REQUEST_STATUS = (
-        ('I', 'Initialized'),
-        ('A', 'Approved'),
-    )
-    status = models.CharField(_("Request status"), choices=REQUEST_STATUS, default='I', max_length=1)
-    # instance = models.ForeignKey("nanoassets.Instance", verbose_name=(_("Instance")), on_delete=models.SET_NULL, null=True, blank=True)
-    requested_by = models.ForeignKey(User, verbose_name=(_("Requested by")), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
-    requested_on = models.DateField(_("Requested on"), auto_now=False, auto_now_add=True, blank=True, null=True)
-    approved_by = models.ForeignKey(User, verbose_name=(_("Approved by")), related_name='+', on_delete=models.SET_NULL, null=True, blank=True)
-    approved_on = models.DateField(_("Approved on"), auto_now=False, auto_now_add=False, blank=True, null=True)
-
-    def __str__(self):
-        # return '%s Scrapping Request %s by %s on %s, Approved by %s on %s' % (self.case_id, self.status, self.requested_by, str(self.requested_on), self.approved_by, str(self.approved_on))
-        return str(self.case_id)
-
-    def get_absolute_url(self):
-        # return reverse("nanoassets:scrap-request-detail", kwargs={"pk": self.pk})
-        return reverse("nanoassets:instance-disposal-request-detail", kwargs={"pk": self.pk})
-
-    class Meta:
-        ordering = ['requested_on',]
 
 
 class disposalRequest(models.Model):

@@ -19,58 +19,12 @@ from django.utils import timezone
 
 from django.db.models import Q
 
-from .forms import NewInstanceForm, InstnaceOwnerUpdateForm, InstanceHostnameUpdateForm
-from .models import ModelType, Instance, branchSite, disposalRequest, ScrapRequest
+from .forms import NewInstanceForm
+from .models import ModelType, Instance, branchSite, disposalRequest
 from nanopay.models import Contract
 from nanobase.models import ChangeHistory, SubCategory
 
 # Create your views here.
-
-@login_required
-def InstanceDisposalRequestApprove(request, pk):
-    if request.method == 'POST':
-        disposalRequest = get_object_or_404(disposalRequest, pk=pk)
-        disposalRequest.status = 'A'
-        disposalRequest.approved_by = request.user
-        disposalRequest.approved_on = timezone.now()
-        disposalRequest.save()
-
-        for dispoasedInstance in disposalRequest.instance_set.all():
-            if disposalRequest.type == 'S':
-                dispoasedInstance.status = 'SCRAPPED'
-            elif disposalRequest.type == 'R':
-                dispoasedInstance.status = 'reUSE'
-            elif dispoasedInstance.type == 'B':
-                dispoasedInstance.status = 'buyBACK'
-                
-            dispoasedInstance.save()
-
-        IT_reviewer_emails = []
-        for reviewer in User.objects.filter(groups__name='IT Reviewer'):
-            IT_reviewer_emails.append(reviewer.email)
-
-        message = get_template("nanoassets/instance_Disposal_request_approved_email.html").render({
-            'protocol': 'http',
-            'domain': '127.0.0.1:8000',
-            # 'instances': request.POST.getlist('instance'),
-            'disposalRequest': disposalRequest,
-        })
-        mail = EmailMessage(
-            subject='ITS express - Please notice - Disposal Request is approved by ' + disposalRequest.approved_by.get_full_name(),
-            body=message,
-            from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
-            to=[disposalRequest.requested_by.email],
-            cc=IT_reviewer_emails,
-            # reply_to=[EMAIL_ADMIN],
-            # connection=
-        )
-        mail.content_subtype = "html"
-        mail.send()
-        messages.success(
-            request, "the notification email with the apprival decision is sent.")
-
-        return redirect('nanoassets:instance-Disposal-request-list')
-
 
 class InstanceDisposalRequestDetailView(LoginRequiredMixin, generic.DetailView):
     model = disposalRequest

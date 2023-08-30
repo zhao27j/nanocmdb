@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 
-from .models import ModelType, Instance, branchSite, disposalRequest, ScrapRequest
+from .models import ModelType, Instance, branchSite, disposalRequest
 from nanopay.models import Contract
 from nanobase.models import ChangeHistory, SubCategory
 
