@@ -1,6 +1,19 @@
 
 # activity_history = models.ForeignKey("nanoassets.ActivityHistory", verbose_name=(_("Activity History")), on_delete=models.SET_NULL, null=True, blank=True)
 
+class ActivityHistory(models.Model):
+    description = models.TextField(_("Description"))
+    # created_on = models.DateTimeField(_("Created on"), auto_now=False, auto_now_add=True)
+    # created_by = models.ForeignKey(User, verbose_name=(_("Created by")), on_delete=models.SET_NULL, null=True)
+    Instance = models.ForeignKey("nanoassets.Instance", verbose_name=(_("IT Assets")), on_delete=models.SET_NULL, null=True, blank=True)
+    Contract = models.ForeignKey("nanopay.Contract", verbose_name=(_("Contract")), on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return self.description
+    
+    class Meta:
+        ordering = ['-description',]
+
 
 class Configuragion(models.Model):
     hostname = models.CharField(_("Hostname"), max_length=32, primary_key=True, default=uuid.uuid4, help_text='Hostname')
