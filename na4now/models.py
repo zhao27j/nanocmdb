@@ -1,4 +1,5 @@
 
+# activity_history = models.ForeignKey("nanoassets.ActivityHistory", verbose_name=(_("Activity History")), on_delete=models.SET_NULL, null=True, blank=True)
 
 class ActivityHistory(models.Model):
     description = models.TextField(_("Description"))

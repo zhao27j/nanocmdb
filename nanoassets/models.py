@@ -97,8 +97,7 @@ class Instance(models.Model):
 
     branchSite = models.ForeignKey("nanoassets.branchSite", verbose_name=(_("Site / Branch Office")), on_delete=models.SET_NULL, null=True)
     
-    # activity_history = models.ForeignKey("nanoassets.ActivityHistory", verbose_name=(_("Activity History")), on_delete=models.SET_NULL, null=True, blank=True)
-
+    
     def __str__(self):
         # return '%s (%s, %s, %s)' % (self.serial_number, self.model_type.manufacturer, self.model_type.name, self.owner)
         return self.serial_number
