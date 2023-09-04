@@ -14,6 +14,43 @@ from .models import ModelType, Instance, branchSite, disposalRequest
 from nanopay.models import Contract
 from nanobase.models import ChangeHistory, SubCategory
 
+# --- new ---
+
+@login_required
+def jsonResponse_new_lst(request):
+    if request.method == 'GET':
+        instances = Instance.objects.all()
+        instance_lst = {}
+        for instance in instances:
+            instance_lst[instance.serial_number] = instance.pk
+        
+        model_types = ModelType.objects.all()
+        model_type_lst = {}
+        for model_type in model_types:
+            if model_type.manufacturer:
+                model_type_lst['%s, %s' % (model_type.name, model_type.manufacturer.name)] = model_type.pk
+            else:
+                model_type_lst[model_type.name] = model_type.pk
+        
+        owners = User.objects.filter(email__icontains='tishmanspeyer')
+        owner_lst = {}
+        for owner in owners:
+            owner_lst['%s ( %s )' % (owner.get_full_name(), owner.username)] = owner.pk
+        owner_lst[''] = ''
+
+        branchSites = branchSite.objects.all()
+        branchSite_lst = {}
+        for branch_site in branchSites:
+            branchSite_lst[branch_site.name] = branch_site.pk
+
+        contracts = Contract.objects.all()
+        contract_lst = {}
+        for contract in contracts:
+            contract_lst[contract.briefing] = contract.get_absolute_url()
+
+        response = [instance_lst, model_type_lst, owner_lst, branchSite_lst, contract_lst]
+        return JsonResponse(response, safe=False)
+
 
 # --- disposing ---
 

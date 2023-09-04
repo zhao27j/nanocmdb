@@ -5,7 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
     <title>nanoCMDB</title>
+
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
@@ -46,7 +49,10 @@
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">IT Assets</a>
               <ul class="dropdown-menu">
                 {% if user|has_group:"IT China" and request.user.is_staff %}
-                <li><a class="dropdown-item" href="{% url 'nanoassets:instance-new' %}"><small>New</small></a></li>
+                <li>
+                  <!-- <a class="dropdown-item" href="{% url 'nanoassets:instance-new' %}"><small>New</small></a> -->
+                  <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#newAssetsModal"><small>New</small></button>
+                </li>
                 <li><hr class="dropdown-divider"></li>
                 {% endif %}
                 <li><a class="dropdown-item" href="{% url 'nanoassets:my-instance-list' %}"><small>Owned</small></a></li>
@@ -60,18 +66,9 @@
                   </button>
                   {% endif %}
                 </li>
-                <li>
-                  <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#bulkUpdModal">
-                    <small>Transfer to</small>
-                  </button>
-                </li>
+                <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#bulkUpdModal"><small>Transfer to</small></button></li>
                 <li><hr class="dropdown-divider"></li>
-                <li>
-                  <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#bulkUpdModal">
-                    <small>Apply for Disposal</small>
-                  </button>
-                  <!-- <small><input class="dropdown-item" type="submit" name="disposal-request" value="Scrapping / Reusing" /></small> -->
-                </li>
+                <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#bulkUpdModal"><small>Apply for Disposal</small></button></li>
                 <li><a class="dropdown-item" href="{% url 'nanoassets:instance-disposal-request-list' %}"><small>Disposal Requests</small></a></li>
                 {% endif %}
               </ul>
@@ -122,6 +119,10 @@
         </div>
       </div>
     </nav>
+
+    {% include "base_modal_form_instance_bulk_upd.html" %}
+    {% include "base_modal_form_instance_new.html" %}
+
     <div class="container-fluid mt-3">
       {% block page_content %}{% endblock page_content %}
       {% block pagination %}
@@ -178,7 +179,10 @@
       <!-- /Footer -->
     </div>
 
-    <!-- Include Bootstrap’s CSS and JS -->
+    <!-- including Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js" integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N" crossorigin="anonymous"></script>
+    
+    <!-- js -->
+    <script type="module" src="{% static 'instanceNew.js' %}" defer></script>
   </body>
 </html>

@@ -1,0 +1,100 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'nanoassets/style.css' %}">
+
+<!-- new Assets Modal -->
+<div class="modal fade" id="newAssetsModal" tabindex="-1" aria-labelledby="newAssetsModalLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="newAssetsModalLabel">New</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- <form action="" method="" id="newAssetsModalForm" class="g-3 needs-validation" novalidate="">
+          {% csrf_token %} -->
+        <div class="row mb-3">
+          <div class="col-3"><label for="newSerialNumberModalInput" class="col-form-label">Serial #</label></div>
+          <div class="col-9">
+            <input type="text" class="form-control" id="newSerialNumberModalInput"
+                  data-bs-toggle="tooltip" data-bs-placement="bottom"
+                  data-bs-custom-class="custom-tooltip" data-bs-html="true"
+                  data-bs-title="
+                    <ul>
+                      <li>multiple IT assets with the same Model / Type and Contract can be added in one go using the commas as the separator, e.g. 001234567, 007654321, ...</li>
+                      <li>hyphen is the Only allowed non-alphabet-charactor for Serial # e.g. 0000-abcd-5678</li>
+                    </ul>">
+            <span id="newSerialNumberModalSpan" class="text-black-50 fs-6"></span>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-3"><label for="newModelTypeModalInput" class="col-form-label">Model / Type</label></div>
+          <div class="col-9">
+            <input type="text" class="form-control" id="newModelTypeModalInput" list="newModelTypeModalDatalist">
+            <datalist id="newModelTypeModalDatalist"></datalist>
+          </div>
+        </div>
+        <div class="row mb-3" id="newOnwerModalDiv">
+          <div class="col-3"><label for="newOnwerModalInput" class="col-form-label">Owner</label></div>
+          <div class="col-9">
+            <input type="text" class="form-control" id="newOnwerModalInput" list="newOnwerModalDatalist">
+            <datalist id="newOnwerModalDatalist"></datalist>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-3"><label for="newBranchSiteModalInput" class="col-form-label">Site</label></div>
+          <div class="col-9">
+            <input type="text" class="form-control" id="newBranchSiteModalInput" list="newBranchSiteModalDatalist">
+            <datalist id="newBranchSiteModalDatalist"></datalist>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="newContractModalInput" class="col-form-label">Contract associated with</label>
+          <input type="text" class="form-control" id="newContractModalInput" list="newContractModalDatalist">
+          <datalist id="newContractModalDatalist"></datalist>
+        </div>
+        <!--
+          <div class="mb-3">
+            <label for="message-text" class="col-form-label">Message:</label>
+            <textarea class="form-control" id="message-text"></textarea>
+          </div>
+        -->
+        <!-- </form> -->
+      </div>
+      <div class="modal-footer">
+        {# <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> #}
+        {# <button type="submit" id="newAssetsModalBtn" class="btn btn-primary">add</button> #}
+        <button id="newAssetsModalBtn" class="btn btn-primary" data-bs-target="#newAssetsModalNext" data-bs-toggle="modal">next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="newAssetsModalNext" aria-hidden="true" aria-labelledby="newAssetsModalNextLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="newAssetsModalNextLabel">revew & confirm</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" method="" id="newAssetsModalNextForm" class="g-3 needs-validation" novalidate="">
+          {% csrf_token %}
+          Hide this modal and show the first with the button below.
+          <table class="table table-striped table-hover fw-light">
+              <th><small>Model / Type</small></th>
+              <th><small>Hostname</small></th>
+              <th><small>Status</small></th>
+              <th><small>Owner</small></th>
+              <th><small>Site</small></th>
+              <th><small>Contract</small></th>
+          </table>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" data-bs-target="#newAssetsModal" data-bs-toggle="modal">back</button>
+        <button type="submit" id="newAssetsModalNextBtnSubmit" class="btn btn-primary">add</button>
+      </div>
+    </div>
+  </div>
+</div>
