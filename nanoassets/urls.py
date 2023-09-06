@@ -26,7 +26,7 @@ urlpatterns += [
     path('instances_supported/', views.InstanceByTechListView.as_view(), name='supported-instance-list'),
     path('instance_search_results/', views.InstanceSearchResultsListView.as_view(), name='instance-search-results'),
     path('instance/<pk>/detail/', views.InstanceDetailView.as_view(), name='instance-detail'),
-    path('instance/new/', views.InstanceNew, name='instance-new'),
+    # path('instance/new/', views.InstanceNew, name='instance-new'),
 
     path('instance/<pk>/hostname_upd/', views.InstanceHostnameUpdate, name='instance-hostname-upd'),
 ]
@@ -36,6 +36,7 @@ urlpatterns += [
 
 urlpatterns += [
 
+    path('instance/new/', views_api.new, name='instance-new'),
     path('json_response/jsonResponse_new_lst/', views_api.jsonResponse_new_lst, name='jsonResponse-new-lst'),
 
     path('instance/disposal_request_approve/', views_api.disposal_request_approve, name='instance-disposal-request-approve'),

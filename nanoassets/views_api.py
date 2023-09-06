@@ -17,6 +17,58 @@ from nanobase.models import ChangeHistory, SubCategory
 # --- new ---
 
 @login_required
+def new(request):
+    if request.method == 'POST':
+        serial_number_lst_posted = request.POST.get('serial_number').split(',')
+        updated_instance_lst = {}
+        for serial_number_posted in serial_number_lst_posted:
+            new_instance = Instance()
+            new_instance.serial_number = serial_number_posted.strip()
+            # new_instance.model_type = get_object_or_404(ModelType, name=request.POST.get('model_type').split("(")[0].strip())
+            new_instance.model_type = get_object_or_404(ModelType, name=request.POST.get('model_type'))
+            
+            if request.POST.get('isDefaultHostname'):
+                new_instance.hostname == 'TS-' + new_instance.serial_number
+
+            # new_instance.owner = get_object_or_404(User, username=request.POST.get('owner').strip(")").split("(")[-1].strip())
+            if len(serial_number_lst_posted) == 1:
+                new_instance.owner = get_object_or_404(User, username=request.POST.get('owner'))
+
+            if request.POST.get('owner') == '':
+                new_instance.status = 'AVAILABLE'
+            else:
+                new_instance.status = 'inUSE'
+            
+            new_instance.branchSite = get_object_or_404(branchSite, name=request.POST.get('branchSite').strip())
+
+            new_instance.save()
+
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=new_instance._meta.db_table,
+                db_table_pk=new_instance.pk,
+                detail='this IT Assets [ ' + new_instance.serial_number + ' ] was added'
+            )
+                
+            contract_associated_with = get_object_or_404(Contract, briefing=request.POST.get('contract').strip())
+            contract_associated_with.assets.add(new_instance)
+
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=contract_associated_with._meta.db_table,
+                db_table_pk=contract_associated_with.pk,
+                detail='1 x new IT Assets [ ' + new_instance.serial_number + ' ] was associated with this Contract'
+            )
+
+            updated_instance_lst[new_instance.pk] = new_instance.status
+
+        response = JsonResponse(updated_instance_lst)
+        return response
+
+
+@login_required
 def jsonResponse_new_lst(request):
     if request.method == 'GET':
         instances = Instance.objects.all()
