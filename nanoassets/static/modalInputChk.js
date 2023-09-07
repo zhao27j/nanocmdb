@@ -33,6 +33,11 @@ export function modalInputChk(e, optLst, chkLst, modalEl, modalInputTag) {
         chkAlert = `the given ${modalInputTag} [ ${modalInputValue} ] does NOT exist in the Option List, Or has been applied on one of the IT Assets selected`;
     }
 
+    ['text-danger', 'border-bottom', 'border-danger'].forEach(t => modalEl.querySelector('input').classList.toggle(t, !chkResult));
+    ['border-success'].forEach(t => modalEl.querySelector('input').classList.toggle(t, chkResult));
+
+    chkResult ? modalEl.querySelector('input').nextElementSibling.innerHTML = "" : modalEl.querySelector('input').nextElementSibling.innerHTML = chkAlert;
+
     if (chkResult) {
         baseMessagesAlert(`the given ${modalInputTag} [ ${modalInputValue} ] is Valid`, 'info');
         modalEl.querySelector("button[type='submit']").classList.remove('disabled');
