@@ -9,7 +9,7 @@ import {modalInputChk} from './modalInputChk.js';
 const bulkUpdModal = document.querySelector('#bulkUpdModal');
 const bulkUpdModalInstance = bootstrap.Modal.getOrCreateInstance('#bulkUpdModal');
 const bulkUpdModalForm = document.querySelector('#bulkUpdModalForm');
-const csrftoken = bulkUpdModalForm.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
+const csrftoken = bulkUpdModal.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
 const bulkUpdModalInput = document.querySelector('#bulkUpdModalInput');
 const bulkUpdModalDatalist = document.querySelector('#bulkUpdModalDatalist');
 const bulkUpdModalBtn = document.querySelector('#bulkUpdModalBtn');
@@ -136,7 +136,7 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
         instanceSelected.push(dblClickedEl);
         instanceSelectedPk.push(dblClickedEl.id.split('Instance')[1]);
     } else {
-        instanceSelected = document.querySelectorAll("input[type='checkbox']:checked");
+        instanceSelected = document.querySelectorAll("td > input[type='checkbox']:checked");
         if (instanceSelected.length > 0) {
             instanceSelected.forEach( i => {instanceSelectedPk.push(i.value);})
         }
