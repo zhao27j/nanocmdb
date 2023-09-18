@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import views, views_api
 
 
 app_name = 'nanopay'
@@ -33,4 +33,9 @@ urlpatterns += {
     path('payment_requests', views.PaymentRequestListView.as_view(), name='payment-request-list'),
     # path('payment_requests/<pk>/detail/', views.PaymentRequestDetailView.as_view(), name='payment-request-detail'),
     path('payment_requests/<pk>/detail/invoice_scanned_copy/', views.payment_request_detail_invoice_scanned_copy, name='payment-request-detail-invoice-scanned-copy'),
+}
+
+urlpatterns += {
+    path('json_response/jsonResponse_legal_entity_new_lst/', views_api.jsonResponse_legal_entity_new_lst, name='jsonResponse-legal-entity-new-lst'),
+    
 }

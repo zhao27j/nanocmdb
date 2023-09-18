@@ -15,7 +15,7 @@
           {% csrf_token %} -->
         <div class="row mb-3">
           <div class="col-3"><label for="newSerialNumberModalInput" class="col-form-label">Serial #</label></div>
-          <div class="col-9">
+          <div class="col">
             <textarea type="text" class="form-control" id="newSerialNumberModalInput" placeholder="e.g. 0012398765, abc-123-xyz, ..."
                   data-bs-toggle="tooltip" data-bs-placement="bottom"
                   data-bs-custom-class="custom-tooltip" data-bs-html="true"
@@ -30,7 +30,7 @@
         </div>
         <div class="row mb-3">
           <div class="col-3"><label for="newModelTypeModalInput" class="col-form-label">Model / Type</label></div>
-          <div class="col-9">
+          <div class="col">
             <input type="text" class="form-control" id="newModelTypeModalInput" list="newModelTypeModalDatalist">
             <small class="" style="color: Tomato"></small>
             <datalist id="newModelTypeModalDatalist"></datalist>
@@ -38,7 +38,7 @@
         </div>
         <div class="row mb-3" id="newOnwerModalDiv">
           <div class="col-3"><label for="newOnwerModalInput" class="col-form-label">Owner</label></div>
-          <div class="col-9">
+          <div class="col">
             <input type="text" class="form-control" id="newOnwerModalInput" list="newOnwerModalDatalist">
             <small class="" style="color: Tomato"></small>
             <datalist id="newOnwerModalDatalist"></datalist>
@@ -46,7 +46,7 @@
         </div>
         <div class="row mb-3">
           <div class="col-3"><label for="newBranchSiteModalInput" class="col-form-label">Site</label></div>
-          <div class="col-9">
+          <div class="col">
             <input type="text" class="form-control" id="newBranchSiteModalInput" list="newBranchSiteModalDatalist">
             <small class="" style="color: Tomato"></small>
             <datalist id="newBranchSiteModalDatalist"></datalist>
@@ -92,11 +92,11 @@
 
           <div class="row mb-3">
             <div class="col-3"><div class="form-label" id="newModelTypeLblModalNext">Model / Type</div></div>
-            <div class="col-9"><div class="form-control" id="newModelTypeValueModalNext">placeholder</div></div>
+            <div class="col"><div class="form-control" id="newModelTypeValueModalNext">placeholder</div></div>
           </div>
           <div class="row mb-3">
             <div class="col-3"><div class="form-label" id="newBranchSiteLblModalNext">Branch / Site</div></div>
-            <div class="col-9"><div class="form-control" id="newBranchSiteValueModalNext">placeholder</div></div>
+            <div class="col"><div class="form-control" id="newBranchSiteValueModalNext">placeholder</div></div>
           </div>
           <div class="mb-3">
             <div class="form-label" id="newContractLblModalNext">Contract associated with</div>
@@ -114,3 +114,6 @@
     </div>
   </div>
 </div>
+
+<!-- js -->
+<script type="module" src="{% static 'instanceNew.js' %}" defer></script>
