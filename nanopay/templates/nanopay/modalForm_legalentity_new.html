@@ -16,8 +16,8 @@
         </div>
       </div>
       <div class="modal-body">
-        <!-- <form action="" method="" id="newLegalEntityModalForm" class="g-3 needs-validation" novalidate="">
-          {% csrf_token %} -->
+        <!-- <form action="" method="" id="newLegalEntityModalForm" class="g-3 needs-validation" novalidate=""> -->
+        {% csrf_token %}
         <div class="card mb-3" ">
           <div class="row g-0">
             <div class="col-md-5">
@@ -133,8 +133,9 @@
       </div>
       <div class="modal-footer">
         {# <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> #}
-        {# <button type="submit" id="newLegalEntityModalBtn" class="btn btn-primary">add</button> #}
-        <button id="newLegalEntityModalBtn" class="btn btn-primary" data-bs-target="#newLegalEntityModalNext" data-bs-toggle="modal">next</button>
+        {# <button id="newLegalEntityModalBtn" class="btn btn-primary" data-bs-target="#newLegalEntityModalNext" data-bs-toggle="modal">next</button> #}
+        <button type="button" id="newLegalEntityModalBtn" class="btn btn-primary">next</button>
+        <button type="submit" id="newLegalEntityModalBtnSubmit" class="btn btn-primary">submit</button>
       </div>
     </div>
   </div>
@@ -181,4 +182,4 @@
 </div>
 
 <!-- js -->
-<script type="module" src="{% static 'newLegalEntity.js' %}" defer></script>
+<script type="module" src="{% static 'legalEntityNew.js' %}" defer></script>

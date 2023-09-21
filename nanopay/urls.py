@@ -9,7 +9,7 @@ app_name = 'nanopay'
 urlpatterns = [
     path('legal_entity/<int:pk>/update/', views.LegalEntityUpdateView.as_view(), name='legal-entity-update'),
     # path('legal_entity/new/', views.LegalEntityCreateView.as_view(), name='legal-entity-new'),
-    path('legal_entity/new/', views.legal_entity_new, name='legal-entity-new'),
+    # path('legal_entity/new/', views.legal_entity_new, name='legal-entity-new'),
     path('legal_entity/<int:pk>/detail/', views.LegalEntityDetailView.as_view(), name='legalentity-detail'),
     path('legal_entities', views.LegalEntityListView.as_view(), name='legal-entity-list'),
 ]
@@ -37,5 +37,5 @@ urlpatterns += {
 
 urlpatterns += {
     path('json_response/jsonResponse_legal_entity_new_lst/', views_api.jsonResponse_legal_entity_new_lst, name='jsonResponse-legal-entity-new-lst'),
-    
+    path('legal_entity/new/', views_api.legal_entity_new, name='legal-entity-new'),
 }
