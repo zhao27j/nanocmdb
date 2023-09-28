@@ -12,12 +12,19 @@ const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstra
 
 const newLegalEntityModal = document.querySelector('#newLegalEntityModal');
 
-let modalLbl, modalInputTag, getLstUri, postUpdUri, legalEntityOptLst, projectOptLst, contactOptLst;
+let modalLbl, modalInputTag, getLstUri, postUpdUri, legalEntity, legalEntityOptLst, projectOptLst, contactOptLst;
 
-newLegalEntityModal.addEventListener('show.bs.modal', () => {
-    modalLbl = '';
-    modalInputTag = 'newLegalEntity';
-    getLstUri = window.location.origin + '/json_response/jsonResponse_legal_entity_new_lst/';
+newLegalEntityModal.addEventListener('show.bs.modal', (e) => {
+    // modalLbl = '';
+    getLstUri = window.location.origin + '/json_response/legalEntity_getLst/';
+
+    if (e.relatedTarget.innerHTML.includes('New Legal Entity')) {
+        modalInputTag = 'newLegalEntity';
+    } else {
+        modalInputTag = 'updLegalEntity';
+        getLstUri += `?legalEntityPk=${e.relatedTarget.id}`;
+    }
+
     postUpdUri = window.location.origin + '/legal_entity/new/';
 
     fetch(getLstUri
@@ -28,21 +35,23 @@ newLegalEntityModal.addEventListener('show.bs.modal', () => {
             throw new Error(`HTTP error: ${response.status}`);
         }
     }).then(json => {
-        legalEntityOptLst = json[0];
-        projectOptLst = json[1];
-        contactOptLst = json[2];
+        legalEntity = json[0];
+        legalEntityOptLst = json[1];
+        projectOptLst = json[2];
+        contactOptLst = json[3];
     }).catch(error => {console.error('Error:', error);})
 })
 
 const newLegalEntityModalInputName = newLegalEntityModal.querySelector('#newLegalEntityModalInputName');
 const newLegalEntityModalInputType = newLegalEntityModal.querySelector('#newLegalEntityModalInputType');
 const newLegalEntityModalInputCode = newLegalEntityModal.querySelector('#newLegalEntityModalInputCode');
-const newLegalEntityModalInputProject = newLegalEntityModal.querySelector('#newLegalEntityModalInputProject');
-const newLegalEntityModalInputBank = newLegalEntityModal.querySelector('#newLegalEntityModalInputBank');
-const newLegalEntityModalInputBankAcc = newLegalEntityModal.querySelector('#newLegalEntityModalInputBankAcc');
+const newLegalEntityModalInputPrjct = newLegalEntityModal.querySelector('#newLegalEntityModalInputPrjct');
+const newLegalEntityModalInputDepositBank = newLegalEntityModal.querySelector('#newLegalEntityModalInputDepositBank');
+const newLegalEntityModalInputDepositBankAccount = newLegalEntityModal.querySelector('#newLegalEntityModalInputDepositBankAccount');
 const newLegalEntityModalInputTax = newLegalEntityModal.querySelector('#newLegalEntityModalInputTax');
-// const newLegalEntityModalInputRegAddr = newLegalEntityModal.querySelector('#newLegalEntityModalInputRegAddr');
-// const newLegalEntityModalInputRegPhone = newLegalEntityModal.querySelector('#newLegalEntityModalInputRegPhone');
+const newLegalEntityModalInputRegAddr = newLegalEntityModal.querySelector('#newLegalEntityModalInputRegAddr');
+const newLegalEntityModalInputRegPhone = newLegalEntityModal.querySelector('#newLegalEntityModalInputRegPhone');
+const newLegalEntityModalInputPostalAddr = newLegalEntityModal.querySelector('#newLegalEntityModalInputPostalAddr');
 const newLegalEntityModalInputContact = newLegalEntityModal.querySelector('#newLegalEntityModalInputContact');
 
 const newLegalEntityModalBtn = newLegalEntityModal.querySelector('#newLegalEntityModalBtn');
@@ -65,13 +74,13 @@ function respondToLegalEntityTypeSwitcher(switchElValue) {
             i.value = '';
             i.placeholder = '';
         })
-        newLegalEntityModalInputProject.closest("[class^='row']").style.display = '';
+        newLegalEntityModalInputPrjct.closest("[class^='row']").style.display = '';
 
-        newLegalEntityModalInputProject.placeholder = 'required ...';
+        newLegalEntityModalInputPrjct.placeholder = 'required ...';
         newLegalEntityModalInputTax.placeholder = 'required ...';
 
-        newLegalEntityModalInputBank.placeholder = '';
-        newLegalEntityModalInputBankAcc.placeholder = '';
+        newLegalEntityModalInputDepositBank.placeholder = '';
+        newLegalEntityModalInputDepositBankAccount.placeholder = '';
 
         // chkResults = {'Type': 'I', 'Name': false, 'Project': false, 'Tax #': false};
         inputChkResults.set('Type', 'I');
@@ -84,14 +93,14 @@ function respondToLegalEntityTypeSwitcher(switchElValue) {
             i.closest("[class^='row']").style.display = '';
             i.placeholder = 'required ...';
         })
-        newLegalEntityModalInputProject.closest("[class^='row']").style.display = 'none';
-        newLegalEntityModalInputProject.value = '';
+        newLegalEntityModalInputPrjct.closest("[class^='row']").style.display = 'none';
+        newLegalEntityModalInputPrjct.value = '';
 
-        newLegalEntityModalInputProject.placeholder = '';
+        newLegalEntityModalInputPrjct.placeholder = '';
         newLegalEntityModalInputTax.placeholder = '';
 
-        newLegalEntityModalInputBank.placeholder = 'required ...';
-        newLegalEntityModalInputBankAcc.placeholder = 'required ...';
+        newLegalEntityModalInputDepositBank.placeholder = 'required ...';
+        newLegalEntityModalInputDepositBankAccount.placeholder = 'required ...';
 
         // chkResults = {'Type': 'E', 'Name': false, 'Code': false, 'Bank': false, 'Bank acc': false, 'Contact': false,};
         inputChkResults.set('Type', 'E');
@@ -107,15 +116,30 @@ function respondToLegalEntityTypeSwitcher(switchElValue) {
 }
 
 newLegalEntityModal.addEventListener('shown.bs.modal', () => {
+    if (modalInputTag == 'updLegalEntity') {
+        newLegalEntityModalInputName.value = legalEntity.name;
+        legalEntity.type == 'I' ? newLegalEntityModalInputType.checked = true : newLegalEntityModalInputType.checked = false;
+        // newLegalEntityModalInputType.value = legalEntity.type;
+        newLegalEntityModalInputCode.value = legalEntity.code;
+        newLegalEntityModalInputPrjct.value = legalEntity.prjct;
+
+        newLegalEntityModalInputDepositBank.value = legalEntity.deposit_bank;
+        newLegalEntityModalInputDepositBankAccount.value = legalEntity.deposit_bank_account;
+
+        newLegalEntityModalInputRegAddr.value = legalEntity.reg_addr;
+        newLegalEntityModalInputRegPhone.value = legalEntity.reg_phone;
+        newLegalEntityModalInputPostalAddr.value = legalEntity.postal_addr;
+
+    }
     respondToLegalEntityTypeSwitcher(newLegalEntityModalInputType);
 
     newLegalEntityModal.querySelectorAll('option').forEach(el =>{el.remove();})
     
-    const newLegalEntityModalInputProjectDatalist = newLegalEntityModal.querySelector('#newLegalEntityModalInputProjectDatalist');
+    const newLegalEntityModalInputPrjctDatalist = newLegalEntityModal.querySelector('#newLegalEntityModalInputPrjctDatalist');
     Object.keys(projectOptLst).forEach(key => {
         const datalistOpt = document.createElement('option');
         datalistOpt.textContent = key;
-        newLegalEntityModalInputProjectDatalist.appendChild(datalistOpt);
+        newLegalEntityModalInputPrjctDatalist.appendChild(datalistOpt);
     })
 
     const newLegalEntityModalInputContactDatalist = newLegalEntityModal.querySelector('#newLegalEntityModalInputContactDatalist');
@@ -151,14 +175,22 @@ newLegalEntityModalBtn.addEventListener('click', e => {
     }
 })
 
-newLegalEntityModalInputName.addEventListener('blur', e => inputChk(e.target, 'Name', false, legalEntityOptLst, newLegalEntityModalBtn, true, true));
+newLegalEntityModalInputName.addEventListener('blur', e => { // 下次再说
+    if (e.target.value != legalEntity.name) {
+        inputChk(e.target, 'Name', false, legalEntityOptLst, newLegalEntityModalBtn, true, true);
+    } else {
+        const legalEntityUpdLst = {};
+        legalEntityUpdLst[legalEntity.name] = 0;
+        inputChk(e.target, 'Name', true, legalEntityUpdLst, newLegalEntityModalBtn, true, true);
+    }
+});
 
 newLegalEntityModalInputCode.addEventListener('blur', e => inputChk(e.target, 'Code', false, null, newLegalEntityModalBtn, true, true));
-newLegalEntityModalInputProject.addEventListener('blur', e => inputChk(e.target, 'Project', true, projectOptLst, newLegalEntityModalBtn, false, true));
+newLegalEntityModalInputPrjct.addEventListener('blur', e => inputChk(e.target, 'Project', true, projectOptLst, newLegalEntityModalBtn, false, true));
 
 newLegalEntityModalInputTax.addEventListener('blur', e => { if (inputChkResults.get('Type') == 'I') { inputChk(e.target, 'Tax #', false, null, newLegalEntityModalBtn, true, true);}});
-newLegalEntityModalInputBank.addEventListener('blur', e => { if (inputChkResults.get('Type') == 'E') { inputChk(e.target, 'Bank', false, null, newLegalEntityModalBtn, true, true);}});
-newLegalEntityModalInputBankAcc.addEventListener('blur', e => { if (inputChkResults.get('Type') == 'E') { inputChk(e.target, 'Bank acc', false, null, newLegalEntityModalBtn, true, true);}});
+newLegalEntityModalInputDepositBank.addEventListener('blur', e => { if (inputChkResults.get('Type') == 'E') { inputChk(e.target, 'Bank', false, null, newLegalEntityModalBtn, true, true);}});
+newLegalEntityModalInputDepositBankAccount.addEventListener('blur', e => { if (inputChkResults.get('Type') == 'E') { inputChk(e.target, 'Bank acc', false, null, newLegalEntityModalBtn, true, true);}});
 newLegalEntityModalInputContact.addEventListener('blur', e => { if (inputChkResults.get('Type') == 'E') { inputChk(e.target, 'Contact', true, contactOptLst, newLegalEntityModalBtn, false, true);}});
 
 newLegalEntityModalBtn.addEventListener('focus', e => {
@@ -166,14 +198,14 @@ newLegalEntityModalBtn.addEventListener('focus', e => {
     inputChk(newLegalEntityModalInputName, 'Name', false, legalEntityOptLst, newLegalEntityModalBtn, true, true);
     
     if (newLegalEntityModal.querySelector("input[type='checkbox']").checked) {
-        inputChk(newLegalEntityModalInputProject, 'Project', true, projectOptLst, newLegalEntityModalBtn, false, true);
+        inputChk(newLegalEntityModalInputPrjct, 'Project', true, projectOptLst, newLegalEntityModalBtn, false, true);
         
         inputChk(newLegalEntityModalInputTax, 'Tax #', false, null, newLegalEntityModalBtn, true, true);
     } else {
         inputChk(newLegalEntityModalInputCode, 'Code', false, null, newLegalEntityModalBtn, true, true);
 
-        inputChk(newLegalEntityModalInputBank, 'Bank', false, null, newLegalEntityModalBtn, true, true);
-        inputChk(newLegalEntityModalInputBankAcc, 'Bank acc', false, null, newLegalEntityModalBtn, true, true);
+        inputChk(newLegalEntityModalInputDepositBank, 'Bank', false, null, newLegalEntityModalBtn, true, true);
+        inputChk(newLegalEntityModalInputDepositBankAccount, 'Bank acc', false, null, newLegalEntityModalBtn, true, true);
         inputChk(newLegalEntityModalInputContact, 'Contact', true, contactOptLst, newLegalEntityModalBtn, false, true);
     }
     
@@ -238,10 +270,10 @@ newLegalEntityModalBtnSubmit.addEventListener('click', e => {
     const formData = new FormData();
     formData.append('name', newLegalEntityModalInputName.value);
     formData.append('type', inputChkResults.get('Type'));
-    formData.append('prjct', newLegalEntityModalInputProject.value);
+    formData.append('prjct', newLegalEntityModalInputPrjct.value);
     formData.append('code', newLegalEntityModalInputCode.value);
-    formData.append('deposit_bank', newLegalEntityModalInputBank.value);
-    formData.append('deposit_bank_account', newLegalEntityModalInputBankAcc.value);
+    formData.append('deposit_bank', newLegalEntityModalInputDepositBank.value);
+    formData.append('deposit_bank_account', newLegalEntityModalInputDepositBankAccount.value);
     formData.append('tax_number', newLegalEntityModalInputTax.value);
     formData.append('reg_addr', newLegalEntityModal.querySelector('#newLegalEntityModalInputRegAddr').value.trim());
     formData.append('reg_phone', newLegalEntityModal.querySelector('#newLegalEntityModalInputRegPhone').value.trim());
@@ -271,8 +303,8 @@ let newLegalEntityModalInputNameValue, isDefaultHostname;
 
 newLegalEntityModalNext.addEventListener('shown.bs.modal', () => {
     newLegalEntityModalNext.querySelector('#newModelTypeValueModalNext').innerHTML = newLegalEntityModalInputCode.value;
-    newLegalEntityModalNext.querySelector('#newBranchSiteValueModalNext').innerHTML = newLegalEntityModalInputBank.value;
-    newLegalEntityModalNext.querySelector('#newContractValueModalNext').innerHTML = newLegalEntityModalInputBankAcc.value;
+    newLegalEntityModalNext.querySelector('#newBranchSiteValueModalNext').innerHTML = newLegalEntityModalInputDepositBank.value;
+    newLegalEntityModalNext.querySelector('#newContractValueModalNext').innerHTML = newLegalEntityModalInputDepositBankAccount.value;
 
     newLegalEntityModalNextTbl.replaceChildren();        // newLegalEntityModalNextTbl.innerHTML = '';
 
@@ -293,8 +325,8 @@ newLegalEntityModalNext.addEventListener('shown.bs.modal', () => {
         newLegalEntityModalNextTblTd.innerHTML = [
             `<td><small>${i}</small></td>`,
             `<td><small>TS-${i}</small></td>`,
-            `<td><small>${newLegalEntityModalInputProject.value == '' ? 'Available' : 'in Use'}</small></td>`,
-            `<td><small>${newLegalEntityModalInputProject.value == '' ? '🈳' : newLegalEntityModalInputProject.value}</small></td>`
+            `<td><small>${newLegalEntityModalInputPrjct.value == '' ? 'Available' : 'in Use'}</small></td>`,
+            `<td><small>${newLegalEntityModalInputPrjct.value == '' ? '🈳' : newLegalEntityModalInputPrjct.value}</small></td>`
         ].join('');
         newLegalEntityModalNextTbl.appendChild(newLegalEntityModalNextTblTd);
     })

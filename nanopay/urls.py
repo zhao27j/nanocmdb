@@ -36,6 +36,6 @@ urlpatterns += {
 }
 
 urlpatterns += {
-    path('json_response/jsonResponse_legal_entity_new_lst/', views_api.jsonResponse_legal_entity_new_lst, name='jsonResponse-legal-entity-new-lst'),
+    path('json_response/legalEntity_getLst/', views_api.jsonResponse_legalEntity_getLst, name='jsonResponse-legalEntity-getLst'),
     path('legal_entity/new/', views_api.legal_entity_new, name='legal-entity-new'),
 }

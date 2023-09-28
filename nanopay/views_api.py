@@ -1,6 +1,8 @@
 
 from django.utils import timezone
 
+from django.core import serializers
+
 from django.http import JsonResponse
 
 from django.contrib.auth.models import User
@@ -47,15 +49,20 @@ def legal_entity_new(request):
 
 
 @login_required
-def jsonResponse_legal_entity_new_lst(request):
+def jsonResponse_legalEntity_getLst(request):
     if request.method == 'GET':
+
         legal_entity_lst = {}
         for legal_entity in LegalEntity.objects.all():
             legal_entity_lst[legal_entity.name] = legal_entity.pk
         
+        # legal_entity_lst = serializers.serialize("json", LegalEntity.objects.all(), fields=["name", "pk"])
+
         prjct_lst = {}
         for prjct in Prjct.objects.all():
             prjct_lst[prjct.name] = prjct.pk
+
+        # prjct_lst = serializers.serialize("json", Prjct.objects.all(), fields=["name", "pk"])
 
         external_contact_lst = {}
         for external_contact in User.objects.exclude(email__icontains='tishmanspeyer.com'):
@@ -66,5 +73,21 @@ def jsonResponse_legal_entity_new_lst(request):
                 else:
                     external_contact_lst['%s - %s' % (external_contact.get_full_name(), external_contact.email)] = external_contact.pk
 
-        response = [legal_entity_lst, prjct_lst, external_contact_lst]
+        legalEntity = {}
+        if request.GET.get('legalEntityPk'):
+            legalEntity_selected = LegalEntity.objects.get(pk=request.GET.get('legalEntityPk'))
+            legalEntity['name'] = legalEntity_selected.name
+            legalEntity['type'] = legalEntity_selected.type
+            legalEntity['code'] = legalEntity_selected.code
+            legalEntity['prjct'] = legalEntity_selected.prjct
+            legalEntity['deposit_bank'] = legalEntity_selected.deposit_bank
+            legalEntity['deposit_bank_account'] = legalEntity_selected.deposit_bank_account
+            legalEntity['tax_number'] = legalEntity_selected.tax_number
+            legalEntity['reg_addr'] = legalEntity_selected.reg_addr
+            legalEntity['reg_phone'] = legalEntity_selected.reg_phone
+            legalEntity['postal_addr'] = legalEntity_selected.postal_addr
+
+            # legalEntity = serializers.serialize("json", LegalEntity.objects.filter(pk=request.GET.get('legalEntityPk')))
+
+        response = [legalEntity, legal_entity_lst, prjct_lst, external_contact_lst]
         return JsonResponse(response, safe=False)
