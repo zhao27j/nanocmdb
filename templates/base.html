@@ -43,7 +43,7 @@
                 
                 <li>
                   {# <a class="dropdown-item" href="{% url 'nanopay:legal-entity-new' %}"><small>New Legal Entity</small></a> #}
-                  <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#newLegalEntityModal"><small>New Legal Entity</small></button>
+                  <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#legalEntityModal"><small>New Legal Entity</small></button>
                 </li>
                 <li><a class="dropdown-item" href="{% url 'nanopay:legal-entity-list' %}"><small>Legal Entities</small></a></li>
               </ul>
@@ -126,7 +126,7 @@
 
     {% include "nanoassets/modalForm_instance_bulk_upd.html" %}
     {% include "nanoassets/modalForm_instance_new.html" %}
-    {% include "nanopay/modalForm_legalentity_new.html" %}
+    {% include "nanopay/modalForm_legalEntity.html" %}
 
     <div class="container-fluid mt-3">
       {% block page_content %}{% endblock page_content %}

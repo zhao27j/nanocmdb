@@ -4,19 +4,19 @@
 
 <!-- new Legal Entity Modal -->
 
-<div class="modal fade" id="newLegalEntityModal" tabindex="-1" aria-labelledby="newLegalEntityModalLabel" aria-hidden="true" style="display: none;">
+<div class="modal fade" id="legalEntityModal" tabindex="-1" aria-labelledby="legalEntityModalLabel" aria-hidden="true" style="display: none;">
   <div class="modal-dialog modal-fullscreen">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="newLegalEntityModalLabel">New</h1>
+        <h1 class="modal-title fs-5" id="legalEntityModalLabel">New</h1>
         {# <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> #}
         <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="newLegalEntityModalInputType" checked>
-          <label class="form-check-label" for="newLegalEntityModalInputType"></label>
+          <input class="form-check-input" type="checkbox" role="switch" id="legalEntityModalInputtype" checked>
+          <label class="form-check-label" for="legalEntityModalInputtype"></label>
         </div>
       </div>
       <div class="modal-body">
-        <!-- <form action="" method="" id="newLegalEntityModalForm" class="g-3 needs-validation" novalidate=""> -->
+        <!-- <form action="" method="" id="legalEntityModalForm" class="g-3 needs-validation" novalidate=""> -->
         {% csrf_token %}
         <div class="card mb-3" ">
           <div class="row g-0">
@@ -33,9 +33,9 @@
               <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                   <div class="row mb-3"> <!--new Legal Entity name -->
-                    <div class="col-3"><label for="newLegalEntityModalInputName" class="col-form-label">Name</label></div>
+                    <div class="col-3"><label for="legalEntityModalInputname" class="col-form-label">Name</label></div>
                     <div class="col">
-                      <textarea type="text" class="form-control" wrap="soft" id="newLegalEntityModalInputName" placeholder="required ..."
+                      <textarea type="text" class="form-control" wrap="soft" id="legalEntityModalInputname" placeholder="required ..."
                             data-bs-toggle="tooltip" data-bs-placement="bottom"
                             data-bs-custom-class="custom-tooltip" data-bs-html="true"
                             data-bs-title="
@@ -47,68 +47,68 @@
                     </div>
                   </div>
                   <div class="row mb-3"> <!--new Legal Entity code -->
-                    <div class="col-3"><label for="newLegalEntityModalInputCode" class="col-form-label">Code</label></div>
+                    <div class="col-3"><label for="legalEntityModalInputcode" class="col-form-label">Code</label></div>
                     <div class="col">
-                      <input type="text" class="form-control" id="newLegalEntityModalInputCode">
+                      <input type="text" class="form-control" id="legalEntityModalInputcode">
                       <small class="" style="color: Tomato"></small>
                     </div>
                   </div>
                   <div class="row mb-3"> <!--new Legal Entity project -->
-                    <div class="col-3"><label for="newLegalEntityModalInputPrjct" class="col-form-label">Project</label></div>
+                    <div class="col-3"><label for="legalEntityModalInputprjct" class="col-form-label">Project</label></div>
                     <div class="col">
-                      <input type="text" class="form-control" id="newLegalEntityModalInputPrjct" list="newLegalEntityModalInputPrjctDatalist">
+                      <input type="text" class="form-control" id="legalEntityModalInputprjct" list="legalEntityModalInputProjectDatalist">
                       <small class="" style="color: Tomato"></small>
-                      <datalist id="newLegalEntityModalInputPrjctDatalist"></datalist>
+                      <datalist id="legalEntityModalInputProjectDatalist"></datalist>
                     </div>
                   </div>
                   <div class="row mb-3"> <!--new Legal Entity bank -->
-                    <div class="col-3"><label for="newLegalEntityModalInputDepositBank" class="col-form-label">Bank</label></div>
+                    <div class="col-3"><label for="legalEntityModalInputdeposit_bank" class="col-form-label">Bank</label></div>
                     <div class="col">
-                      <input type="text" class="form-control" id="newLegalEntityModalInputDepositBank">
+                      <input type="text" class="form-control" id="legalEntityModalInputdeposit_bank">
                       <small class="" style="color: Tomato"></small>
                     </div>
                   </div>
                   <div class="row mb-3"> <!--new Legal Entity bank account -->
-                    <div class="col-3"><label for="newLegalEntityModalInputDepositBankAccount" class="col-form-label">Bank acc</label></div>
+                    <div class="col-3"><label for="legalEntityModalInputdeposit_bank_account" class="col-form-label">Bank acc</label></div>
                     <div class="col">
-                      <input type="text" class="form-control" id="newLegalEntityModalInputDepositBankAccount">
+                      <input type="text" class="form-control" id="legalEntityModalInputdeposit_bank_account">
                       <small class="" style="color: Tomato"></small>
                     </div>
                   </div>
                   <div class="row mb-3"> <!--new Legal Entity tax # -->
-                    <div class="col-3"><label for="newLegalEntityModalInputTax" class="col-form-label">Tax #</label></div>
+                    <div class="col-3"><label for="legalEntityModalInputtax_number" class="col-form-label">Tax #</label></div>
                     <div class="col">
-                      <input type="text" class="form-control" id="newLegalEntityModalInputTax">
+                      <input type="text" class="form-control" id="legalEntityModalInputtax_number">
                       <small class="" style="color: Tomato"></small>
                     </div>
                   </div>
                   <div class="row mb-3"> <!--new Legal Entity reg addr -->
-                    <div class="col-3"><label for="newLegalEntityModalInputRegAddr" class="col-form-label">Reg addr</label></div>
+                    <div class="col-3"><label for="legalEntityModalInputreg_addr" class="col-form-label">Reg addr</label></div>
                     <div class="col">
-                      <input type="text" class="form-control" id="newLegalEntityModalInputRegAddr">
+                      <input type="text" class="form-control" id="legalEntityModalInputreg_addr">
                       <small class="" style="color: Tomato"></small>
                     </div>
                   </div>
                   <div class="row mb-3"> <!--new Legal Entity reg phone -->
-                    <div class="col-3"><label for="newLegalEntityModalInputRegPhone" class="col-form-label">Reg phone</label></div>
+                    <div class="col-3"><label for="legalEntityModalInputreg_phone" class="col-form-label">Reg phone</label></div>
                     <div class="col">
-                      <input type="text" class="form-control" id="newLegalEntityModalInputRegPhone">
+                      <input type="text" class="form-control" id="legalEntityModalInputreg_phone">
                       <small class="" style="color: Tomato"></small>
                     </div>
                   </div>
                   <div class="row mb-3"> <!--new Legal Entity postal addr -->
-                    <div class="col-3"><label for="newLegalEntityModalInputPostalAddr" class="col-form-label">Postal addr</label></div>
+                    <div class="col-3"><label for="legalEntityModalInputpostal_addr" class="col-form-label">Postal addr</label></div>
                     <div class="col">
-                      <input type="text" class="form-control" id="newLegalEntityModalInputPostalAddr">
+                      <input type="text" class="form-control" id="legalEntityModalInputpostal_addr">
                       <small class="" style="color: Tomato"></small>
                     </div>
                   </div>
                   <div class="row mb-3"> <!--new Legal Entity contact -->
-                    <div class="col-3"><label for="newLegalEntityModalInputContact" class="col-form-label">Contact</label></div>
+                    <div class="col-3"><label for="legalEntityModalInputcontact" class="col-form-label">Contact</label></div>
                     <div class="col">
-                      <input type="text" class="form-control" id="newLegalEntityModalInputContact" list="newLegalEntityModalInputContactDatalist" multiple>
+                      <input type="text" class="form-control" id="legalEntityModalInputcontact" list="legalEntityModalInputCntctDatalist" multiple>
                       <small class="" style="color: Tomato"></small>
-                      <datalist id="newLegalEntityModalInputContactDatalist"></datalist>
+                      <datalist id="legalEntityModalInputCntctDatalist"></datalist>
                     </div>
                   </div>
                 </li>
@@ -133,19 +133,19 @@
       </div>
       <div class="modal-footer">
         {# <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> #}
-        {# <button id="newLegalEntityModalBtn" class="btn btn-primary" data-bs-target="#newLegalEntityModalNext" data-bs-toggle="modal">next</button> #}
-        <button type="button" id="newLegalEntityModalBtn" class="btn btn-primary">next</button>
-        <button type="submit" id="newLegalEntityModalBtnSubmit" class="btn btn-primary">submit</button>
+        {# <button id="legalEntityModalBtn" class="btn btn-primary" data-bs-target="#legalEntityModalNext" data-bs-toggle="modal">next</button> #}
+        <button type="button" id="legalEntityModalBtn" class="btn btn-primary">next</button>
+        <button type="submit" id="legalEntityModalBtnSubmit" class="btn btn-primary">submit</button>
       </div>
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="newLegalEntityModalNext" aria-hidden="true" aria-labelledby="newLegalEntityModalNextLabel" tabindex="-1">
+<div class="modal fade" id="legalEntityModalNext" aria-hidden="true" aria-labelledby="legalEntityModalNextLabel" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="newLegalEntityModalNextLbl">revew & confirm</h1>
+        <h1 class="modal-title fs-5" id="legalEntityModalNextLbl">revew & confirm</h1>
         {# <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> #}
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
@@ -153,7 +153,7 @@
         </div>
       </div>
       <div class="modal-body">
-        <form action="" method="" id="newLegalEntityModalNextForm" class="g-3 needs-validation" novalidate="">
+        <form action="" method="" id="legalEntityModalNextForm" class="g-3 needs-validation" novalidate="">
           {% csrf_token %}
 
           <div class="row mb-3">
@@ -174,12 +174,12 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-primary" data-bs-target="#newLegalEntityModal" data-bs-toggle="modal">back</button>
-        <button type="submit" id="newLegalEntityModalNextBtnSubmit" class="btn btn-primary">add</button>
+        <button class="btn btn-primary" data-bs-target="#legalEntityModal" data-bs-toggle="modal">back</button>
+        <button type="submit" id="legalEntityModalNextBtnSubmit" class="btn btn-primary">add</button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- js -->
-<script type="module" src="{% static 'legalEntityNew.js' %}" defer></script>
+<script type="module" src="{% static 'legalEntity.js' %}" defer></script>

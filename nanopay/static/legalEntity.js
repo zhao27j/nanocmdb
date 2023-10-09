@@ -1,0 +1,394 @@
+import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
+import {modalInputChk} from './modalInputChk.js';
+
+// import {modalInputChk} from '../static/nanopay/'
+
+'use strict'
+
+// new Legal Entity
+
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+const legalEntityModal = document.querySelector('#legalEntityModal');
+
+let modalLbl, modalInputTag, getLstUri, postUpdUri, legalEntity, legalEntityOptLst, projectOptLst, contactOptLst;
+
+legalEntityModal.addEventListener('show.bs.modal', (e) => {
+    modalInputTag = '';
+    getLstUri = window.location.origin + '/json_response/legalEntity_getLst/';
+
+    if (e.relatedTarget.innerHTML.includes('New Legal Entity')) {
+        modalInputTag = 'newLegalEntity';
+    } else {
+        modalInputTag = 'updLegalEntity';
+        getLstUri += `?legalEntityPk=${e.relatedTarget.id}`;
+    }
+
+    postUpdUri = window.location.origin + '/legal_entity/new/';
+
+    fetch(getLstUri
+    ).then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error(`HTTP error: ${response.status}`);
+        }
+    }).then(json => {
+        legalEntity = json[0];
+        legalEntityOptLst = json[1];
+        projectOptLst = json[2];
+        contactOptLst = json[3];
+    }).catch(error => {console.error('Error:', error);})
+})
+
+const legalEntityModalInputname = legalEntityModal.querySelector('#legalEntityModalInputname');
+const legalEntityModalInputtype = legalEntityModal.querySelector('#legalEntityModalInputtype');
+const legalEntityModalInputcode = legalEntityModal.querySelector('#legalEntityModalInputcode');
+const legalEntityModalInputprjct = legalEntityModal.querySelector('#legalEntityModalInputprjct');
+const legalEntityModalInputdeposit_bank = legalEntityModal.querySelector('#legalEntityModalInputdeposit_bank');
+const legalEntityModalInputdeposit_bank_account = legalEntityModal.querySelector('#legalEntityModalInputdeposit_bank_account');
+const legalEntityModalInputtax_number = legalEntityModal.querySelector('#legalEntityModalInputtax_number');
+const legalEntityModalInputreg_addr = legalEntityModal.querySelector('#legalEntityModalInputreg_addr');
+const legalEntityModalInputreg_phone = legalEntityModal.querySelector('#legalEntityModalInputreg_phone');
+const legalEntityModalInputpostal_addr = legalEntityModal.querySelector('#legalEntityModalInputpostal_addr');
+const legalEntityModalInputcontact = legalEntityModal.querySelector('#legalEntityModalInputcontact');
+
+const legalEntityModalBtn = legalEntityModal.querySelector('#legalEntityModalBtn');
+const legalEntityModalBtnSubmit = legalEntityModal.querySelector('#legalEntityModalBtnSubmit');
+
+// let dblClickedEl = null, dblClickedElInnerHTML, dblClickedInstancePk, instanceSelected, instanceSelectedPk;
+
+const inputChkResults = new Map();
+function respondToLegalEntityTypeSwitcher(switchElValue) {
+    legalEntityModal.querySelectorAll(".border-danger, .border-success").forEach(el => {
+        ['text-danger', 'border-bottom', 'border-danger', 'border-success'].forEach(t => el.classList.remove(t));
+        el.nextElementSibling.innerHTML = "";
+    })
+    legalEntityModalBtn.classList.add('disabled');
+    inputChkResults.clear();
+    if (switchElValue.checked){
+        legalEntityModal.querySelector("p.card-text").innerHTML = '- Internal -';
+        [legalEntityModalInputcode, legalEntityModalInputcontact].forEach(i => {
+            i.closest("[class^='row']").style.display = 'none';
+            i.value = '';
+            i.placeholder = '';
+        })
+        legalEntityModalInputprjct.closest("[class^='row']").style.display = '';
+
+        legalEntityModalInputprjct.placeholder = 'required ...';
+        legalEntityModalInputtax_number.placeholder = 'required ...';
+
+        legalEntityModalInputdeposit_bank.placeholder = '';
+        legalEntityModalInputdeposit_bank_account.placeholder = '';
+
+        // chkResults = {'type': 'I', 'name': false, 'prjct': false, 'tax_number': false};
+        // inputChkResults.set('type', 'noChg');
+        inputChkResults.set('name', false);
+        inputChkResults.set('prjct', false);
+        inputChkResults.set('tax_number', false);
+    } else {
+        legalEntityModal.querySelector("p.card-text").innerHTML = '- External -';
+        [legalEntityModalInputcode, legalEntityModalInputcontact].forEach(i => {
+            i.closest("[class^='row']").style.display = '';
+            i.placeholder = 'required ...';
+        })
+        legalEntityModalInputprjct.closest("[class^='row']").style.display = 'none';
+        legalEntityModalInputprjct.value = '';
+
+        legalEntityModalInputprjct.placeholder = '';
+        legalEntityModalInputtax_number.placeholder = '';
+
+        legalEntityModalInputdeposit_bank.placeholder = 'required ...';
+        legalEntityModalInputdeposit_bank_account.placeholder = 'required ...';
+
+        // chkResults = {'type': 'E', 'name': false, 'code': false, 'deposit_bank': false, 'deposit_bank_account': false, 'contact': false,};
+        // inputChkResults.set('type', 'noChg');
+        inputChkResults.set('name', false);
+        inputChkResults.set('code', false);
+        inputChkResults.set('deposit_bank', false);
+        inputChkResults.set('deposit_bank_account', false);
+        inputChkResults.set('contact', false);
+    }
+
+    legalEntityModalInputname.focus();
+    // return chkResults;
+}
+
+function legalEntityModalInitial(e) {
+    if (modalInputTag == 'updLegalEntity') {
+        legalEntityModalInputname.value = legalEntity.name;
+
+        if (e.type.includes('shown')) {
+            legalEntity.type == 'I' ? legalEntityModalInputtype.checked = true : legalEntityModalInputtype.checked = false;
+        }
+        // legalEntityModalInputtype.value = legalEntity.type;
+
+        legalEntityModalInputcode.value = legalEntity.code;
+        legalEntityModalInputprjct.value = legalEntity.prjct;
+
+        legalEntityModalInputdeposit_bank.value = legalEntity.deposit_bank;
+        legalEntityModalInputdeposit_bank_account.value = legalEntity.deposit_bank_account;
+
+        legalEntityModalInputtax_number.value = legalEntity.tax_number;
+
+        legalEntityModalInputreg_addr.value = legalEntity.reg_addr;
+        legalEntityModalInputreg_phone.value = legalEntity.reg_phone;
+
+        legalEntityModalInputpostal_addr.value = legalEntity.postal_addr;
+
+        legalEntityModalInputcontact.value = legalEntity.contact;
+    } else {
+        legalEntityModalInputname.value = '';
+        // legalEntity.type == 'I' ? legalEntityModalInputtype.checked = true : legalEntityModalInputtype.checked = false;
+        // legalEntityModalInputtype.checked = true;
+        legalEntityModalInputcode.value = '';
+        legalEntityModalInputprjct.value = '';
+
+        legalEntityModalInputdeposit_bank.value = '';
+        legalEntityModalInputdeposit_bank_account.value = '';
+
+        legalEntityModalInputtax_number.value = '';
+
+        legalEntityModalInputreg_addr.value = '';
+        legalEntityModalInputreg_phone.value = '';
+
+        legalEntityModalInputpostal_addr.value = '';
+
+        legalEntityModalInputcontact.value = '';
+    }
+}
+
+legalEntityModal.addEventListener('shown.bs.modal', (e) => {
+    legalEntityModalInitial(e);
+    respondToLegalEntityTypeSwitcher(legalEntityModalInputtype);
+
+    legalEntityModal.querySelectorAll('option').forEach(el =>{el.remove();})
+    
+    const legalEntityModalInputProjectDatalist = legalEntityModal.querySelector('#legalEntityModalInputProjectDatalist');
+    Object.keys(projectOptLst).forEach(key => {
+        const datalistOpt = document.createElement('option');
+        datalistOpt.textContent = key;
+        legalEntityModalInputProjectDatalist.appendChild(datalistOpt);
+    })
+
+    const legalEntityModalInputCntctDatalist = legalEntityModal.querySelector('#legalEntityModalInputCntctDatalist');
+    Object.keys(contactOptLst).forEach(key => {
+        const datalistOpt = document.createElement('option');
+        datalistOpt.textContent = key;
+        legalEntityModalInputCntctDatalist.appendChild(datalistOpt);
+    })
+
+    legalEntityModalInputname.focus();
+    // legalEntityModalInputname.value = '';
+    legalEntityModalBtn.classList.add('disabled');
+    legalEntityModalBtnSubmit.style.display = 'none';
+}, {});
+
+legalEntityModal.querySelector("input[type='checkbox']").addEventListener('change', e => {
+    legalEntityModalInitial(e);
+    respondToLegalEntityTypeSwitcher(e.target);
+
+    if (modalInputTag == 'updLegalEntity') {
+        (legalEntity.type == 'I' && legalEntityModalInputtype.checked) || (legalEntity.type == 'E' && !legalEntityModalInputtype.checked) ? inputChkResults.set('type', 'noChg') : inputChkResults.set('type', 'upd');
+    }
+});
+
+legalEntityModalBtn.addEventListener('click', e => {
+    legalEntityModal.querySelectorAll(".border-danger, .border-success").forEach(el => {
+        ['text-danger', 'border-bottom', 'border-danger', 'border-success'].forEach(t => el.classList.remove(t));
+        el.nextElementSibling.innerHTML = "";
+    })
+    if (e.target.innerHTML == 'next') {
+        legalEntityModal.querySelector("textarea[type='text']").disabled = true;
+        legalEntityModal.querySelectorAll("input").forEach(el => el.disabled = true);
+        e.target.innerHTML = 'back';
+        legalEntityModalBtnSubmit.style.display = '';
+    } else if (e.target.innerHTML == 'back') {
+        legalEntityModal.querySelector("textarea[type='text']").disabled = false;
+        legalEntityModal.querySelectorAll("input").forEach(el => el.disabled = false);
+        e.target.innerHTML = 'next';
+        legalEntityModalBtnSubmit.style.display = 'none';
+    }
+})
+
+legalEntityModalInputname.addEventListener('blur', e => inputChk(e.target, 'name', legalEntity.name, false, legalEntityOptLst, legalEntityModalBtn, true, true));
+
+legalEntityModalInputcode.addEventListener('blur', e => inputChk(e.target, 'code', legalEntity.code, false, null, legalEntityModalBtn, true, true));
+legalEntityModalInputprjct.addEventListener('blur', e => inputChk(e.target, 'prjct', legalEntity.prjct, true, projectOptLst, legalEntityModalBtn, false, true));
+
+legalEntityModalInputtax_number.addEventListener('blur', e => {if (legalEntityModalInputtype.checked == true) { inputChk(e.target, 'tax_number', legalEntity.tax_number, false, null, legalEntityModalBtn, true, true);}});
+legalEntityModalInputdeposit_bank.addEventListener('blur', e => {if (legalEntityModalInputtype.checked == false) { inputChk(e.target, 'deposit_bank', legalEntity.deposit_bank, false, null, legalEntityModalBtn, true, true);}});
+legalEntityModalInputdeposit_bank_account.addEventListener('blur', e => {if (legalEntityModalInputtype.checked == false) { inputChk(e.target, 'deposit_bank_account', legalEntity.deposit_bank_account, false, null, legalEntityModalBtn, true, true);}});
+legalEntityModalInputcontact.addEventListener('blur', e => {if (legalEntityModalInputtype.checked == false) { inputChk(e.target, 'contact', legalEntity.contact, true, contactOptLst, legalEntityModalBtn, false, true);}});
+
+legalEntityModalInputreg_addr.addEventListener('blur', e => inputChk(e.target, 'reg_addr', legalEntity.reg_addr, false, null, legalEntityModalBtn, true, false));
+legalEntityModalInputreg_phone.addEventListener('blur', e => inputChk(e.target, 'reg_phone', legalEntity.reg_phone, false, null, legalEntityModalBtn, true, false));
+legalEntityModalInputpostal_addr.addEventListener('blur', e => inputChk(e.target, 'postal_addr', legalEntity.postal_addr, false, null, legalEntityModalBtn, true, false));
+
+legalEntityModalBtn.addEventListener('focus', e => {
+
+    inputChk(legalEntityModalInputname, 'name', legalEntity.name, false, legalEntityOptLst, legalEntityModalBtn, true, true);
+    
+    if (legalEntityModal.querySelector("input[type='checkbox']").checked) {
+        inputChk(legalEntityModalInputprjct, 'prjct', legalEntity.prjct, true, projectOptLst, legalEntityModalBtn, false, true);
+        if (legalEntityModalInputtype.checked == true) { inputChk(legalEntityModalInputtax_number, 'tax_number', legalEntity.tax_number, false, null, legalEntityModalBtn, true, true);}
+    } else {
+        inputChk(legalEntityModalInputcode, 'code', legalEntity.code, false, null, legalEntityModalBtn, true, true);
+
+        if (legalEntityModalInputtype.checked == false) { inputChk(legalEntityModalInputdeposit_bank, 'deposit_bank', legalEntity.deposit_bank, false, null, legalEntityModalBtn, true, true);}
+        if (legalEntityModalInputtype.checked == false) { inputChk(legalEntityModalInputdeposit_bank_account, 'deposit_bank_account', legalEntity.deposit_bank_account, false, null, legalEntityModalBtn, true, true);}
+        
+        if (legalEntityModalInputtype.checked == false) { inputChk(legalEntityModalInputcontact, 'contact', legalEntity.contact, true, contactOptLst, legalEntityModalBtn, false, true);}
+    }
+    inputChk(e.target, 'reg_addr', legalEntity.reg_addr, false, null, legalEntityModalBtn, true, false);
+    inputChk(e.target, 'reg_phone', legalEntity.reg_phone, false, null, legalEntityModalBtn, true, false);
+    inputChk(e.target, 'postal_addr', legalEntity.postal_addr, false, null, legalEntityModalBtn, true, false);
+    // e.target.classList.toggle('disabled', !Array.from(inputChkResults.values()).every((element, index, array) => {return element != false;}));
+    /*
+    if (e.key == 'Enter'){
+        if (Object.values(inputChkResults).every((element, index, array) => {return element == true;})) {
+            legalEntityModalBtn.classList.remove('disabled');
+        } else {
+            legalEntityModalBtn.classList.add('disabled');
+            e.stopPropagation();
+            e.preventDefault();
+            baseMessagesAlert("something Invalid", 'warning');
+        }
+    }
+    */
+})
+
+function inputChk(inputEl, inputLbl, orig, isOptLst, optLst, btn, isAlphanumeric, reqd ) {
+    let inputValue = inputEl.value.trim(), chkAlert, chkAlertType, inputChkResult;
+
+    if (isAlphanumeric) {
+        inputValue = inputEl.value.trim().replaceAll(/[`~!@#$%^&*()+=\[\]\\{}|;':",./<>?·~！@#￥%……&*（）——+=【】、{}|；‘：“，。、《》？]/g,'');
+    }
+    inputEl.value = inputValue;
+
+    modalInputTag == 'updLegalEntity' ? inputChkResult = 'upd' : inputChkResult = 'new';
+    
+    if (inputValue != orig || (reqd && orig == '')) {
+        if (inputChkResult && reqd && inputValue == '') {
+            chkAlert = `the given ${inputLbl} [ ${inputValue} ] is Empty`;
+            inputChkResult = false;
+        }
+
+        if (inputChkResult && isOptLst && optLst && !(inputValue in optLst)) {
+            chkAlert = `the given ${inputLbl} [ ${inputValue} ] does NOT exist in the Option List`;
+            inputChkResult = false;
+        } else if (inputChkResult && !isOptLst && optLst && (inputValue in optLst)) {
+            chkAlert = `the given ${inputLbl} [ ${inputValue} ] does Exist in the System`;
+            inputChkResult = false;
+        }
+    } else {
+        inputChkResult = 'noChg';
+    }
+
+    ['text-danger', 'border-bottom', 'border-danger'].forEach(t => inputEl.classList.toggle(t, !inputChkResult));
+    ['border-success'].forEach(t => inputEl.classList.toggle(t, inputChkResult));
+
+    inputChkResult ? inputEl.nextElementSibling.innerHTML = "" : inputEl.nextElementSibling.innerHTML = chkAlert;
+
+    /*
+    setTimeout(() => {
+        ['text-danger', 'border-bottom', 'border-danger'].forEach(t => inputEl.classList.remove(t));
+        inputEl.nextElementSibling.innerHTML = "";
+    }, 3000); // clear Alert in 3000ms
+    */
+
+    inputChkResults.set(inputLbl, inputChkResult);
+    btn.classList.toggle('disabled', !Array.from(inputChkResults.values()).every((element, index, array) => {return element != false || element == 'noChg';}));
+    
+    return inputChkResult;
+}
+
+legalEntityModalBtnSubmit.addEventListener('click', e => {
+    const csrftoken = legalEntityModal.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
+    
+    const formData = new FormData();
+    
+    if (modalInputTag == 'updLegalEntity') {formData.append('pk', legalEntity.pk);}
+
+    if (modalInputTag == 'newLegalEntity') {legalEntityModalInputtype.checked ? formData.append('type', 'I') : formData.append('type', 'E');}
+
+    inputChkResults.forEach((value, key, map) => {
+        if (value == 'new' || value == 'upd') {
+            formData.append(`${key}`, legalEntityModal.querySelector(`#legalEntityModalInput${key}`).value);
+        }
+    });
+    /*
+    formData.append('reg_addr', legalEntityModal.querySelector('#legalEntityModalInputreg_addr').value.trim());
+    formData.append('reg_phone', legalEntityModal.querySelector('#legalEntityModalInputreg_phone').value.trim());
+    formData.append('postal_addr', legalEntityModal.querySelector('#legalEntityModalInputpostal_addr').value.trim());
+    */
+    fetch(postUpdUri, {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrftoken},
+        mode: 'same-origin', // do not send CSRF token to another domain
+        body: formData,
+    }).then(response => {
+        response.json();
+    }).then(result => {
+        bootstrap.Modal.getOrCreateInstance('#legalEntityModal').hide();
+        // legalEntityModalNextInstance.hide();
+        baseMessagesAlert(`1 x new Legal Entity [${legalEntityModalInputname.value} ] was added`, 'info');
+    }).catch(error => {console.error('Error:', error)})
+})
+
+const legalEntityModalNext = document.querySelector('#legalEntityModalNext');
+const legalEntityModalNextInstance = bootstrap.Modal.getOrCreateInstance('#legalEntityModalNext');
+// const legalEntityModalForm = legalEntityModal.querySelector('#legalEntityModalForm');
+const legalEntityModalNextTbl = legalEntityModalNext.querySelector('table');
+
+let legalEntityModalInputnameValue, isDefaultHostname;
+
+legalEntityModalNext.addEventListener('shown.bs.modal', () => {
+    legalEntityModalNext.querySelector('#newModelTypeValueModalNext').innerHTML = legalEntityModalInputcode.value;
+    legalEntityModalNext.querySelector('#newBranchSiteValueModalNext').innerHTML = legalEntityModalInputdeposit_bank.value;
+    legalEntityModalNext.querySelector('#newContractValueModalNext').innerHTML = legalEntityModalInputdeposit_bank_account.value;
+
+    legalEntityModalNextTbl.replaceChildren();        // legalEntityModalNextTbl.innerHTML = '';
+
+    const legalEntityModalNextTblTh = document.createElement('tr');
+    legalEntityModalNextTblTh.innerHTML = [
+        `<th><small>Serial #</small></th>`,
+        `<th><small>Hostname</small></th>`,
+        `<th><small>Status</small></th>`,
+        `<th><small>Owner</small></th>`
+    ].join('');
+    legalEntityModalNextTbl.appendChild(legalEntityModalNextTblTh);
+
+    legalEntityModalInputnameValue = legalEntityModalInputname.value.toUpperCase().replaceAll(' ', '').split(',').filter((element, index, array) => array.indexOf(element) === index)
+    formData.append('serial_number', legalEntityModalInputnameValue);
+
+    legalEntityModalInputnameValue.forEach(i => {
+        const legalEntityModalNextTblTd = document.createElement('tr');
+        legalEntityModalNextTblTd.innerHTML = [
+            `<td><small>${i}</small></td>`,
+            `<td><small>TS-${i}</small></td>`,
+            `<td><small>${legalEntityModalInputprjct.value == '' ? 'Available' : 'in Use'}</small></td>`,
+            `<td><small>${legalEntityModalInputprjct.value == '' ? '🈳' : legalEntityModalInputprjct.value}</small></td>`
+        ].join('');
+        legalEntityModalNextTbl.appendChild(legalEntityModalNextTblTd);
+    })
+})
+
+legalEntityModalNext.querySelector("input[type='checkbox']:checked").addEventListener('change', e => {
+    let i = 0, legalEntityModalNextTblTr = legalEntityModalNextTbl.querySelector('tr');
+    while(legalEntityModalNextTblTr.nextElementSibling) {
+        legalEntityModalNextTblTr = legalEntityModalNextTblTr.nextElementSibling;
+        e.target.checked ? legalEntityModalNextTblTr.querySelector('td:nth-child(2)').innerHTML = `<small>TS-${legalEntityModalInputnameValue[i]}</small>` : legalEntityModalNextTblTr.querySelector('td:nth-child(2)').innerHTML = `<small></small>`
+    
+        i++;
+    }
+    formData.append('isDefaultHostname', e.target.checked);
+})
+
+legalEntityModalNext.querySelector('#legalEntityModalNextBtnSubmit').addEventListener('click', e => {
+    // if (e.key = 'Enter') {
+        
+        
+    // }
+})
