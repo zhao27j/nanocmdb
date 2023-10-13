@@ -25,7 +25,7 @@
           </tr>
           {% for change in changes %}
           <tr>
-            <td><small>{{ change.detail }}</small></td>
+            <td class="text-wrap" style="max-width: 576px"><small>{{ change.detail }}</small></td>
             <td><small>{{ change.by.get_full_name }}</small></td>
             <td><small>{{ change.on }}</small></td>
           </tr>

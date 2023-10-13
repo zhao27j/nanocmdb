@@ -51,7 +51,7 @@ class ChangeHistory(models.Model):
     detail = models.TextField((_("Details")), null=True, blank=True)
 
     def __str__(self):
-        return self.detail
+       return self.detail
     
 
 def digital_copy_upload_to(instance, filename):

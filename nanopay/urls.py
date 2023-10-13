@@ -11,7 +11,7 @@ urlpatterns = [
     # path('legal_entity/new/', views.LegalEntityCreateView.as_view(), name='legal-entity-new'),
     # path('legal_entity/new/', views.legal_entity_new, name='legal-entity-new'),
     path('legal_entity/<int:pk>/detail/', views.LegalEntityDetailView.as_view(), name='legalentity-detail'),
-    path('legal_entities', views.LegalEntityListView.as_view(), name='legal-entity-list'),
+    path('legal_entities/', views.LegalEntityListView.as_view(), name='legal-entity-list'),
 ]
 
 # Contract
@@ -37,5 +37,5 @@ urlpatterns += {
 
 urlpatterns += {
     path('json_response/legalEntity_getLst/', views_api.jsonResponse_legalEntity_getLst, name='jsonResponse-legalEntity-getLst'),
-    path('legal_entity/new/', views_api.legal_entity_new, name='legal-entity-new'),
+    path('legal_entity/', views_api.legal_entity, name='legal-entity'),
 }

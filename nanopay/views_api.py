@@ -13,7 +13,7 @@ from nanobase.models import UserProfile, ChangeHistory
 
 
 @login_required
-def legal_entity_new(request):
+def legal_entity(request):
     if request.method == 'POST':
         # legal_entity, created = LegalEntity.objects.get_or_create(name=request.POST.get('name'))
         chg_log = ''
@@ -24,58 +24,55 @@ def legal_entity_new(request):
             legal_entity = LegalEntity.objects.create()
             created = True
 
-        for k, v in request.POST.items():
+        for k, v in request.POST.copy().items():
             try:
                 LegalEntity._meta.get_field(k)
 
                 if created:
                     chg_log = '1 x new Legal Entity [ ' + legal_entity.name + ' ] was added'
                 else:
-                    chg_log += 'The ' + k.capitalize() + ' was changed from [ ' + getattr(legal_entity, k) + ' ] to [ ' + v + ' ]; '
-                    setattr(legal_entity, k, v)
+                    if getattr(legal_entity, k):
+                        from_orig = getattr(legal_entity, k)
+                        try:
+                            LegalEntity._meta.get_field(k).related_fields
+                            from_orig = from_orig.name
+                        except AttributeError:
+                            pass
+                    else: 
+                        from_orig = '🈳'
+                    to_target = v if v != '' else '🈳'
+                    chg_log += 'The ' + k.capitalize() + ' was changed from [ ' + from_orig + ' ] to [ ' + to_target + ' ]; '
 
                 if k == 'prjct':
-                    legal_entity.prjct = Prjct.objects.get(name=v) if request.POST.get('type') == 'I' else None
-                elif k == 'contact' and v != '':
-                    contact = User.objects.get(username=request.POST.get('contact').split("-")[-1].split("@")[0].strip())
-                    contact.userprofile.legal_entity = legal_entity
-                    contact.userprofile.save()
+                    if request.POST.get('type') == 'I':
+                        legal_entity.prjct = Prjct.objects.get(name=v) 
+                    else:
+                        legal_entity.prjct = None
                 else:
                     setattr(legal_entity, k, v)
 
-                """
-                    legal_entity.name = request.POST.get('name')
-                    legal_entity.type = request.POST.get('type')
-                    legal_entity.prjct = Prjct.objects.get(name=request.POST.get('prjct')) if request.POST.get('type') == 'I' else None
-                    legal_entity.code = request.POST.get('code')
-                    legal_entity.deposit_bank = request.POST.get('deposit_bank')
-                    legal_entity.deposit_bank_account = request.POST.get('deposit_bank_account')
-                    legal_entity.tax_number = request.POST.get('tax_number')
-                    legal_entity.reg_addr = request.POST.get('reg_addr')
-                    legal_entity.reg_phone = request.POST.get('reg_phone')
-                    legal_entity.postal_addr = request.POST.get('postal_addr')
-
-                    legal_entity = LegalEntity.objects.create(
-                        name=request.POST.get('name'),
-                        type=request.POST.get('type'),
-                        prjct=Prjct.objects.get(name=request.POST.get('prjct')) if request.POST.get('type') == 'I' else None,
-                        code = request.POST.get('code'),
-                        deposit_bank=request.POST.get('deposit_bank'),
-                        deposit_bank_account=request.POST.get('deposit_bank_account'),
-                        tax_number=request.POST.get('tax_number'),
-                        reg_addr=request.POST.get('reg_addr'),
-                        reg_phone=request.POST.get('reg_phone'),
-                        postal_addr=request.POST.get('postal_addr'),
-                    )
-
-                    if request.POST.get('contact') != '':
-                        contact = User.objects.get(username=request.POST.get('contact').split("-")[-1].split("@")[0].strip())
-                        contact.userprofile.legal_entity = legal_entity
-                        contact.userprofile.save()
-                    """
+                legal_entity.save()
                 
             except FieldDoesNotExist:
                 pass
+
+            if k == 'contact' and v != '':
+                contact = User.objects.get(username=request.POST.get('contact').split("-")[-1].split("@")[0].strip())
+                if UserProfile.objects.filter(user=contact).exists():
+                    contact.userprofile.legal_entity = legal_entity
+                    contact.userprofile.save()
+                else:
+                    UserProfile.objects.create(user=contact, legal_entity=legal_entity)
+            elif k == 'contact' and v == '':
+                try:
+                    user_profiles = UserProfile.objects.filter(legal_entity=legal_entity)
+                    for user_profile in user_profiles:
+                        user_profile.legal_entity = None
+                        user_profile.save()
+                except UserProfile.DoesNotExist:
+                    pass
+
+                
 
         ChangeHistory.objects.create(
             on=timezone.now(),
@@ -88,7 +85,8 @@ def legal_entity_new(request):
         # messages.info(request, '1 x new Legal Entity [ ' + request.POST['name'] + ' ] was added')
         # return redirect(to='nanopay:legalentity-detail', pk=legal_entity.pk)
 
-        response = JsonResponse({"name": legal_entity.name})
+        # response = JsonResponse({"name": legal_entity.name})
+        response = JsonResponse({"chg_log": chg_log})
         return response
 
 

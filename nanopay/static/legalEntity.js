@@ -25,7 +25,7 @@ legalEntityModal.addEventListener('show.bs.modal', (e) => {
         getLstUri += `?legalEntityPk=${e.relatedTarget.id}`;
     }
 
-    postUpdUri = window.location.origin + '/legal_entity/new/';
+    postUpdUri = window.location.origin + '/legal_entity/';
 
     fetch(getLstUri
     ).then(response => {
@@ -119,13 +119,12 @@ function legalEntityModalInitial(e) {
     if (modalInputTag == 'updLegalEntity') {
         legalEntityModalInputname.value = legalEntity.name;
 
-        if (e.type.includes('shown')) {
-            legalEntity.type == 'I' ? legalEntityModalInputtype.checked = true : legalEntityModalInputtype.checked = false;
-        }
+        if (e.type.includes('shown')) {legalEntity.type == 'I' ? legalEntityModalInputtype.checked = true : legalEntityModalInputtype.checked = false;}
+
         // legalEntityModalInputtype.value = legalEntity.type;
 
-        legalEntityModalInputcode.value = legalEntity.code;
-        legalEntityModalInputprjct.value = legalEntity.prjct;
+        legalEntityModalInputtype.checked ? legalEntityModalInputcode.value = "" : legalEntityModalInputcode.value = legalEntity.code;
+        legalEntityModalInputtype.checked ? legalEntityModalInputprjct.value = legalEntity.prjct : legalEntityModalInputprjct.value = "";
 
         legalEntityModalInputdeposit_bank.value = legalEntity.deposit_bank;
         legalEntityModalInputdeposit_bank_account.value = legalEntity.deposit_bank_account;
@@ -137,7 +136,7 @@ function legalEntityModalInitial(e) {
 
         legalEntityModalInputpostal_addr.value = legalEntity.postal_addr;
 
-        legalEntityModalInputcontact.value = legalEntity.contact;
+        legalEntityModalInputtype.checked ? legalEntityModalInputcontact.value = '' : legalEntityModalInputcontact.value = legalEntity.contact;
     } else {
         legalEntityModalInputname.value = '';
         // legalEntity.type == 'I' ? legalEntityModalInputtype.checked = true : legalEntityModalInputtype.checked = false;
@@ -217,14 +216,10 @@ legalEntityModalInputname.addEventListener('blur', e => inputChk(e.target, 'name
 legalEntityModalInputcode.addEventListener('blur', e => inputChk(e.target, 'code', legalEntity.code, false, null, legalEntityModalBtn, true, true));
 legalEntityModalInputprjct.addEventListener('blur', e => inputChk(e.target, 'prjct', legalEntity.prjct, true, projectOptLst, legalEntityModalBtn, false, true));
 
-legalEntityModalInputtax_number.addEventListener('blur', e => {if (legalEntityModalInputtype.checked == true) { inputChk(e.target, 'tax_number', legalEntity.tax_number, false, null, legalEntityModalBtn, true, true);}});
-legalEntityModalInputdeposit_bank.addEventListener('blur', e => {if (legalEntityModalInputtype.checked == false) { inputChk(e.target, 'deposit_bank', legalEntity.deposit_bank, false, null, legalEntityModalBtn, true, true);}});
-legalEntityModalInputdeposit_bank_account.addEventListener('blur', e => {if (legalEntityModalInputtype.checked == false) { inputChk(e.target, 'deposit_bank_account', legalEntity.deposit_bank_account, false, null, legalEntityModalBtn, true, true);}});
-legalEntityModalInputcontact.addEventListener('blur', e => {if (legalEntityModalInputtype.checked == false) { inputChk(e.target, 'contact', legalEntity.contact, true, contactOptLst, legalEntityModalBtn, false, true);}});
-
-legalEntityModalInputreg_addr.addEventListener('blur', e => inputChk(e.target, 'reg_addr', legalEntity.reg_addr, false, null, legalEntityModalBtn, true, false));
-legalEntityModalInputreg_phone.addEventListener('blur', e => inputChk(e.target, 'reg_phone', legalEntity.reg_phone, false, null, legalEntityModalBtn, true, false));
-legalEntityModalInputpostal_addr.addEventListener('blur', e => inputChk(e.target, 'postal_addr', legalEntity.postal_addr, false, null, legalEntityModalBtn, true, false));
+legalEntityModalInputtax_number.addEventListener('blur', e => {if (legalEntityModalInputtype.checked) { inputChk(e.target, 'tax_number', legalEntity.tax_number, false, null, legalEntityModalBtn, true, true);}});
+legalEntityModalInputdeposit_bank.addEventListener('blur', e => {if (!legalEntityModalInputtype.checked) { inputChk(e.target, 'deposit_bank', legalEntity.deposit_bank, false, null, legalEntityModalBtn, true, true);}});
+legalEntityModalInputdeposit_bank_account.addEventListener('blur', e => {if (!legalEntityModalInputtype.checked) { inputChk(e.target, 'deposit_bank_account', legalEntity.deposit_bank_account, false, null, legalEntityModalBtn, true, true);}});
+legalEntityModalInputcontact.addEventListener('blur', e => {if (!legalEntityModalInputtype.checked) { inputChk(e.target, 'contact', legalEntity.contact, true, contactOptLst, legalEntityModalBtn, false, true);}});
 
 legalEntityModalBtn.addEventListener('focus', e => {
 
@@ -232,18 +227,31 @@ legalEntityModalBtn.addEventListener('focus', e => {
     
     if (legalEntityModal.querySelector("input[type='checkbox']").checked) {
         inputChk(legalEntityModalInputprjct, 'prjct', legalEntity.prjct, true, projectOptLst, legalEntityModalBtn, false, true);
-        if (legalEntityModalInputtype.checked == true) { inputChk(legalEntityModalInputtax_number, 'tax_number', legalEntity.tax_number, false, null, legalEntityModalBtn, true, true);}
+
+        inputChk(legalEntityModalInputcode, 'code', legalEntity.code, false, null, legalEntityModalBtn, true, false); // Not required
+
+        inputChk(legalEntityModalInputdeposit_bank, 'deposit_bank', legalEntity.deposit_bank, false, null, legalEntityModalBtn, true, false); // Not required
+        inputChk(legalEntityModalInputdeposit_bank_account, 'deposit_bank_account', legalEntity.deposit_bank_account, false, null, legalEntityModalBtn, true, false); // Not required
+
+        inputChk(legalEntityModalInputtax_number, 'tax_number', legalEntity.tax_number, false, null, legalEntityModalBtn, true, true);
+
+        inputChk(legalEntityModalInputcontact, 'contact', legalEntity.contact, false, contactOptLst, legalEntityModalBtn, false, false); // Not required
     } else {
+        inputChk(legalEntityModalInputprjct, 'prjct', legalEntity.prjct, false, projectOptLst, legalEntityModalBtn, false, false); // Not required
+
         inputChk(legalEntityModalInputcode, 'code', legalEntity.code, false, null, legalEntityModalBtn, true, true);
 
-        if (legalEntityModalInputtype.checked == false) { inputChk(legalEntityModalInputdeposit_bank, 'deposit_bank', legalEntity.deposit_bank, false, null, legalEntityModalBtn, true, true);}
-        if (legalEntityModalInputtype.checked == false) { inputChk(legalEntityModalInputdeposit_bank_account, 'deposit_bank_account', legalEntity.deposit_bank_account, false, null, legalEntityModalBtn, true, true);}
+        inputChk(legalEntityModalInputdeposit_bank, 'deposit_bank', legalEntity.deposit_bank, false, null, legalEntityModalBtn, true, true);
+        inputChk(legalEntityModalInputdeposit_bank_account, 'deposit_bank_account', legalEntity.deposit_bank_account, false, null, legalEntityModalBtn, true, true);
+
+        inputChk(legalEntityModalInputtax_number, 'tax_number', legalEntity.tax_number, false, null, legalEntityModalBtn, true, false); // Not required
         
-        if (legalEntityModalInputtype.checked == false) { inputChk(legalEntityModalInputcontact, 'contact', legalEntity.contact, true, contactOptLst, legalEntityModalBtn, false, true);}
+        inputChk(legalEntityModalInputcontact, 'contact', legalEntity.contact, true, contactOptLst, legalEntityModalBtn, false, true);
     }
-    inputChk(e.target, 'reg_addr', legalEntity.reg_addr, false, null, legalEntityModalBtn, true, false);
-    inputChk(e.target, 'reg_phone', legalEntity.reg_phone, false, null, legalEntityModalBtn, true, false);
-    inputChk(e.target, 'postal_addr', legalEntity.postal_addr, false, null, legalEntityModalBtn, true, false);
+    inputChk(legalEntityModalInputreg_addr, 'reg_addr', legalEntity.reg_addr, false, null, legalEntityModalBtn, true, false); // Not required
+    inputChk(legalEntityModalInputreg_phone, 'reg_phone', legalEntity.reg_phone, false, null, legalEntityModalBtn, true, false); // Not required
+    inputChk(legalEntityModalInputpostal_addr, 'postal_addr', legalEntity.postal_addr, false, null, legalEntityModalBtn, true, false); // Not required
+
     // e.target.classList.toggle('disabled', !Array.from(inputChkResults.values()).every((element, index, array) => {return element != false;}));
     /*
     if (e.key == 'Enter'){
@@ -260,13 +268,15 @@ legalEntityModalBtn.addEventListener('focus', e => {
 })
 
 function inputChk(inputEl, inputLbl, orig, isOptLst, optLst, btn, isAlphanumeric, reqd ) {
+    orig = orig == undefined ? '' : orig;
+
     let inputValue = inputEl.value.trim(), chkAlert, chkAlertType, inputChkResult;
 
-    if (isAlphanumeric) {
-        inputValue = inputEl.value.trim().replaceAll(/[`~!@#$%^&*()+=\[\]\\{}|;':",./<>?·~！@#￥%……&*（）——+=【】、{}|；‘：“，。、《》？]/g,'');
-    }
+    if (isAlphanumeric) {inputValue = inputEl.value.trim().replaceAll(/[`~!@#$%^&*()+=\[\]\\{}|;':",./<>?·~！@#￥%……&*（）——+=【】、{}|；‘：“，。、《》？]/g,'');}
+    
     inputEl.value = inputValue;
 
+    modalInputTag == 'updLegalEntity' ? chkAlert = 'upd' : chkAlert = 'new';
     modalInputTag == 'updLegalEntity' ? inputChkResult = 'upd' : inputChkResult = 'new';
     
     if (inputValue != orig || (reqd && orig == '')) {
@@ -283,13 +293,15 @@ function inputChk(inputEl, inputLbl, orig, isOptLst, optLst, btn, isAlphanumeric
             inputChkResult = false;
         }
     } else {
+        chkAlert = 'noChg';
         inputChkResult = 'noChg';
     }
 
     ['text-danger', 'border-bottom', 'border-danger'].forEach(t => inputEl.classList.toggle(t, !inputChkResult));
     ['border-success'].forEach(t => inputEl.classList.toggle(t, inputChkResult));
 
-    inputChkResult ? inputEl.nextElementSibling.innerHTML = "" : inputEl.nextElementSibling.innerHTML = chkAlert;
+    // inputChkResult ? inputEl.nextElementSibling.innerHTML = "" : inputEl.nextElementSibling.innerHTML = chkAlert;
+    inputEl.nextElementSibling.innerHTML = chkAlert;
 
     /*
     setTimeout(() => {
@@ -299,8 +311,11 @@ function inputChk(inputEl, inputLbl, orig, isOptLst, optLst, btn, isAlphanumeric
     */
 
     inputChkResults.set(inputLbl, inputChkResult);
-    btn.classList.toggle('disabled', !Array.from(inputChkResults.values()).every((element, index, array) => {return element != false || element == 'noChg';}));
+    btn.classList.toggle(
+        'disabled', !Array.from(inputChkResults.values()).every((element, index, array) => {return element != false;}) || Array.from(inputChkResults.values()).every((element, index, array) => {return element == 'noChg';})
+    );
     
+
     return inputChkResult;
 }
 
@@ -308,32 +323,44 @@ legalEntityModalBtnSubmit.addEventListener('click', e => {
     const csrftoken = legalEntityModal.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
     
     const formData = new FormData();
-    
     if (modalInputTag == 'updLegalEntity') {formData.append('pk', legalEntity.pk);}
-
     if (modalInputTag == 'newLegalEntity') {legalEntityModalInputtype.checked ? formData.append('type', 'I') : formData.append('type', 'E');}
-
     inputChkResults.forEach((value, key, map) => {
         if (value == 'new' || value == 'upd') {
-            formData.append(`${key}`, legalEntityModal.querySelector(`#legalEntityModalInput${key}`).value);
+            if (key == 'type') {
+                legalEntityModalInputtype.checked ? formData.append('type', 'I') : formData.append('type', 'E');
+            } else {
+                formData.append(`${key}`, legalEntityModal.querySelector(`#legalEntityModalInput${key}`).value);
+            }
         }
     });
-    /*
-    formData.append('reg_addr', legalEntityModal.querySelector('#legalEntityModalInputreg_addr').value.trim());
-    formData.append('reg_phone', legalEntityModal.querySelector('#legalEntityModalInputreg_phone').value.trim());
-    formData.append('postal_addr', legalEntityModal.querySelector('#legalEntityModalInputpostal_addr').value.trim());
-    */
+
     fetch(postUpdUri, {
         method: 'POST',
         headers: {'X-CSRFToken': csrftoken},
         mode: 'same-origin', // do not send CSRF token to another domain
         body: formData,
     }).then(response => {
-        response.json();
-    }).then(result => {
-        bootstrap.Modal.getOrCreateInstance('#legalEntityModal').hide();
+        // response.json();
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error(`HTTP error: ${response.status}`);
+        }
+    }).then(json => {
+        bootstrap.Modal.getInstance('#legalEntityModal').hide();
+        
+        baseMessagesAlert(json.chg_log, 'info');
+
+        // const legalEntityModaInstance = bootstrap.Modal.getInstance('#legalEntityModal');
+        // legalEntityModaInstance.hide();
+        // legalEntityModaInstance.dispose();
+
+        // bootstrap.Modal.getOrCreateInstance('#legalEntityModal').hide();
         // legalEntityModalNextInstance.hide();
-        baseMessagesAlert(`1 x new Legal Entity [${legalEntityModalInputname.value} ] was added`, 'info');
+
+        // baseMessagesAlert(`1 x new Legal Entity [${legalEntityModalInputname.value} ] was added`, 'info');
+
     }).catch(error => {console.error('Error:', error)})
 })
 
