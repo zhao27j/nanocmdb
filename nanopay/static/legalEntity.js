@@ -10,19 +10,31 @@ import {modalInputChk} from './modalInputChk.js';
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
 const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
-const legalEntityModal = document.querySelector('#legalEntityModal');
+let legalEntityPk, modalLbl, modalInputTag, getLstUri, postUpdUri, legalEntity, legalEntityOptLst, projectOptLst, contactOptLst, changeHistory;
 
-let modalLbl, modalInputTag, getLstUri, postUpdUri, legalEntity, legalEntityOptLst, projectOptLst, contactOptLst;
+const legalEntityModal = document.querySelector('#legalEntityModal');
+const legalEntityModalInst = bootstrap.Modal.getOrCreateInstance(legalEntityModal);
+
+const legalEntityLstTbl = document.querySelector("#legalEntityLstTbl");
+legalEntityLstTbl.addEventListener('dblclick', e => {
+    if (e.target.closest("tr").querySelector("input[type='checkbox']")) {
+        legalEntityPk = e.target.closest("tr").querySelector("input[type='checkbox']").value;
+        legalEntityModalInst.show();
+    }
+})
 
 legalEntityModal.addEventListener('show.bs.modal', (e) => {
     modalInputTag = '';
     getLstUri = window.location.origin + '/json_response/legalEntity_getLst/';
 
-    if (e.relatedTarget.innerHTML.includes('New Legal Entity')) {
+    if (e.relatedTarget && e.relatedTarget.innerHTML.includes('New Legal Entity')) {
         modalInputTag = 'newLegalEntity';
+        legalEntityModal.querySelector("h3.card-title").textContent = 'new Legal Entity'
     } else {
         modalInputTag = 'updLegalEntity';
-        getLstUri += `?legalEntityPk=${e.relatedTarget.id}`;
+        legalEntityModal.querySelector("h3.card-title").textContent = 'Legal Entity'
+        // getLstUri += `?legalEntityPk=${e.relatedTarget.id}`;
+        getLstUri += `?legalEntityPk=${legalEntityPk}`;
     }
 
     postUpdUri = window.location.origin + '/legal_entity/';
@@ -39,6 +51,7 @@ legalEntityModal.addEventListener('show.bs.modal', (e) => {
         legalEntityOptLst = json[1];
         projectOptLst = json[2];
         contactOptLst = json[3];
+        // changeHistory = json[4];
     }).catch(error => {console.error('Error:', error);})
 })
 
@@ -137,6 +150,7 @@ function legalEntityModalInitial(e) {
         legalEntityModalInputpostal_addr.value = legalEntity.postal_addr;
 
         legalEntityModalInputtype.checked ? legalEntityModalInputcontact.value = '' : legalEntityModalInputcontact.value = legalEntity.contact;
+
     } else {
         legalEntityModalInputname.value = '';
         // legalEntity.type == 'I' ? legalEntityModalInputtype.checked = true : legalEntityModalInputtype.checked = false;
@@ -178,6 +192,22 @@ legalEntityModal.addEventListener('shown.bs.modal', (e) => {
         legalEntityModalInputCntctDatalist.appendChild(datalistOpt);
     })
 
+    /*
+    Object.keys(changeHistory).forEach(key => {
+        const chngdBy = changeHistory[key].split(legalEntity.pk)[0].trim();
+        const chngdOn = changeHistory[key].split(legalEntity.pk)[1].trim();
+
+        const legalEntityModalTbl = legalEntityModal.querySelector('table');
+        const legalEntityModalTblTd = document.createElement('tr');
+        legalEntityModalTblTd.innerHTML = [
+            `<td class="text-wrap" style="max-width: 576px"><small>${key}</small></td>`,
+            `<td><small>${chngdBy}</small></td>`,
+            `<td><small>${chngdOn}</small></td>`,
+        ].join('');
+        legalEntityModalTbl.appendChild(legalEntityModalTblTd);
+    })
+    */
+
     legalEntityModalInputname.focus();
     // legalEntityModalInputname.value = '';
     legalEntityModalBtn.classList.add('disabled');
@@ -203,6 +233,18 @@ legalEntityModalBtn.addEventListener('click', e => {
         legalEntityModal.querySelectorAll("input").forEach(el => el.disabled = true);
         e.target.innerHTML = 'back';
         legalEntityModalBtnSubmit.style.display = '';
+        inputChkResults.forEach((value, key, map) => {
+            if (value == 'new' || value == 'upd') {
+                legalEntityModal.querySelector(`#legalEntityModalInput${key}`).classList.add("border-success");
+                /*
+                if (key == 'type') {
+                    legalEntityModalInputtype.checked ? formData.append('type', 'I') : formData.append('type', 'E');
+                } else {
+                    formData.append(`${key}`, legalEntityModal.querySelector(`#legalEntityModalInput${key}`).value);
+                }
+                */
+            }
+        });
     } else if (e.target.innerHTML == 'back') {
         legalEntityModal.querySelector("textarea[type='text']").disabled = false;
         legalEntityModal.querySelectorAll("input").forEach(el => el.disabled = false);
@@ -293,8 +335,8 @@ function inputChk(inputEl, inputLbl, orig, isOptLst, optLst, btn, isAlphanumeric
             inputChkResult = false;
         }
     } else {
-        chkAlert = 'noChg';
         inputChkResult = 'noChg';
+        chkAlert = inputChkResult;
     }
 
     ['text-danger', 'border-bottom', 'border-danger'].forEach(t => inputEl.classList.toggle(t, !inputChkResult));
@@ -348,21 +390,32 @@ legalEntityModalBtnSubmit.addEventListener('click', e => {
             throw new Error(`HTTP error: ${response.status}`);
         }
     }).then(json => {
-        bootstrap.Modal.getInstance('#legalEntityModal').hide();
-        
+        legalEntityModalInst.hide();
+        // bootstrap.Modal.getInstance(legalEntityModal).hide();
+        // bootstrap.Modal.getInstance(legalEntityModal).dispose();
+
         baseMessagesAlert(json.chg_log, 'info');
-
-        // const legalEntityModaInstance = bootstrap.Modal.getInstance('#legalEntityModal');
-        // legalEntityModaInstance.hide();
-        // legalEntityModaInstance.dispose();
-
-        // bootstrap.Modal.getOrCreateInstance('#legalEntityModal').hide();
-        // legalEntityModalNextInstance.hide();
-
-        // baseMessagesAlert(`1 x new Legal Entity [${legalEntityModalInputname.value} ] was added`, 'info');
 
     }).catch(error => {console.error('Error:', error)})
 })
+
+legalEntityModal.addEventListener('hidden.bs.modal', e => {
+    legalEntityModal.querySelectorAll(".border-danger, .border-success").forEach(el => {
+        ['text-danger', 'border-bottom', 'border-danger', 'border-success'].forEach(t => el.classList.remove(t));
+        el.nextElementSibling.innerHTML = "";
+    })
+
+    legalEntityModal.querySelector("textarea[type='text']").disabled = false;
+    legalEntityModal.querySelectorAll("input").forEach(el => el.disabled = false);
+    legalEntityModalBtn.innerHTML = 'next';
+    legalEntityModalBtnSubmit.style.display = 'none';
+
+    // legalEntityModal.querySelector('#legalEntityModalForm').reset();
+})
+
+
+
+
 
 const legalEntityModalNext = document.querySelector('#legalEntityModalNext');
 const legalEntityModalNextInstance = bootstrap.Modal.getOrCreateInstance('#legalEntityModalNext');

@@ -86,6 +86,8 @@ def legal_entity(request):
         # return redirect(to='nanopay:legalentity-detail', pk=legal_entity.pk)
 
         # response = JsonResponse({"name": legal_entity.name})
+
+        # chg_log = "<a href="{% url 'nanopay:legalentity-detail' legal_entity.pk %}" class="text-decoration-none"><small>{{ legal_entity.name }}</small></a>"
         response = JsonResponse({"chg_log": chg_log})
         return response
 
@@ -134,6 +136,13 @@ def jsonResponse_legalEntity_getLst(request):
             for user_profile in user_profiles:
                 legal_entity['contact'] = user_profile.user.get_full_name()
 
+            """
+            change_history = {}
+            changes = ChangeHistory.objects.filter(db_table_name=legalEntity_selected._meta.db_table, db_table_pk=legalEntity_selected.pk).order_by("-on")
+            for change in changes:
+                change_history[change.detail] = change.by.get_full_name() + str(legalEntity_selected.pk) + change.on.strftime("%Y-%m-%d %H:%M:%S")
+            """
+            
             # legal_entity = serializers.serialize("json", LegalEntity.objects.filter(pk=request.GET.get('legalEntityPk')))
 
         response = [legal_entity, legal_entity_lst, prjct_lst, external_contact_lst]
