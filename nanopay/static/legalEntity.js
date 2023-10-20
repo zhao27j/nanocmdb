@@ -1,5 +1,5 @@
 import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
-import {modalInputChk} from './modalInputChk.js';
+// import {modalInputChk} from './modalInputChk.js';
 
 // import {modalInputChk} from '../static/nanopay/'
 
@@ -10,15 +10,16 @@ import {modalInputChk} from './modalInputChk.js';
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
 const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
-let legalEntityPk, modalLbl, modalInputTag, getLstUri, postUpdUri, legalEntity, legalEntityOptLst, projectOptLst, contactOptLst, changeHistory;
+let legalEntitiesTblTrDblClckd, legalEntityPk, modalLbl, modalInputTag, getLstUri, postUpdUri, legalEntity, legalEntityOptLst, projectOptLst, contactOptLst, changeHistory;
 
 const legalEntityModal = document.querySelector('#legalEntityModal');
 const legalEntityModalInst = bootstrap.Modal.getOrCreateInstance(legalEntityModal);
 
-const legalEntityLstTbl = document.querySelector("#legalEntityLstTbl");
-legalEntityLstTbl.addEventListener('dblclick', e => {
-    if (e.target.closest("tr").querySelector("input[type='checkbox']")) {
-        legalEntityPk = e.target.closest("tr").querySelector("input[type='checkbox']").value;
+const legalEntitiesTbl = document.querySelector("#legalEntitiesTbl");
+legalEntitiesTbl.addEventListener('dblclick', e => {
+    legalEntitiesTblTrDblClckd = e.target.closest("tr");
+    if (legalEntitiesTblTrDblClckd.querySelector("input[type='checkbox']")) {
+        legalEntityPk = legalEntitiesTblTrDblClckd.querySelector("input[type='checkbox']").value;
         legalEntityModalInst.show();
     }
 })
@@ -52,7 +53,7 @@ legalEntityModal.addEventListener('show.bs.modal', (e) => {
         projectOptLst = json[2];
         contactOptLst = json[3];
         // changeHistory = json[4];
-    }).catch(error => {console.error('Error:', error);})
+    }).catch(error => {console.error('Error:', error);});
 })
 
 const legalEntityModalInputname = legalEntityModal.querySelector('#legalEntityModalInputname');
@@ -192,7 +193,7 @@ legalEntityModal.addEventListener('shown.bs.modal', (e) => {
         legalEntityModalInputCntctDatalist.appendChild(datalistOpt);
     })
 
-    /*
+/*
     Object.keys(changeHistory).forEach(key => {
         const chngdBy = changeHistory[key].split(legalEntity.pk)[0].trim();
         const chngdOn = changeHistory[key].split(legalEntity.pk)[1].trim();
@@ -206,7 +207,7 @@ legalEntityModal.addEventListener('shown.bs.modal', (e) => {
         ].join('');
         legalEntityModalTbl.appendChild(legalEntityModalTblTd);
     })
-    */
+*/
 
     legalEntityModalInputname.focus();
     // legalEntityModalInputname.value = '';
@@ -236,13 +237,13 @@ legalEntityModalBtn.addEventListener('click', e => {
         inputChkResults.forEach((value, key, map) => {
             if (value == 'new' || value == 'upd') {
                 legalEntityModal.querySelector(`#legalEntityModalInput${key}`).classList.add("border-success");
-                /*
+            /*
                 if (key == 'type') {
                     legalEntityModalInputtype.checked ? formData.append('type', 'I') : formData.append('type', 'E');
                 } else {
                     formData.append(`${key}`, legalEntityModal.querySelector(`#legalEntityModalInput${key}`).value);
                 }
-                */
+            */
             }
         });
     } else if (e.target.innerHTML == 'back') {
@@ -394,9 +395,35 @@ legalEntityModalBtnSubmit.addEventListener('click', e => {
         // bootstrap.Modal.getInstance(legalEntityModal).hide();
         // bootstrap.Modal.getInstance(legalEntityModal).dispose();
 
+        // location.reload(true);
+
         baseMessagesAlert(json.chg_log, 'info');
 
-    }).catch(error => {console.error('Error:', error)})
+        if (modalInputTag == 'updLegalEntity') {
+            inputChkResults.forEach((value, key, map) => {
+                if (value == 'upd') {
+                    if (key == 'type') {
+                        legalEntityModalInputtype.checked ? legalEntitiesTblTrDblClckd.querySelector(`#legalEntitiesTblTd${key}`).textContent = 'Internal' : legalEntitiesTblTrDblClckd.querySelector(`#legalEntitiesTblTd${key}`).textContent = 'External';
+                    } else if (key != 'contact' && key != 'postal_addr') {
+                        legalEntitiesTblTrDblClckd.querySelector(`#legalEntitiesTblTd${key}`).textContent = legalEntityModal.querySelector(`#legalEntityModalInput${key}`).value;
+                    }
+                }
+            });
+    /*
+        } else if (modalInputTag == 'newLegalEntity') {
+            const legalEntitiesTblTr = document.createElement('tr');
+            inputChkResults.forEach((value, key, map) => {
+                if (value == 'new') {
+                    document.createElement('td').in
+
+                }
+
+            });
+            legalEntitiesTbl.appendChild(document.createElement('tr'));
+    */
+        }
+
+    }).catch(error => {console.error('Error:', error);});
 })
 
 legalEntityModal.addEventListener('hidden.bs.modal', e => {
@@ -416,7 +443,7 @@ legalEntityModal.addEventListener('hidden.bs.modal', e => {
 
 
 
-
+/*
 const legalEntityModalNext = document.querySelector('#legalEntityModalNext');
 const legalEntityModalNextInstance = bootstrap.Modal.getOrCreateInstance('#legalEntityModalNext');
 // const legalEntityModalForm = legalEntityModal.querySelector('#legalEntityModalForm');
@@ -472,3 +499,4 @@ legalEntityModalNext.querySelector('#legalEntityModalNextBtnSubmit').addEventLis
         
     // }
 })
+*/

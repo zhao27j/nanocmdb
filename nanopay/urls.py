@@ -38,4 +38,6 @@ urlpatterns += {
 urlpatterns += {
     path('json_response/legalEntity_getLst/', views_api.jsonResponse_legalEntity_getLst, name='jsonResponse-legalEntity-getLst'),
     path('legal_entity/', views_api.legal_entity, name='legal-entity'),
+
+    path('json_response/legalEntities_getLst/', views_api.jsonResponse_legalEntities_getLst, name='legal-entities-getLst'),
 }
