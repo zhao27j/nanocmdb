@@ -24,15 +24,15 @@ def jsonResponse_legalEntities_getLst(request):
         legal_entity_prjcts = {}
         
         for legal_entity in legal_entities:
-            legal_entity_types[legal_entity.get_type_display()] = legal_entity.type
+            legal_entity_types[legal_entity.type] = legal_entity.get_type_display()
             if legal_entity.prjct:
                 legal_entity_prjcts[legal_entity.prjct.pk] = legal_entity.prjct.name
 
         
-        num_of_prjct = legal_entities.values('prjct').distinct().count()
-        num_of_type = legal_entities.values('type').distinct().count()
+        # num_of_prjct = legal_entities.values('prjct').distinct().count()
+        # num_of_type = legal_entities.values('type').distinct().count()
 
-        response = [json.loads(serialize("json", LegalEntity.objects.all())), legal_entity_types, legal_entity_prjcts]
+        response = [json.loads(serialize("json", legal_entities)), legal_entity_types, legal_entity_prjcts]
 
         return JsonResponse(response, safe=False)
 

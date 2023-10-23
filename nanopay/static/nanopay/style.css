@@ -9,3 +9,7 @@
 
     line-height: 200%;
 }
+
+.accordion {
+    --bs-accordion-active-bg: FloralWhite;
+}
