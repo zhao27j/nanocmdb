@@ -15,17 +15,8 @@ let legalEntitiesTblTrDblClckd, legalEntityPk, modalLbl, modalInputTag, getLstUr
 const legalEntityModal = document.querySelector('#legalEntityModal');
 const legalEntityModalInst = bootstrap.Modal.getOrCreateInstance(legalEntityModal);
 
-const legalEntitiesTbl = document.querySelector("#legalEntitiesTbl");
-
-if (HTMLCollection.prototype.isPrototypeOf(legalEntitiesTbl)) {
-    legalEntitiesTbl.forEach(el => el.addEventListener('dblclick', e => {
-        legalEntitiesTblTrDblClckd = e.target.closest("tr");
-        if (legalEntitiesTblTrDblClckd.querySelector("input[type='checkbox']")) {
-            legalEntityPk = legalEntitiesTblTrDblClckd.querySelector("input[type='checkbox']").value;
-            legalEntityModalInst.show();
-        }
-    }))
-}
+//const legalEntitiesTbl = document.querySelector("#legalEntitiesTbl");
+const legalEntitiesTbl = document.querySelector("#legalEntitiesAccordion");
 
 legalEntitiesTbl.addEventListener('dblclick', e => {
     legalEntitiesTblTrDblClckd = e.target.closest("tr");
