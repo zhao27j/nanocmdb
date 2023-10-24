@@ -1,0 +1,41 @@
+{% load static %}
+
+<!-- <form action="" method="" id="cuModalForm" class="g-3 needs-validation" novalidate=""> -->
+  
+<!-- legal Entity - Contact create / update -->
+
+<div class="modal fade" id="cuModal" tabindex="-1" aria-labelledby="cuModalLabel" aria-hidden="true">
+  {% csrf_token %}
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="cuModalLabel"></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3"><b> Instance Selected: </b><span></span></div>
+          <input type="text" list="cuModalDatalist" id="cuModalInput" name="" placeholder="" class="form-control" required="" />
+          <small class="" style="color: Tomato"></small>
+          <datalist id="cuModalDatalist"></datalist>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        {# <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> #}
+        <button type="submit" id="cuModalBtn" class="btn btn-primary">submit</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- js -->
+
+<!-- <script type="module" src="{% static 'user_crud.js' %}" defer></script> -->
+
+<script type="module" src="{% get_static_prefix %}user_crud.js" defer></script>
+
+<!-- </form> -->
