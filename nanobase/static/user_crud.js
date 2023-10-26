@@ -6,15 +6,18 @@ document.addEventListener('click', e => {
 
 })
 
-const cuModal = document.querySelector('#cuModal');
-// const cuModalInstance = bootstrap.Modal.getOrCreateInstance(cuModal);
+const crudUserModal = document.querySelector('#crudUserModal');
+// const crudUserModalInstance = bootstrap.Modal.getOrCreateInstance(crudUserModal);
 
-const csrftoken = cuModal.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
+// const csrftoken = crudUserModal.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
 
 // let modalLbl, modalInputTag, optLst, chkLst, postUpdUri, instanceSelected, instanceSelectedPk;
-let optLst;
-cuModal.addEventListener('show.bs.modal', e => {
-    let getLstUri = window.location.origin + '/json_response/legalEntity_getLst/';
+
+let deptOptLst, legalEntityOptLst;
+const inputChkResults = new Map();
+
+crudUserModal.addEventListener('show.bs.modal', e => {
+    let getLstUri = window.location.origin + '/json_response/user_getLst/';
     
     fetch(getLstUri
         ).then(response => {
@@ -24,25 +27,64 @@ cuModal.addEventListener('show.bs.modal', e => {
                 throw new Error(`HTTP error: ${response.status}`);
             }
         }).then(json => {
-            optLst = json[3];
+            deptOptLst = json[0];
+            legalEntityOptLst = json[1];
         }).catch(error => {console.error('Error:', error);});
 });
 
-const cuModalInput = cuModal.querySelector('#cuModalInput');
+const crudUserModalEmailInput = crudUserModal.querySelector('#crudUserModalEmailInput');
+const crudUserModalLastNameInput = crudUserModal.querySelector('#crudUserModalLastNameInput');
+const crudUserModalFirstNameInput = crudUserModal.querySelector('#crudUserModalFirstNameInput');
+const crudUserModalBtnSubmit = crudUserModal.querySelector('#crudUserModalBtnSubmit');
 
-const cuModalBtn = cuModal.querySelector('#cuModalBtn');
-
-cuModal.addEventListener('shown.bs.modal', e => {
-
-    const cuModalDatalist = cuModal.querySelector('#cuModalDatalist');
-    cuModalDatalist.querySelectorAll('option').forEach(el =>{el.remove();})
-    Object.keys(optLst).forEach(key => {
+crudUserModal.addEventListener('shown.bs.modal', e => {
+    const crudUserModalDeptInputDatalist = crudUserModal.querySelector('#crudUserModalDeptInputDatalist');
+    crudUserModalDeptInputDatalist.querySelectorAll('option').forEach(el => el.remove())
+    Object.keys(deptOptLst).forEach(key => {
         const datalistOpt = document.createElement('option');
         datalistOpt.textContent = key;
-        cuModalDatalist.appendChild(datalistOpt);
+        crudUserModalDeptInputDatalist.appendChild(datalistOpt);
     })
 
-    cuModalBtn.classList.add('disabled');
+    const crudUserModalLegalEntityInputDatalist = crudUserModal.querySelector('#crudUserModalLegalEntityInputDatalist');
+    crudUserModalLegalEntityInputDatalist.querySelectorAll('option').forEach(el => el.remove())
+    Object.keys(legalEntityOptLst).forEach(key => {
+        const datalistOpt = document.createElement('option');
+        datalistOpt.textContent = key;
+        crudUserModalLegalEntityInputDatalist.appendChild(datalistOpt);
+    })
 
+    crudUserModalEmailInput.focus();
+    crudUserModalBtnSubmit.classList.add('disabled');
 })
 
+crudUserModalEmailInput.addEventListener('blur', e => inputChk(e.target, true));
+[crudUserModalFirstNameInput, crudUserModalLastNameInput].forEach(m => m.addEventListener('blur', e => inputChk(e.target, true)));
+
+
+function inputChk(inputEl, rqurd) {
+    let inputChkResult = true;
+
+    inputEl.value = inputEl.value.trim();
+
+    if (rqurd && inputEl.value != '') {
+        if (inputEl.closest('.row').querySelector('label').textContent == 'email' && !inputEl.value.includes('@')) {
+            inputEl.value += '@tishamnspeyer.com';
+        }
+
+        if (!inputEl.value.includes('@tishmanspeyer.com')) {
+            inputEl.closest('.modal-body').querySelector('#crudUserModalLegalEntityInput').closest('.row').style.display = '';
+        }
+    } else if (rqurd && inputEl.value == '') {
+        inputChkResult = false;
+        inputEl.nextElementSibling.textContent = `${inputEl.closest('.row').querySelector('label').textContent} is Required`;
+    }
+
+    ['text-danger', 'border-bottom', 'border-danger'].forEach(m => inputEl.classList.toggle(m, !inputChkResult));
+    ['border-success'].forEach(m => inputEl.classList.toggle(m, inputChkResult));
+
+    inputChkResults.set(inputEl.id, inputChkResult);
+
+    return inputChkResult;
+
+}

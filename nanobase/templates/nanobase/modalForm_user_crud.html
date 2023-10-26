@@ -1,41 +1,176 @@
 {% load static %}
 
-<!-- <form action="" method="" id="cuModalForm" class="g-3 needs-validation" novalidate=""> -->
-  
-<!-- legal Entity - Contact create / update -->
+<link rel="stylesheet" href="{% static 'nanobase/style.css' %}">
 
-<div class="modal fade" id="cuModal" tabindex="-1" aria-labelledby="cuModalLabel" aria-hidden="true">
-  {% csrf_token %}
+<!-- <form action="" method="" id="" class="g-3 needs-validation" novalidate=""></form> -->
+  
+<!-- User CRUD + legal Entity Contact  -->
+
+<div class="modal fade" id="crudUserModal" tabindex="-1" aria-labelledby="crudUserModalLabel" aria-hidden="true" style="display: none;">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="cuModalLabel"></h1>
+        <h1 class="modal-title fs-5" id="crudUserModalLabel">New</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-
       <div class="modal-body">
-        <div class="row">
-          <div class="col mb-3"><b> Instance Selected: </b><span></span></div>
-          <input type="text" list="cuModalDatalist" id="cuModalInput" name="" placeholder="" class="form-control" required="" />
-          <small class="" style="color: Tomato"></small>
-          <datalist id="cuModalDatalist"></datalist>
+        <div class="row mb-3">
+          <div class="col-3"><label for="crudUserModalEmailInput" class="col-form-label">email</label></div>
+          <div class="col">
+            <input type="email" class="form-control" id="crudUserModalEmailInput" placeholder="(required)" required
+                  data-bs-toggle="tooltip" data-bs-placement="bottom"
+                  data-bs-custom-class="custom-tooltip" data-bs-html="true"
+                  data-bs-title="
+                    <ul>
+                      <li>the part inputed before @ will be used as User iD</li>
+                      <li>the email address without @tishmanpeyer.com would be identified as External User</li>
+                      <li>...</li>
+                    </ul>"
+              />
+            <small class="" style="color: Tomato"></small>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-3"><label for="crudUserModalNameInput" class="col-form-label">name</label></div>
+          <div class="col">
+            <input type="text" class="form-control" id="crudUserModalLastNameInput" placeholder="last name (required)" required />
+            <small class="" style="color: Tomato"></small>
+          </div>
+          <div class="col">
+            <input type="text" class="form-control" id="crudUserModalFirstNameInput" placeholder="first name (required)" required />
+            <small class="" style="color: Tomato"></small>
+          </div>
+        </div>
+        <div class="row mb-3" style="display: none;">
+          <div class="col-3"><label for="crudUserModalLegalEntityInput" class="col-form-label">legal entity</label></div>
+          <div class="col">
+            <input type="text" class="form-control" id="crudUserModalLegalEntityInput" list="crudUserModalLegalEntityInputDatalist" placeholder="(optional)" />
+            <small class="" style="color: Tomato"></small>
+            <datalist id="crudUserModalLegalEntityInputDatalist"></datalist>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-3"><label for="crudUserModalTitleInput" class="col-form-label">title</label></div>
+          <div class="col">
+            <input type="text" class="form-control" id="crudUserModalTitleInput" placeholder="(optional)" />
+            <small class="" style="color: Tomato"></small>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-3"><label for="crudUserModalDeptInput" class="col-form-label">department</label></div>
+          <div class="col">
+            <input type="text" class="form-control" id="crudUserModalDeptInput" list="crudUserModalDeptInputDatalist" placeholder="(optional)" />
+            <small class="" style="color: Tomato"></small>
+            <datalist id="crudUserModalDeptInputDatalist"></datalist>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-3"><label for="crudUserModalPhoneInput" class="col-form-label">phone #</label></div>
+          <div class="col">
+            <input type="number" class="form-control" id="crudUserModalMobilePhoneInput" placeholder="mobile (optional)" />
+            <small class="" style="color: Tomato"></small>
+          </div>
+          <div class="col">
+            <input type="number" class="form-control" id="crudUserModalWorkPhoneInput" placeholder="work (optional)" />
+            <small class="" style="color: Tomato"></small>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="crudUserModalPostalAddrInput" class="col-form-label">Postal addr.</label>
+          <textarea class="form-control" id="crudUserModalPostalAddrInput" placeholder="(optional)"></textarea>
         </div>
       </div>
-
       <div class="modal-footer">
         {# <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> #}
-        <button type="submit" id="cuModalBtn" class="btn btn-primary">submit</button>
+        {# <button type="submit" id="crudUserModalBtnSubmit" class="btn btn-primary">add</button> #}
+        <button id="crudUserModalBtnSubmit" class="btn btn-primary" data-bs-target="#crudUserModalNext" data-bs-toggle="modal">submit</button>
       </div>
-      
     </div>
   </div>
 </div>
 
+<div class="modal fade" id="crudUserModalNext" aria-hidden="true" aria-labelledby="crudUserModalNextLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="crudUserModalNextLbl">revew & confirm</h1>
+        {# <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> #}
+      <!--
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+          <label class="form-check-label" for="flexSwitchCheckChecked"></label>
+        </div>
+      -->
+      </div>
+      <div class="modal-body">
+        {% csrf_token %}
+
+        <div class="row mb-3">
+          <div class="col-3"><label for="crudUserModalNextEmailInput" class="col-form-label">email</label></div>
+          <div class="col">
+            <input type="email" class="form-control" id="crudUserModalNextEmailInput" placeholder="(required)" readonly />
+            <small class="" style="color: Tomato"></small>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-3"><label for="crudUserModalNextNameInput" class="col-form-label">name</label></div>
+          <div class="col">
+            <input type="text" class="form-control" id="crudUserModalNextLastNameInput" readonly />
+            <small class="" style="color: Tomato"></small>
+          </div>
+          <div class="col">
+            <input type="text" class="form-control" id="crudUserModalNextFirstNameInput" readonly />
+            <small class="" style="color: Tomato"></small>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-3"><label for="crudUserModalNextLegalEntityInput" class="col-form-label">legal entity</label></div>
+          <div class="col">
+            <input type="text" class="form-control" id="crudUserModalNextLegalEntityInput" readonly />
+            <small class="" style="color: Tomato"></small>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-3"><label for="crudUserModalNextTitleInput" class="col-form-label">title</label></div>
+          <div class="col">
+            <input type="text" class="form-control" id="crudUserModalNextTitleInput" readonly />
+            <small class="" style="color: Tomato"></small>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-3"><label for="crudUserModalNextDepartmentInput" class="col-form-label">department</label></div>
+          <div class="col">
+            <input type="text" class="form-control" id="crudUserModalNextDepartmentInput" readonly />
+            <small class="" style="color: Tomato"></small>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-3"><label for="crudUserModalNextPhoneInput" class="col-form-label">phone #</label></div>
+          <div class="col">
+            <input type="number" class="form-control" id="crudUserModalNextMobilePhoneInput" readonly />
+            <small class="" style="color: Tomato"></small>
+          </div>
+          <div class="col">
+            <input type="number" class="form-control" id="crudUserModalNextWorkPhoneInput" readonly />
+            <small class="" style="color: Tomato"></small>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="crudUserModalNextPostalAddrInput" class="col-form-label">Postal addr.</label>
+          <textarea class="form-control" id="crudUserModalNextPostalAddrInput" readonly></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" data-bs-target="#crudUserModal" data-bs-toggle="modal">back</button>
+        <button type="submit" id="crudUserModalBtnOk" class="btn btn-primary">ok</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 <!-- js -->
 
 <!-- <script type="module" src="{% static 'user_crud.js' %}" defer></script> -->
-
 <script type="module" src="{% get_static_prefix %}user_crud.js" defer></script>
-
-<!-- </form> -->

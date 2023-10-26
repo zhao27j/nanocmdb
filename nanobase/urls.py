@@ -23,6 +23,9 @@ urlpatterns += [
     path('digital_copy/<int:pk>/<db_table_name>/add/', views.get_digital_copy_add, name='digital-copy-add'),
 ]
 
+urlpatterns += [
+    path('json_response/user_getLst/', views_api.jsonResponse_user_getLst, name='user-getLst'),
+]
 
 # temp - data migrations
 urlpatterns += [

@@ -315,38 +315,38 @@ legalEntityModalBtn.addEventListener('focus', e => {
 function inputChk(inputEl, inputLbl, orig, isOptLst, optLst, btn, isAlphanumeric, reqd ) {
     orig = orig == undefined ? '' : orig;
 
-    let inputValue = inputEl.value.trim(), chkAlert, chkAlertType, inputChkResult;
+    let inputValue = inputEl.value.trim(), inputChkAlert, inputChkAlertType, inputChkResult;
 
     if (isAlphanumeric) {inputValue = inputEl.value.trim().replaceAll(/[`~!@#$%^&*()+=\[\]\\{}|;':",./<>?·~！@#￥%……&*（）——+=【】、{}|；‘：“，。、《》？]/g,'');}
     
     inputEl.value = inputValue;
 
-    modalInputTag == 'updLegalEntity' ? chkAlert = 'upd' : chkAlert = 'new';
+    modalInputTag == 'updLegalEntity' ? inputChkAlert = 'upd' : inputChkAlert = 'new';
     modalInputTag == 'updLegalEntity' ? inputChkResult = 'upd' : inputChkResult = 'new';
     
     if (inputValue != orig || (reqd && orig == '')) {
         if (inputChkResult && reqd && inputValue == '') {
-            chkAlert = `the given ${inputLbl} [ ${inputValue} ] is Empty`;
+            inputChkAlert = `the given ${inputLbl} [ ${inputValue} ] is Empty`;
             inputChkResult = false;
         }
 
         if (inputChkResult && isOptLst && optLst && !(inputValue in optLst)) {
-            chkAlert = `the given ${inputLbl} [ ${inputValue} ] does NOT exist in the Option List`;
+            inputChkAlert = `the given ${inputLbl} [ ${inputValue} ] does NOT exist in the Option List`;
             inputChkResult = false;
         } else if (inputChkResult && !isOptLst && optLst && (inputValue in optLst)) {
-            chkAlert = `the given ${inputLbl} [ ${inputValue} ] does Exist in the System`;
+            inputChkAlert = `the given ${inputLbl} [ ${inputValue} ] does Exist in the System`;
             inputChkResult = false;
         }
     } else {
         inputChkResult = 'noChg';
-        chkAlert = inputChkResult;
+        inputChkAlert = inputChkResult;
     }
 
     ['text-danger', 'border-bottom', 'border-danger'].forEach(t => inputEl.classList.toggle(t, !inputChkResult));
     ['border-success'].forEach(t => inputEl.classList.toggle(t, inputChkResult));
 
-    // inputChkResult ? inputEl.nextElementSibling.innerHTML = "" : inputEl.nextElementSibling.innerHTML = chkAlert;
-    inputEl.nextElementSibling.innerHTML = chkAlert;
+    // inputChkResult ? inputEl.nextElementSibling.innerHTML = "" : inputEl.nextElementSibling.innerHTML = inputChkAlert;
+    inputEl.nextElementSibling.innerHTML = inputChkAlert;
 
     /*
     setTimeout(() => {
