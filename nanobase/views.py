@@ -15,15 +15,19 @@ from django.contrib.auth.models import User
 
 from django.http import Http404, FileResponse
 
+from django.views import generic
 from django.views.generic.edit import CreateView
 
-from .models import UserDept, ChangeHistory, UploadedFile
+from .models import UserProfile, UserDept, ChangeHistory, UploadedFile
 from nanopay.models import LegalEntity
 # from nanoassets.models import ActivityHistory
 
 from .forms import UserProfileUpdateForm, UserCreateForm
 
 # Create your views here.
+
+class UserListView(LoginRequiredMixin, generic.ListView):
+    model = User
 
 
 class UserCreateView(LoginRequiredMixin, CreateView):
@@ -68,10 +72,10 @@ def user_create(request):
                     by=request.user,
                     db_table_name=new_user.userprofile.legal_entity._meta.db_table,
                     db_table_pk=new_user.userprofile.legal_entity.pk,
-                    detail='1 x Contact [ ' + new_user.get_full_name() + ' ] is created and associated with this Legal Entity'
+                    detail='1 x Contact [ ' + new_user.get_full_name() + ' ] is added and associated with this Legal Entity'
                     )
                 messages.info(request, '1 x Contact [ ' + new_user.get_full_name() + 
-                              ' ] is created and associated with the Legal Entity [ ' + form.cleaned_data.get('legal_entity') + ' ]')
+                              ' ] is added and associated with the Legal Entity [ ' + form.cleaned_data.get('legal_entity') + ' ]')
                 return redirect(to='nanopay:legal-entity-list')
             else:
                 messages.info(request, '1 x User [ ' + new_user.get_full_name() + ' ] is created')

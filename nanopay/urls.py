@@ -35,6 +35,7 @@ urlpatterns += {
     path('payment_requests/<pk>/detail/invoice_scanned_copy/', views.payment_request_detail_invoice_scanned_copy, name='payment-request-detail-invoice-scanned-copy'),
 }
 
+# json api
 urlpatterns += {
     path('json_response/legalEntity_getLst/', views_api.jsonResponse_legalEntity_getLst, name='jsonResponse-legalEntity-getLst'),
     path('legal_entity/', views_api.legal_entity, name='legal-entity'),

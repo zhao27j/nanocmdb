@@ -11,8 +11,10 @@ urlpatterns = [
 
 urlpatterns += [
     # path('user/new/', views.UserCreateView.as_view(), name='user-new'),
-    path('user/new/', views.user_create, name='user-new'),
+    # path('user/new/', views.user_create, name='user-new'),
     path('user_profile/<int:pk>/update/', views.user_profile_update, name='user-profile-update'),
+
+    path('users/', views.UserListView.as_view(), name='user-list'),
 ]
 
 
@@ -23,8 +25,10 @@ urlpatterns += [
     path('digital_copy/<int:pk>/<db_table_name>/add/', views.get_digital_copy_add, name='digital-copy-add'),
 ]
 
+# json api
 urlpatterns += [
     path('json_response/user_getLst/', views_api.jsonResponse_user_getLst, name='user-getLst'),
+    path('user/crud/', views_api.user_crud, name='user-crud'),
 ]
 
 # temp - data migrations

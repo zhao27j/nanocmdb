@@ -86,8 +86,12 @@
                 </svg>
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="{% url 'nanobase:user-new' %}"><small>New User</small></a></li>
+                <li>
+                  {#<a class="dropdown-item" href="{% url 'nanobase:user-new' %}"></a>#}
+                  <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#crudUserModal"><small>New User</small></button>
+                </li>
                 <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'nanobase:user-list' %}"><small>Users</small></a></li>
                 
                 <li><hr class="dropdown-divider"></li>
               </ul>

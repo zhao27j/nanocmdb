@@ -10,14 +10,14 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="crudUserModalLabel">New</h1>
+        <h1 class="modal-title fs-5" id="crudUserModalLabel"></h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <div class="row mb-3">
-          <div class="col-3"><label for="crudUserModalEmailInput" class="col-form-label">email</label></div>
+          <div class="col-3"><label for="email" class="col-form-label">email</label></div>
           <div class="col">
-            <input type="email" class="form-control" id="crudUserModalEmailInput" placeholder="(required)" required
+            <input type="email" class="form-control" id="email" placeholder="(required)" required
                   data-bs-toggle="tooltip" data-bs-placement="bottom"
                   data-bs-custom-class="custom-tooltip" data-bs-html="true"
                   data-bs-title="
@@ -31,59 +31,61 @@
           </div>
         </div>
         <div class="row mb-3">
-          <div class="col-3"><label for="crudUserModalNameInput" class="col-form-label">name</label></div>
+          <div class="col-3"><label for="name" class="col-form-label">name</label></div>
           <div class="col">
-            <input type="text" class="form-control" id="crudUserModalLastNameInput" placeholder="last name (required)" required />
+            <input type="text" class="form-control" id="last_name" placeholder="last name (required)" required />
             <small class="" style="color: Tomato"></small>
           </div>
           <div class="col">
-            <input type="text" class="form-control" id="crudUserModalFirstNameInput" placeholder="first name (required)" required />
-            <small class="" style="color: Tomato"></small>
-          </div>
-        </div>
-        <div class="row mb-3" style="display: none;">
-          <div class="col-3"><label for="crudUserModalLegalEntityInput" class="col-form-label">legal entity</label></div>
-          <div class="col">
-            <input type="text" class="form-control" id="crudUserModalLegalEntityInput" list="crudUserModalLegalEntityInputDatalist" placeholder="(optional)" />
-            <small class="" style="color: Tomato"></small>
-            <datalist id="crudUserModalLegalEntityInputDatalist"></datalist>
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-3"><label for="crudUserModalTitleInput" class="col-form-label">title</label></div>
-          <div class="col">
-            <input type="text" class="form-control" id="crudUserModalTitleInput" placeholder="(optional)" />
+            <input type="text" class="form-control" id="first_name" placeholder="first name (required)" required />
             <small class="" style="color: Tomato"></small>
           </div>
         </div>
         <div class="row mb-3">
-          <div class="col-3"><label for="crudUserModalDeptInput" class="col-form-label">department</label></div>
+          <div class="col-3"><label for="legal_entity" class="col-form-label">legal entity</label></div>
           <div class="col">
-            <input type="text" class="form-control" id="crudUserModalDeptInput" list="crudUserModalDeptInputDatalist" placeholder="(optional)" />
+            <input type="text" class="form-control" id="legal_entity" list="legal_entityDatalist" placeholder="(optional)" />
             <small class="" style="color: Tomato"></small>
-            <datalist id="crudUserModalDeptInputDatalist"></datalist>
+            <datalist id="legal_entityDatalist"></datalist>
           </div>
         </div>
         <div class="row mb-3">
-          <div class="col-3"><label for="crudUserModalPhoneInput" class="col-form-label">phone #</label></div>
+          <div class="col-3"><label for="title" class="col-form-label">title</label></div>
           <div class="col">
-            <input type="number" class="form-control" id="crudUserModalMobilePhoneInput" placeholder="mobile (optional)" />
-            <small class="" style="color: Tomato"></small>
-          </div>
-          <div class="col">
-            <input type="number" class="form-control" id="crudUserModalWorkPhoneInput" placeholder="work (optional)" />
+            <input type="text" class="form-control" id="title" placeholder="(optional)" />
             <small class="" style="color: Tomato"></small>
           </div>
         </div>
-        <div class="mb-3">
-          <label for="crudUserModalPostalAddrInput" class="col-form-label">Postal addr.</label>
-          <textarea class="form-control" id="crudUserModalPostalAddrInput" placeholder="(optional)"></textarea>
+        <div class="row mb-3">
+          <div class="col-3"><label for="dept" class="col-form-label">department</label></div>
+          <div class="col">
+            <input type="text" class="form-control" id="dept" list="deptDatalist" placeholder="(optional)" />
+            <small class="" style="color: Tomato"></small>
+            <datalist id="deptDatalist"></datalist>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-3"><label for="phone" class="col-form-label">phone #</label></div>
+          <div class="col">
+            <input type="number" class="form-control" id="cellphone" placeholder="mobile (opt.)" />
+            <small class="" style="color: Tomato"></small>
+          </div>
+          <div class="col">
+            <input type="number" class="form-control" id="work_phone" placeholder="work (opt.)" />
+            <small class="" style="color: Tomato"></small>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label for="postal_addr" class="col-form-label">Postal addr.</label>
+          <textarea class="form-control" id="postal_addr" placeholder="(optional)"></textarea>
+          <small class="" style="color: Tomato"></small>
         </div>
       </div>
       <div class="modal-footer">
-        {# <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> #}
-        {# <button type="submit" id="crudUserModalBtnSubmit" class="btn btn-primary">add</button> #}
-        <button id="crudUserModalBtnSubmit" class="btn btn-primary" data-bs-target="#crudUserModalNext" data-bs-toggle="modal">submit</button>
+        {% csrf_token %}
+        {# <button type="submit" id="" class="btn btn-primary" data-bs-target="#crudUserModalNext" data-bs-toggle="modal">add</button> #}
+        <button type="button" id="submit" class="btn btn-primary" >submit</button>
+        <button type="submit" id="ok" class="btn btn-primary" data-bs-dismiss="modal">ok</button>
       </div>
     </div>
   </div>
@@ -103,8 +105,6 @@
       -->
       </div>
       <div class="modal-body">
-        {% csrf_token %}
-
         <div class="row mb-3">
           <div class="col-3"><label for="crudUserModalNextEmailInput" class="col-form-label">email</label></div>
           <div class="col">
@@ -115,11 +115,11 @@
         <div class="row mb-3">
           <div class="col-3"><label for="crudUserModalNextNameInput" class="col-form-label">name</label></div>
           <div class="col">
-            <input type="text" class="form-control" id="crudUserModalNextLastNameInput" readonly />
+            <input type="text" class="form-control" id="crudUserModalNextlast_nameInput" readonly />
             <small class="" style="color: Tomato"></small>
           </div>
           <div class="col">
-            <input type="text" class="form-control" id="crudUserModalNextFirstNameInput" readonly />
+            <input type="text" class="form-control" id="crudUserModalNextfirst_nameInput" readonly />
             <small class="" style="color: Tomato"></small>
           </div>
         </div>
