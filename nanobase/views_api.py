@@ -92,6 +92,8 @@ def user_crud(request):
                             detail='1 x Contact [ ' + user.get_full_name() + ' ] is added and associated with this Legal Entity'
                         )
                     else:
+                        if UserProfile._meta.get_field(k).get_internal_type() == 'DecimalField':
+                            v = int(v)
                         setattr(user_profile, k, v)
                         
                     user_profile.save()

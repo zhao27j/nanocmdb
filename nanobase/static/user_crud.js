@@ -9,11 +9,13 @@ const crudUserModalInst = bootstrap.Modal.getOrCreateInstance(crudUserModal);
 let userProfileTblTrDblClckd, userPk;
 
 const userProfileTbl = document.querySelector("#userProfileTbl");
-userProfileTbl.addEventListener('dblclick', e => {
-    userProfileTblTrDblClckd = e.target.closest("tr");
-    if (userProfileTblTrDblClckd.querySelector("input[type='checkbox']")) {
-        userPk = userProfileTblTrDblClckd.querySelector("input[type='checkbox']").value;
-        crudUserModalInst.show();
+document.addEventListener('dblclick', e => {
+    if (userProfileTbl) {
+        userProfileTblTrDblClckd = e.target.closest("tr");
+        if (userProfileTblTrDblClckd.querySelector("input[type='checkbox']")) {
+            userPk = userProfileTblTrDblClckd.querySelector("input[type='checkbox']").value;
+            crudUserModalInst.show();
+        }
     }
 })
 
@@ -135,24 +137,44 @@ crudUserModalInputElAll.forEach(m => m.addEventListener('blur', e => inputChk(e.
 crudUserModalBtnSubmit.addEventListener('focus', e => {crudUserModalInputElAll.forEach(m => inputChk(m, crudUserModalBtnSubmit));});
 
 crudUserModalBtnSubmit.addEventListener('click', e => {
-    
     if (e.target.textContent == 'submit') {
-        crudUserModal.querySelector("h1.modal-title").textContent = 'review & confirm';
-        crudUserModalInputElAll.forEach(inputEl => {
-            ['text-danger', 'border-bottom', 'border-danger', 'border-success'].forEach(m => inputEl.classList.remove(m));
-            inputEl.disabled = true;
-            inputEl.nextElementSibling.textContent = '';
-            inputChkResults.get(`${inputEl.id}`) == modalInputTag ? inputEl.classList.add('border-success') : null;
-        });
-        e.target.textContent = 'back';
-        crudUserModalBtnOk.style.display = '';
+        if (Array.from(inputChkResults.values()).every((element, index, array) => {return element != false;}) && !Array.from(inputChkResults.values()).every((element, index, array) => {return element == 'noChg';})) {
+            crudUserModal.querySelector("h1.modal-title").textContent = 'review & confirm';
+            crudUserModalInputElAll.forEach(inputEl => {
+                ['text-danger', 'border-bottom', 'border-danger', 'border-success'].forEach(m => inputEl.classList.remove(m));
+                inputEl.disabled = true;
+                inputEl.nextElementSibling.textContent = '';
+                inputChkResults.get(`${inputEl.id}`) == modalInputTag ? inputEl.classList.add('border-success') : null;
+            });
+            e.target.textContent = 'back';
+            crudUserModalBtnOk.style.display = '';
+        }
     } else if (e.target.textContent == 'back') {
         crudUserModal.querySelector("h1.modal-title").textContent = modalInputTag;
-        crudUserModalInputElAll.forEach(inputEl => inputEl.disabled = false);
+        crudUserModalInputElAll.forEach(inputEl => {
+            if (isLESelected && ['legal_entity', ].some((element, index, array) => {return element == inputEl.id})) {
+                
+            } else if (isUserSelected && ['email', 'last_name', 'first_name', 'legal_entity', ].some((element, index, array) => {return element == inputEl.id})) {
+
+            } else {
+                inputEl.disabled = false
+            }
+        });
+        // if (isUserSelected) {['email', 'last_name', 'first_name', 'legal_entity', ].forEach(m => crudUserModal.querySelector(`#${m}`).disabled = true);}
+        // if (isLESelected) {['legal_entity', ].forEach(m => crudUserModal.querySelector(`#${m}`).disabled = true);}
         e.target.textContent = 'submit';
         crudUserModalBtnOk.style.display = 'none';
     }
-})
+});
+/*
+crudUserModalBtnSubmit.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+        e.preventDefault;
+        crudUserModalSubmit(e);
+    }
+});
+*/
+
 
 function inputChk(inputEl, btn) {
     if (!inputEl.disabled) {
@@ -178,21 +200,57 @@ function inputChk(inputEl, btn) {
             inputEl.value = inputEl.value.trim().replaceAll(/[`~!@#$%^&*()+=\[\]\\{}|;:",./<>?·~！@#￥%……&*（）——+=【】、{}|；‘：“，。、《》？]/g,'');
         }
 
-        if (modalInputTag == 'new' && inputChkResult && inputEl.value != '' && inputEl.id == 'email' && (inputEl.value in emailOptLst)) {
-            inputChkAlert = `the given Email [ ${inputEl.value} ] already Exists in the system`;
-            inputChkResult = false;
-        }
-
-        if (inputChkResult && inputEl.value != '' && inputEl.id == 'legal_entity' && !(inputEl.value in LEOptLst)) {
-            inputChkAlert = `the given Legal Entity [ ${inputEl.value} ] does NOT exist in the Option List`;
-            inputChkResult = false;
-        }
-
         if (inputChkResult && inputEl.required && inputEl.value == '') {
-            inputChkResult = false;
             // inputChkAlert = `${inputEl.closest('.row').querySelector('label').textContent} is Required`;
             inputChkAlert = `${inputEl.id.replaceAll(/[_]/g, ' ')} is Required`;
-        } 
+            inputChkResult = false;
+        }
+
+        switch (inputEl.id) {
+            case 'email':
+                if (inputChkResult && inputEl.value != '' && (inputEl.value in emailOptLst) && modalInputTag == 'new') {
+                    inputChkAlert = `the given Email [ ${inputEl.value} ] already Exists in the system`;
+                    inputChkResult = false;
+                }
+                break;
+            case 'last_name':
+                break;
+            case 'first_name':
+                break;
+            case 'legal_entity':
+                if (inputChkResult && inputEl.value != '' && !(inputEl.value in LEOptLst)) {
+                    inputChkAlert = `the given Legal Entity [ ${inputEl.value} ] does NOT exist in the Option List`;
+                    inputChkResult = false;
+                }
+                break;
+            case 'title':
+                if (inputChkResult && inputEl.value.length > 64) {
+                    inputChkAlert = `the given Title [ ${inputEl.value} ] is > 64 characters`;
+                    inputChkResult = false;
+                }
+                break;
+            case 'dept':
+                break;
+            case 'cellphone':
+                if (inputChkResult && inputEl.value.length > 11) {
+                    inputChkAlert = `the given Mobile Phone # [ ${inputEl.value} ] is > 11 characters`;
+                    inputChkResult = false;
+                }
+                break;
+            case 'work_phone':
+                if (inputChkResult && inputEl.value.length > 8) {
+                    inputChkAlert = `the given Work Phone # [ ${inputEl.value} ] is > 8 characters`;
+                    inputChkResult = false;
+                }
+                break;
+            case 'postal_addr':
+                if (inputChkResult && inputEl.value.length > 128) {
+                    inputChkAlert = `the given Postal Address [ ${inputEl.value} ] is > 128 characters`;
+                    inputChkResult = false;
+                }
+                break;
+        }
+
         if (inputChkResult) {
             switch (modalInputTag) {
                 case 'new':
@@ -225,7 +283,6 @@ function inputChk(inputEl, btn) {
         return inputChkResult;
     }
 }
-
 
 crudUserModalBtnOk.addEventListener('click', e => {
     const postUpdUri = window.location.origin + '/user/crud/';

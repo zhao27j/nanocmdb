@@ -18,11 +18,13 @@ const legalEntityModalInst = bootstrap.Modal.getOrCreateInstance(legalEntityModa
 //const legalEntitiesTbl = document.querySelector("#legalEntitiesTbl");
 const legalEntitiesTbl = document.querySelector("#legalEntitiesAccordion");
 
-legalEntitiesTbl.addEventListener('dblclick', e => {
-    legalEntitiesTblTrDblClckd = e.target.closest("tr");
-    if (legalEntitiesTblTrDblClckd.querySelector("input[type='checkbox']")) {
-        legalEntityPk = legalEntitiesTblTrDblClckd.querySelector("input[type='checkbox']").value;
-        legalEntityModalInst.show();
+document.addEventListener('dblclick', e => {
+    if (legalEntitiesTbl) {
+        legalEntitiesTblTrDblClckd = e.target.closest("tr");
+        if (legalEntitiesTblTrDblClckd.querySelector("input[type='checkbox']")) {
+            legalEntityPk = legalEntitiesTblTrDblClckd.querySelector("input[type='checkbox']").value;
+            legalEntityModalInst.show();
+        }
     }
 })
 
