@@ -229,27 +229,29 @@ legalEntityModal.querySelector("input[type='checkbox']").addEventListener('chang
 });
 
 legalEntityModalBtn.addEventListener('click', e => {
-    legalEntityModal.querySelectorAll(".border-danger, .border-success").forEach(el => {
-        ['text-danger', 'border-bottom', 'border-danger', 'border-success'].forEach(t => el.classList.remove(t));
-        el.nextElementSibling.innerHTML = "";
-    })
     if (e.target.innerHTML == 'next') {
-        legalEntityModal.querySelector("textarea[type='text']").disabled = true;
-        legalEntityModal.querySelectorAll("input").forEach(el => el.disabled = true);
-        e.target.innerHTML = 'back';
-        legalEntityModalBtnSubmit.style.display = '';
-        inputChkResults.forEach((value, key, map) => {
-            if (value == 'new' || value == 'upd') {
-                legalEntityModal.querySelector(`#legalEntityModalInput${key}`).classList.add("border-success");
-            /*
-                if (key == 'type') {
-                    legalEntityModalInputtype.checked ? formData.append('type', 'I') : formData.append('type', 'E');
-                } else {
-                    formData.append(`${key}`, legalEntityModal.querySelector(`#legalEntityModalInput${key}`).value);
+        if (Array.from(inputChkResults.values()).every((element, index, array) => {return element != false;}) && !Array.from(inputChkResults.values()).every((element, index, array) => {return element == 'noChg';})) {
+            legalEntityModal.querySelectorAll(".border-danger, .border-success").forEach(el => {
+                ['text-danger', 'border-bottom', 'border-danger', 'border-success'].forEach(t => el.classList.remove(t));
+                el.nextElementSibling.innerHTML = "";
+            })
+            legalEntityModal.querySelector("textarea[type='text']").disabled = true;
+            legalEntityModal.querySelectorAll("input").forEach(el => el.disabled = true);
+            e.target.innerHTML = 'back';
+            legalEntityModalBtnSubmit.style.display = '';
+            inputChkResults.forEach((value, key, map) => {
+                if (value == 'new' || value == 'upd') {
+                    legalEntityModal.querySelector(`#legalEntityModalInput${key}`).classList.add("border-success");
+                /*
+                    if (key == 'type') {
+                        legalEntityModalInputtype.checked ? formData.append('type', 'I') : formData.append('type', 'E');
+                    } else {
+                        formData.append(`${key}`, legalEntityModal.querySelector(`#legalEntityModalInput${key}`).value);
+                    }
+                */
                 }
-            */
-            }
-        });
+            });
+        }
     } else if (e.target.innerHTML == 'back') {
         legalEntityModal.querySelector("textarea[type='text']").disabled = false;
         legalEntityModal.querySelectorAll("input").forEach(el => el.disabled = false);
