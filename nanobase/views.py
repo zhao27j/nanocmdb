@@ -29,6 +29,17 @@ from .forms import UserProfileUpdateForm, UserCreateForm
 class UserListView(LoginRequiredMixin, generic.ListView):
     model = User
 
+    # def get_queryset(self):
+        # return super().get_queryset().filter(branchSite__onSiteTech=self.request.user)  # 跨多表查询
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["userprofiles"] = UserProfile.objects.exclude(user__username__icontains='admin').order_by('legal_entity')
+
+        return context
+
+
+
 
 class UserCreateView(LoginRequiredMixin, CreateView):
     model = User

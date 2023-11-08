@@ -1,3 +1,5 @@
+import json
+
 from django.http import JsonResponse
 
 from django.utils import timezone
@@ -12,6 +14,38 @@ from django.contrib.auth.models import User
 
 from .models import UserProfile, UserDept, ChangeHistory
 from nanopay.models import LegalEntity
+
+
+@login_required
+def jsonResponse_users_getLst(request):
+    if request.method == 'GET':
+
+        response = {}
+        for user in User.objects.exclude(username__icontains='admin'):
+            user_lst = {}
+            user_lst['username'] = user.username
+            user_lst['first name'] = user.first_name
+            user_lst['last name'] = user.last_name
+            user_lst['name'] = user.last_name + ', ' + user.first_name
+            user_lst['full name'] = user.get_full_name()
+            user_lst['email'] = user.email
+
+            user_lst['is_ext'] =  True if user.username != 'admin' and not 'tishmanspeyer.com' in user.email.lower() else False
+
+            obj, created = UserProfile.objects.get_or_create(user=user)
+            user_lst['title'] = user.userprofile.title
+            user_lst['dept'] = user.userprofile.dept.name if user.userprofile.dept else ''
+            user_lst['work phone'] = user.userprofile.work_phone
+            user_lst['mobile'] = user.userprofile.cellphone
+            user_lst['legal entity'] = user.userprofile.legal_entity.name if user.userprofile.legal_entity else ''
+            user_lst['postal addr'] = user.userprofile.postal_addr
+
+            # response.append(json.loads(serialize("json", user_lst)))
+            # response.append(user_lst)
+            response[user.pk] = user_lst
+
+    return JsonResponse(response, safe=False)
+
 
 @login_required
 def user_crud(request):
