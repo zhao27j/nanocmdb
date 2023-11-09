@@ -566,8 +566,13 @@ class LegalEntityDetailView(LoginRequiredMixin, generic.DetailView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        userprofiles = self.object.userprofile_set.all().filter(user__is_active=True)
+        context["userprofiles"] = userprofiles if userprofiles.count() > 0 else False
+
         changes = ChangeHistory.objects.filter(db_table_name=self.object._meta.db_table, db_table_pk=self.object.pk).order_by("-on")
-        context["changes"] = changes
+        context["changes"] = changes if changes.count() > 0 else False
+        
         return context
     
 

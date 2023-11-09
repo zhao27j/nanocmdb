@@ -27,7 +27,7 @@ function fltr(isExt) {
 
     let thLst = ['', 'name', 'email', 'title', 'dept'];
     if (isExt) {
-        ['legal entity', 'mobile'].forEach(m => thLst.push(m))
+        ['legal_entity', 'cellphone'].forEach(m => thLst.push(m))
     }
     
     const thTrEl = document.createElement('tr');
@@ -36,7 +36,7 @@ function fltr(isExt) {
     thLst.forEach(m => {
         const thEl = document.createElement('th');
         // thEl.textContent = m;
-        thEl.innerHTML = `<small>${m}</small>`
+        thEl.innerHTML = `<small>${m.replaceAll('_', ' ')}</small>`
         thTrEl.appendChild(thEl);
     })
     userProfileThead.appendChild(thTrEl);

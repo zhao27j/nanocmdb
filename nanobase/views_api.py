@@ -24,10 +24,10 @@ def jsonResponse_users_getLst(request):
         for user in User.objects.exclude(username__icontains='admin'):
             user_lst = {}
             user_lst['username'] = user.username
-            user_lst['first name'] = user.first_name
-            user_lst['last name'] = user.last_name
+            user_lst['first_name'] = user.first_name
+            user_lst['last_name'] = user.last_name
             user_lst['name'] = user.last_name + ', ' + user.first_name
-            user_lst['full name'] = user.get_full_name()
+            user_lst['get_full_name'] = user.get_full_name()
             user_lst['email'] = user.email
             user_lst['is_active'] = user.is_active
 
@@ -36,10 +36,10 @@ def jsonResponse_users_getLst(request):
             obj, created = UserProfile.objects.get_or_create(user=user)
             user_lst['title'] = user.userprofile.title
             user_lst['dept'] = user.userprofile.dept.name if user.userprofile.dept else ''
-            user_lst['work phone'] = user.userprofile.work_phone
-            user_lst['mobile'] = user.userprofile.cellphone
-            user_lst['legal entity'] = user.userprofile.legal_entity.name if user.userprofile.legal_entity else ''
-            user_lst['postal addr'] = user.userprofile.postal_addr
+            user_lst['work_phone'] = user.userprofile.work_phone
+            user_lst['cellphone'] = user.userprofile.cellphone
+            user_lst['legal_entity'] = user.userprofile.legal_entity.name if user.userprofile.legal_entity else ''
+            user_lst['postal_addr'] = user.userprofile.postal_addr
 
             # response.append(json.loads(serialize("json", user_lst)))
             # response.append(user_lst)
@@ -53,16 +53,8 @@ def user_crud(request):
     if request.method == 'POST':
         # user_inst, user_created = User.objects.get_or_create(name=request.POST.get('email'))
         chg_log = ''
-        try:
-            user_inst = User.objects.filter(email=request.POST.get('email'))
-            user_created = False
-        except User.DoesNotExist:
-            # user_inst = User.objects.create_user()
-            user_inst = User.objects.create(
-                username=request.POST.get('email').split('@')[0],
-            )
-            user_created = True
 
+        user_inst = User.objects.filter(email=request.POST.get('email'))
         if user_inst.count() > 1:
             chg_log = 'Interrupted - multiple user accounts of ' + request.POST.get('email') + ' were found'
             response = JsonResponse({
@@ -70,99 +62,108 @@ def user_crud(request):
             "alert_type": 'warning',
             })
             return response
-        else:
+        elif user_inst.count() == 1:
             user_acc = user_inst.first()
-            user_profile, user_profile_created = UserProfile.objects.get_or_create(user=user_acc)
+            user_created = False
+        elif user_inst.count() == 0:
+            user_acc = User.objects.create(
+                username=request.POST.get('email').split('@')[0],
+            )
+            user_created = True
 
-            if request.POST.get('is_deactivating'):
-                chg_log = '1 x User [ ' + user_acc.get_full_name() + ' ] was deactivated'
-                user_acc.is_active = False
-                user_acc.save()
-            else:
-                for k, v in request.POST.copy().items():
+        user_profile, user_profile_created = UserProfile.objects.get_or_create(user=user_acc)
+
+        if request.POST.get('lock_or_unlock'):
+            chg_log = 'deactivated' if user_acc.is_active else 'activated'
+            chg_log = '1 x User [ ' + user_acc.get_full_name() + ' ] was ' + chg_log
+            
+            user_acc.is_active = False if user_acc.is_active else True
+            user_acc.save()
+        else:
+            for k, v in request.POST.copy().items():
+                try:
+                    User._meta.get_field(k)
+                    if user_created:    # 若是 新建 用户
+                        chg_log = '1 x new User [ ' + user_acc.get_full_name() + ' ] was added'
+                        setattr(user_acc, k, v) # 在相应 字段 写入 值
+                    else:   # 若是 现存 用户
+                        if getattr(user_acc, k):    # 检查 相应 字段 是否 存在
+                            from_orig = getattr(user_acc, k)    # 保存 原始 数据
+                            try:
+                                User._meta.get_field(k).related_fields  # 检查 字段 是否为 外键
+                                from_orig = from_orig.name  # 若 字段 为 外键 则 引用 外键 数据 作为 原始 数据
+                            except AttributeError:
+                                pass
+                        else: 
+                            from_orig = '🈳' # 若 字段 不存在 则将‘🈳’保存为 原始 数据
+                        to_target = v if v != '' else '🈳'   # 若 目标值为空字符串 则将 目标值替换为‘🈳’
+                        if to_target != from_orig:  # 如果 目标值 不同于 原始值
+                            chg_log += 'The ' + k.capitalize() + ' was changed from [ ' + str(from_orig) + ' ] to [ ' + str(to_target) + ' ]; '
+                            setattr(user_acc, k, v)
+                    
+                    user_acc.save()
+                    
+                except FieldDoesNotExist:
                     try:
-                        User._meta.get_field(k)
-                        if user_created:    # 若是 新建 用户
-                            chg_log = '1 x new User [ ' + user_acc.get_full_name() + ' ] was added'
-                            setattr(user_acc, k, v) # 在相应 字段 写入 值
-                        else:   # 若是 现存 用户
-                            if getattr(user_acc, k):    # 检查 相应 字段 是否 存在
-                                from_orig = getattr(user_acc, k)    # 保存 原始 数据
+                        UserProfile._meta.get_field(k)
+                        if not user_created:
+                            if getattr(user_profile, k):
+                                from_orig = getattr(user_profile, k)
                                 try:
-                                    User._meta.get_field(k).related_fields  # 检查 字段 是否为 外键
-                                    from_orig = from_orig.name  # 若 字段 为 外键 则 引用 外键 数据 作为 原始 数据
+                                    UserProfile._meta.get_field(k).related_fields
+                                    from_orig = from_orig.name
                                 except AttributeError:
                                     pass
                             else: 
-                                from_orig = '🈳' # 若 字段 不存在 则将‘🈳’保存为 原始 数据
-                            to_target = v if v != '' else '🈳'   # 若 目标值为空字符串 则将 目标值替换为‘🈳’
-                            if to_target != from_orig:  # 如果 目标值 不同于 原始值
-                                chg_log += 'The ' + k.capitalize() + ' was changed from [ ' + str(from_orig) + ' ] to [ ' + str(to_target) + ' ]; '
-                                setattr(user_acc, k, v)
-                        
-                        user_acc.save()
-                        
-                    except FieldDoesNotExist:
-                        try:
-                            UserProfile._meta.get_field(k)
-                            if not user_created:
-                                if getattr(user_profile, k):
-                                    from_orig = getattr(user_profile, k)
-                                    try:
-                                        UserProfile._meta.get_field(k).related_fields
-                                        from_orig = from_orig.name
-                                    except AttributeError:
-                                        pass
-                                else: 
-                                    from_orig = '🈳'
+                                from_orig = '🈳'
 
-                                to_target = v if v != '' else '🈳'
-                                chg_log += 'The ' + k.capitalize() + ' was changed from [ ' + str(from_orig) + ' ] to [ ' + str(to_target) + ' ]; '
+                            to_target = v if v != '' else '🈳'
+                            chg_log += 'The ' + k.capitalize() + ' was changed from [ ' + str(from_orig) + ' ] to [ ' + str(to_target) + ' ]; '
 
-                            if k == 'dept' and v != '':
-                                dept, dept_created = UserDept.objects.get_or_create(name=v.title())
-                                if dept_created:
-                                    ChangeHistory.objects.create(
-                                        on=timezone.now(),
-                                        by=request.user,
-                                        db_table_name=dept._meta.db_table,
-                                        db_table_pk=dept.pk,
-                                        detail='1 x Department is added'
-                                    )
-                                setattr(user_profile, k, dept)
-                            elif k == 'legal_entity' and v != '':
-                                legal_entity = get_object_or_404(LegalEntity, name=v)
-                                setattr(user_profile, k, legal_entity)
+                        if k == 'dept' and v != '':
+                            dept, dept_created = UserDept.objects.get_or_create(name=v.title())
+                            if dept_created:
                                 ChangeHistory.objects.create(
                                     on=timezone.now(),
                                     by=request.user,
-                                    db_table_name=legal_entity._meta.db_table,
-                                    db_table_pk=legal_entity.pk,
-                                    detail='1 x Contact [ ' + user_acc.get_full_name() + ' ] is added and associated with this Legal Entity'
+                                    db_table_name=dept._meta.db_table,
+                                    db_table_pk=dept.pk,
+                                    detail='1 x Department is added'
                                 )
-                            else:
-                                if UserProfile._meta.get_field(k).get_internal_type() == 'DecimalField':
-                                    v = int(v)
-                                setattr(user_profile, k, v)
-                                
-                            user_profile.save()
-                                
-                        except FieldDoesNotExist:
-                            pass
+                            setattr(user_profile, k, dept)
+                        elif k == 'legal_entity' and v != '':
+                            legal_entity = get_object_or_404(LegalEntity, name=v)
+                            setattr(user_profile, k, legal_entity)
+                            ChangeHistory.objects.create(
+                                on=timezone.now(),
+                                by=request.user,
+                                db_table_name=legal_entity._meta.db_table,
+                                db_table_pk=legal_entity.pk,
+                                detail='1 x Contact [ ' + user_acc.get_full_name() + ' ] is added and associated with this Legal Entity'
+                            )
+                        else:
+                            if UserProfile._meta.get_field(k).get_internal_type() == 'DecimalField':
+                                v = int(v)
+                            setattr(user_profile, k, v)
+                            
+                        user_profile.save()
+                            
+                    except FieldDoesNotExist:
+                        pass
 
-            ChangeHistory.objects.create(
-                on=timezone.now(),
-                by=request.user,
-                db_table_name=user_profile._meta.db_table,
-                db_table_pk=user_profile.pk,
-                detail=chg_log
-                )
+        ChangeHistory.objects.create(
+            on=timezone.now(),
+            by=request.user,
+            db_table_name=user_profile._meta.db_table,
+            db_table_pk=user_profile.pk,
+            detail=chg_log
+            )
         
-        response = JsonResponse({
-            "alert_msg": chg_log,
-            "alert_type": 'info',
-            })
-        return response
+    response = JsonResponse({
+        "alert_msg": chg_log,
+        "alert_type": 'info',
+        })
+    return response
 
 
 @login_required
@@ -171,10 +172,13 @@ def jsonResponse_user_getLst(request):
         user_selected = {}
         if request.GET.get('userPk'):
             userSelected = User.objects.get(pk=request.GET.get('userPk'))
+
             user_selected['username'] = userSelected.username
             user_selected['first_name'] = userSelected.first_name
             user_selected['last_name'] = userSelected.last_name
             user_selected['email'] = userSelected.email
+            user_selected['is_active'] = userSelected.is_active
+
             try:
                 userSelected.userprofile
             except User.userprofile.RelatedObjectDoesNotExist:
@@ -193,7 +197,7 @@ def jsonResponse_user_getLst(request):
             legal_entity_selected['pk'] = legalEntitySelected.pk
             legal_entity_selected['name'] = legalEntitySelected.name
 
-            legal_entity_selected['email_domain'] = legalEntitySelected.userprofile_set.all().first().user.email.split('@')[1]
+            legal_entity_selected['email_domain'] = legalEntitySelected.userprofile_set.all().first().user.email.split('@')[1] if legalEntitySelected.userprofile_set.all().first() else ''
 
         dept_lst = {}
         for user_dept in UserDept.objects.all():

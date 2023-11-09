@@ -5,14 +5,14 @@ import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesA
 const crudUserModal = document.querySelector('#crudUserModal');
 const crudUserModalInst = bootstrap.Modal.getOrCreateInstance(crudUserModal);
 
-let userProfileTblTrDblClckd, userPk;
+let selectedUserProfileTrEl, userPk;
 
 const userProfileTbl = document.querySelector("#userProfileTbl");
 document.addEventListener('dblclick', e => {
     if (userProfileTbl) {
-        userProfileTblTrDblClckd = e.target.closest('tr');
-        if (userProfileTblTrDblClckd.querySelector("input[type='checkbox']")) {
-            userPk = userProfileTblTrDblClckd.querySelector("input[type='checkbox']").value;
+        selectedUserProfileTrEl = e.target.closest('tr');
+        if (selectedUserProfileTrEl.querySelector("input[type='checkbox']")) {
+            userPk = selectedUserProfileTrEl.querySelector("input[type='checkbox']").value;
             crudUserModalInst.show();
         }
     }
@@ -35,13 +35,16 @@ crudUserModal.addEventListener('show.bs.modal', e => {
             isLESelected = true;
             getLstUri += `?legalEntityPk=${e.relatedTarget.name}`;
         }
-    } else if (e.relatedTarget && e.relatedTarget.innerHTML.includes('bi-person-lock')) {
-        modalInputTag = 'deactivate';
-        isUserSelected = true;
-        userPk = e.relatedTarget.closest('tr').querySelector("input[type='checkbox']").value;
-        getLstUri += `?userPk=${userPk}`;
     } else {
-        modalInputTag = 'alt';
+        if (e.relatedTarget) {
+            selectedUserProfileTrEl = e.relatedTarget.closest('tr');
+            userPk = selectedUserProfileTrEl.querySelector("input[type='checkbox']").value;
+            if (e.relatedTarget.innerHTML.includes('lock')) {
+                modalInputTag = 'lock_or_unlock';
+            }
+        } else {
+            modalInputTag = 'alt';
+        }
         isUserSelected = true;
         getLstUri += `?userPk=${userPk}`;
     }
@@ -65,8 +68,6 @@ const crudUserModalBtnSubmit = crudUserModal.querySelector('#submit');
 const crudUserModalBtnOk = crudUserModal.querySelector('#ok');
 
 function crudUserModalInitial() {
-    crudUserModal.querySelector("h1.modal-title").textContent = modalInputTag
-
     crudUserModalInputElAll.forEach(modalInputEl => {
         ['text-danger', 'border-bottom', 'border-danger', 'border-success'].forEach(m => modalInputEl.classList.remove(m));
         modalInputEl.nextElementSibling.textContent = '';
@@ -98,7 +99,7 @@ function crudUserModalInitial() {
             if (isLESelected && modalInputEl.id == 'legal_entity') {
                 modalInputEl.value = LESelected.name;
                 modalInputEl.disabled = true;
-                inputChkResults.set(modalInputEl.id, modalInputTag);
+                // inputChkResults.set(modalInputEl.id, modalInputTag);
                 defaultEmailDomain = `@${LESelected.email_domain}`;
             }
             crudUserModal.querySelector('#email').focus();
@@ -110,7 +111,7 @@ function crudUserModalInitial() {
                     inputChkResults.set(modalInputEl.id, 'noChg');
                 }
                 crudUserModal.querySelector('#title').focus();
-            } else if (modalInputTag == 'deactivate') {
+            } else if (modalInputTag == 'lock_or_unlock') {
                 modalInputEl.disabled = true;
                 inputChkResults.set(modalInputEl.id, modalInputTag);
                 crudUserModalBtnSubmit.focus();
@@ -118,9 +119,16 @@ function crudUserModalInitial() {
         }
     });
 
+    if (modalInputTag == 'lock_or_unlock') {
+        crudUserModalBtnSubmit.classList.remove('disabled')
+        crudUserModal.querySelector("h1.modal-title").textContent = userSelected.is_active ? 'deactivating' : 'activating';
+    } else {
+        crudUserModalBtnSubmit.classList.add('disabled')
+        crudUserModal.querySelector("h1.modal-title").textContent = modalInputTag
+    }
+
     crudUserModalBtnOk.style.display = 'none';
     crudUserModalBtnSubmit.textContent = 'submit';
-    modalInputTag == 'deactivate' ? crudUserModalBtnSubmit.classList.remove('disabled') : crudUserModalBtnSubmit.classList.add('disabled');
     
     return null;
 }
@@ -150,7 +158,7 @@ crudUserModalBtnSubmit.addEventListener('click', e => {
                 
             } else if (modalInputTag == 'alt' && ['email', 'last_name', 'first_name', 'legal_entity', ].some((m, index, array) => {return m == modalInputEl.id})) {
 
-            } else if (modalInputTag == 'deactivate') {
+            } else if (modalInputTag == 'lock_or_unlock') {
 
             } else {
                 modalInputEl.disabled = false
@@ -186,6 +194,7 @@ function inputChk(inputEl, btn) {
             } else {
                 // legalEntityRowStyle.display = 'none';
                 inputEl.closest('.modal-body').querySelector('#legal_entity').disabled = true;
+                inputChkResults.set('legal_entity', modalInputTag);
                 // inputEl.closest('.modal-body').querySelector('#legal_entity').value = '';
             }
         } else {
@@ -254,9 +263,8 @@ function inputChk(inputEl, btn) {
                     inputChkAlert = inputEl.value != userSelectedMap.get(`${inputEl.id}`) ? modalInputTag : 'noChg';
                     inputChkResult = inputEl.value != userSelectedMap.get(`${inputEl.id}`) ? modalInputTag : 'noChg'
                     break;
-                case 'deactivate':
-                  console.log('Mangoes and papayas are $2.79 a pound.');
-                  // Expected output: "Mangoes and papayas are $2.79 a pound."
+                case 'lock_or_unlock':
+                  console.log('Mangoes and papayas are $2.79 a pound.');    // Expected output: "Mangoes and papayas are $2.79 a pound."
                   break;
                 default:
                   console.log(`Sorry, we are out of ${modalInputTag}.`);
@@ -283,10 +291,14 @@ crudUserModalBtnOk.addEventListener('click', e => {
     const formData = new FormData();
     if (modalInputTag != 'new') {formData.append('email', userSelected.email);}
 
-    if (modalInputTag == 'deactivate') {
-        formData.append('is_deactivating', true);
+    if (modalInputTag == 'lock_or_unlock') {
+        formData.append('lock_or_unlock', true);
     } else {
-        inputChkResults.forEach((value, key, map) => {if (value == modalInputTag) {formData.append(`${key}`, crudUserModal.querySelector(`#${key}`).value);}});
+        inputChkResults.forEach((value, key, map) => {
+            if (value == modalInputTag) {
+                formData.append(`${key}`, crudUserModal.querySelector(`#${key}`).value);
+            }
+        });
     }
     fetch(postUpdUri, {
         method: 'POST',
@@ -301,31 +313,24 @@ crudUserModalBtnOk.addEventListener('click', e => {
             throw new Error(`HTTP error: ${response.status}`);
         }
     }).then(json => {
+        location.reload();
         baseMessagesAlert(json.alert_msg, json.alert_type);
+        /*
+        const thLst = new Map();
+        let thOrder = 2;
+        userProfileTbl.querySelector('thead>tr').querySelectorAll('th:nth-child(n+2)').forEach(el => {
+            thLst.set(el.querySelector('small').textContent.replaceAll(' ', '_').toLowerCase(), thOrder);
+            thOrder++;
+        })
 
-    /*
-        if (modalInputTag == 'updLegalEntity') {
-            inputChkResults.forEach((value, key, map) => {
-                if (value == 'alt') {
-                    if (key == 'type') {
-                        legalEntityModalInputtype.checked ? userProfileTblTrDblClckd.querySelector(`#userProfileTblTd${key}`).textContent = 'Internal' : userProfileTblTrDblClckd.querySelector(`#userProfileTblTd${key}`).textContent = 'External';
-                    } else if (key != 'contact' && key != 'postal_addr') {
-                        userProfileTblTrDblClckd.querySelector(`#userProfileTblTd${key}`).textContent = legalEntityModal.querySelector(`#legalEntityModalInput${key}`).value;
-                    }
-                }
-            });
-        } else if (modalInputTag == 'newLegalEntity') {
-            const userProfileTblTr = document.createElement('tr');
-            inputChkResults.forEach((value, key, map) => {
-                if (value == 'new') {
-                    document.createElement('td').in
+        thLst.forEach(thLstValue, thLstKey, thLstMap => {
+            inputChkResults.forEach((inputChkResultsValue, inputChkResultsKey, inputChkResultsMap) => {
+                if (thLstKey == inputChkResultsKey) {
+                    selectedUserProfileTrEl.querySelector(`td:nth-child(${thLstKey})`)
 
                 }
-
-            });
-            userProfileTbl.appendChild(document.createElement('tr'));
-        }
-    */
-
+            })
+        })
+        */
     }).catch(error => {console.error('Error:', error);});
 })

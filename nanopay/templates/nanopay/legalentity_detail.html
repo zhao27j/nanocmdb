@@ -91,14 +91,16 @@
           </li>
         </ul>
       </div>
-      {% if legalentity.userprofile_set.all %}
+      {% if userprofiles %}
       <div class="card-body">
-        {% include 'base_user_list.html' with userprofiles=legalentity.userprofile_set.all %}
+        {% include 'base_userprofile_list.html' with userprofiles=userprofiles %}
       </div>
       {% endif %}
+      {% if changes %}
       <div class="card-body">
         {% include 'base_change_history.html' with changes=changes %}
       </div>
+      {% endif %}
     </div>
   </div>
 
