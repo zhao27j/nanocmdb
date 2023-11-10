@@ -119,12 +119,19 @@ function crudUserModalInitial() {
         }
     });
 
-    if (modalInputTag == 'lock_or_unlock') {
-        crudUserModalBtnSubmit.classList.remove('disabled')
-        crudUserModal.querySelector("h1.modal-title").textContent = userSelected.is_active ? 'deactivating' : 'activating';
-    } else {
-        crudUserModalBtnSubmit.classList.add('disabled')
-        crudUserModal.querySelector("h1.modal-title").textContent = modalInputTag
+    switch (modalInputTag) {
+        case 'lock_or_unlock':
+            crudUserModalBtnSubmit.classList.remove('disabled')
+            crudUserModal.querySelector("h1.modal-title").textContent = userSelected.is_active ? 'deactivating' : 'activating';
+            break;
+        // case 'new':
+            // break;
+        // case 'alt':
+            // break;
+        default:
+            crudUserModalBtnSubmit.classList.add('disabled')
+            crudUserModal.querySelector("h1.modal-title").textContent = modalInputTag
+            break;
     }
 
     crudUserModalBtnOk.style.display = 'none';
@@ -313,8 +320,10 @@ crudUserModalBtnOk.addEventListener('click', e => {
             throw new Error(`HTTP error: ${response.status}`);
         }
     }).then(json => {
-        location.reload();
         baseMessagesAlert(json.alert_msg, json.alert_type);
+        baseMessagesAlertPlaceholder.addEventListener('hidden.bs.toast', () => {
+            location.reload();
+        });
         /*
         const thLst = new Map();
         let thOrder = 2;

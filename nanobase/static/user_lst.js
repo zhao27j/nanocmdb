@@ -1,3 +1,5 @@
+import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
+
 'use strict'
 
 // let legalEntities, legalEntityTypes, legalEntityPrjcts, legalEntitiesCntcts;
@@ -19,15 +21,18 @@ fetch(getLstUri
     }).catch(error => {console.error('Error:', error);})
 
 const userLstSwitch = document.querySelector('#userLstSwitch');
-userLstSwitch.addEventListener('change', e => fltr(e.target.checked))
+userLstSwitch.addEventListener('change', e => {
+    baseMessagesAlert(fltr(e.target.checked), 'success');
+})
 
 function fltr(isExt) {
     const userProfileThead = document.querySelector('table#userProfileTbl thead');
     userProfileThead.innerHTML = ''
 
-    let thLst = ['', 'name', 'email', 'title', 'dept'];
+    let msg = 'swithced to Internal', thLst = ['', 'name', 'email', 'title', 'dept'];
     if (isExt) {
-        ['legal_entity', 'cellphone'].forEach(m => thLst.push(m))
+        ['legal_entity', 'cellphone'].forEach(m => thLst.push(m));
+        msg = 'swithced to External';
     }
     
     const thTrEl = document.createElement('tr');
@@ -91,4 +96,6 @@ function fltr(isExt) {
             userProfileTbody.appendChild(tbodyTrEl);
         }
     });
+
+    return msg;
 }

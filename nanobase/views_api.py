@@ -66,9 +66,8 @@ def user_crud(request):
             user_acc = user_inst.first()
             user_created = False
         elif user_inst.count() == 0:
-            user_acc = User.objects.create(
-                username=request.POST.get('email').split('@')[0],
-            )
+            username = request.POST.get('email').split('@')[0] if 'tishmanspeyer.com' in request.POST.get('email') else request.POST.get('email')
+            user_acc = User.objects.create(username=username,)
             user_created = True
 
         user_profile, user_profile_created = UserProfile.objects.get_or_create(user=user_acc)
@@ -161,7 +160,7 @@ def user_crud(request):
         
     response = JsonResponse({
         "alert_msg": chg_log,
-        "alert_type": 'info',
+        "alert_type": 'success',
         })
     return response
 
@@ -177,6 +176,7 @@ def jsonResponse_user_getLst(request):
             user_selected['first_name'] = userSelected.first_name
             user_selected['last_name'] = userSelected.last_name
             user_selected['email'] = userSelected.email
+
             user_selected['is_active'] = userSelected.is_active
 
             try:
