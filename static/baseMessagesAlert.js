@@ -2,7 +2,7 @@
 
 const baseMessagesAlertPlaceholder = document.getElementById('baseMessagesAlertPlaceholder');
 
-const baseMessagesAlert = (msg, type) => {
+const baseMessagesAlert = (msg, type, toastAutoHide = true) => {
     let svg_icon;
     switch (type) {
         case 'success':
@@ -57,15 +57,43 @@ const baseMessagesAlert = (msg, type) => {
             `<small>${type}</small>`,
             `<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>`,
         `</div>`,
-        `<div class="toast-body text-${type}">${msg}</div>`,
+        `<div class="toast-body">`,
+            `${msg}`,
+            `<div class="mt-2 pt-2 border-top"></div>`,
+        `</div>`,
     ].join('');
+
+    let toastBtn;
+    if (!toastAutoHide) {
+        [1, 0].forEach(n => {
+
+            toastBtn = document.createElement('button');
+            new Map([
+                ['type', 'button'],
+                ['data-bs-dismiss', 'toast'],
+            ]).forEach((value, key, map) => {
+                toastBtn.setAttribute(key, value);
+            });
+            ['btn', 'btn-sm', 'm-2'].forEach(m => toastBtn.classList.add(m));
+            if (n) {
+                toastBtn.textContent = 'yes';
+                toastBtn.classList.add('btn-primary');
+            } else {
+                toastBtn.textContent = 'no';
+                toastBtn.classList.add('btn-secondary');
+            }
+            toastDivEl.querySelector('.mt-2.pt-2.border-top').appendChild(toastBtn);
+            toastDivEl.setAttribute('data-bs-autohide', 'false');
+        })
+    }
 
     baseMessagesAlertPlaceholder.appendChild(toastDivEl);
 
     const baseMsgsToastInstance = bootstrap.Toast.getOrCreateInstance(toastDivEl);
+
     baseMsgsToastInstance.show();
 
-    return toastDivEl;
+    return !toastAutoHide ? toastBtn : toastDivEl;
 }
 
 

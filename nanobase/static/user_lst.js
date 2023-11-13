@@ -55,16 +55,32 @@ function fltr(isExt) {
             thLst.forEach(m => {
                 const tbodyTrTdEl = document.createElement('td');
                 if (m == '') {
-                    const tbodyTrInputChk = document.createElement('input');
-                    tbodyTrInputChk.setAttribute('type', 'checkbox');
+                    tbodyTrTdEl.innerHTML = [
+                        `<div class="form-check form-switch">`,
+                            `<input class="form-check-input" type="checkbox" role="switch" name="userprofile" id="" value="${key}" />`,
+                            `<label class="form-check-label" for=""></label>`,
+                        `</div>`,
+                    ].join('');
+                    const tbodyTrInputChk = tbodyTrTdEl.querySelector('input[type=checkbox][role=switch]');
+                /*
+                    new Map([
+                        ['type', 'checkbox'],
+                        ['class', 'form-check-input'],
+                        ['role', 'switch'],
+                    ]).forEach((value, key, map) => {
+                        tbodyTrInputChk.setAttribute(key, value);
+                    })
                     tbodyTrInputChk.name = 'user';
                     tbodyTrInputChk.value = key;
-                    tbodyTrTdEl.appendChild(tbodyTrInputChk);
+                */
+                    tbodyTrInputChk.checked = value['is_active'] ? true : false;
+                    // tbodyTrTdEl.appendChild(tbodyTrInputChk);
 
                     // <td><input type="checkbox" name="user" id="user{{ forloop.counter }}" value="{{ user.pk }}"/></td>
                 } else {
                     // tbodyTrTdEl.textContent = value[`${m}`];
                     tbodyTrTdEl.innerHTML = value[m] == null || value[m] == '' ? '🈳' : `<small>${value[m]}</small>`;
+                    /*
                     if (m == 'name') {
                         const deactivateBtn = document.createElement('button');
                         ['btn', 'btn-link', 'text-decoration-none'].forEach(m => deactivateBtn.classList.add(m));
@@ -90,12 +106,12 @@ function fltr(isExt) {
                         }
                         tbodyTrTdEl.appendChild(deactivateBtn);
                     }
+                    */
                 }
                 tbodyTrEl.appendChild(tbodyTrTdEl);
             })
             userProfileTbody.appendChild(tbodyTrEl);
         }
     });
-
     return msg;
 }
