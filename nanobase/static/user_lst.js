@@ -29,10 +29,10 @@ function fltr(isExt) {
     const userProfileThead = document.querySelector('table#userProfileTbl thead');
     userProfileThead.innerHTML = ''
 
-    let msg = 'swithced to Internal', thLst = ['', 'name', 'email', 'title', 'dept'];
+    let msg = 'Internal users filtered out', thLst = ['', 'name', 'email', 'title', 'dept'];
     if (isExt) {
         ['legal_entity', 'cellphone'].forEach(m => thLst.push(m));
-        msg = 'swithced to External';
+        msg = 'External users filtered out';
     }
     
     const thTrEl = document.createElement('tr');
@@ -62,7 +62,7 @@ function fltr(isExt) {
                         `</div>`,
                     ].join('');
                     const tbodyTrInputChk = tbodyTrTdEl.querySelector('input[type=checkbox][role=switch]');
-                /*
+                    /*
                     new Map([
                         ['type', 'checkbox'],
                         ['class', 'form-check-input'],
@@ -72,7 +72,7 @@ function fltr(isExt) {
                     })
                     tbodyTrInputChk.name = 'user';
                     tbodyTrInputChk.value = key;
-                */
+                    */
                     tbodyTrInputChk.checked = value['is_active'] ? true : false;
                     // tbodyTrTdEl.appendChild(tbodyTrInputChk);
 

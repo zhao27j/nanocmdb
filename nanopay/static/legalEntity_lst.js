@@ -1,3 +1,5 @@
+import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
+
 'use strict'
 
 let legalEntities, legalEntityTypes, legalEntityPrjcts, legalEntitiesCntcts;
@@ -24,20 +26,21 @@ const legalEntitiesBtnByType = document.querySelector("#legalEntitiesBtnByType")
 
 const legalEntitiesAccordion = document.querySelector("#legalEntitiesAccordion");
 
-legalEntitiesBtnByPrjct.addEventListener('click', e => reLst(legalEntitiesAccordion, 'prjct', ['name', 'type', 'code']));
+legalEntitiesBtnByPrjct.addEventListener('click', e => baseMessagesAlert(reGrp(legalEntitiesAccordion, 'prjct', ['name', 'type', 'code']), 'success'));
 
-legalEntitiesBtnByType.addEventListener('click', e => reLst(legalEntitiesAccordion, 'type', ['name', 'prjct', 'code']));
+legalEntitiesBtnByType.addEventListener('click', e => baseMessagesAlert(reGrp(legalEntitiesAccordion, 'type', ['name', 'prjct', 'code']), 'success'));
 
-function reLst(accordionEl, lstByTag, cols) {
-    // if (lstByTag == 'Type') {tableTh = 'Project';} else if (lstByTag == 'Project') {tableTh = 'Type';}
+function reGrp(accordionEl, grpByTag, cols) {
+    // if (grpByTag == 'Type') {tableTh = 'Project';} else if (grpByTag == 'Project') {tableTh = 'Type';}
 
     accordionEl.innerHTML = "";
 
-    const lstBy = lstByTag == 'prjct' ? legalEntityPrjcts : lstByTag == 'type' ? legalEntityTypes : null;
-    lstBy.forEach((valueBy, keyBy, mapBy) => {
+    const grpBy = grpByTag == 'prjct' ? legalEntityPrjcts : grpByTag == 'type' ? legalEntityTypes : null;
+    
+    grpBy.forEach((valueBy, keyBy, mapBy) => {
         const accordionItem = document.createElement('div');
         accordionItem.classList.add("accordion-item");
-        const accordionElItemHeaderBtnTxt = lstByTag == 'prjct' ? legalEntityPrjcts.get(`${keyBy}`) : lstByTag == 'type' ? legalEntityTypes.get(`${keyBy}`) : keyBy;
+        const accordionElItemHeaderBtnTxt = grpByTag == 'prjct' ? legalEntityPrjcts.get(`${keyBy}`) : grpByTag == 'type' ? legalEntityTypes.get(`${keyBy}`) : keyBy;
         accordionItem.innerHTML = [
             `<h2 class="accordion-header">`,
                 `<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse${keyBy}" aria-expanded="true" aria-controls="panelsStayOpen-collapse${keyBy}" style="height: 0px;">`,
@@ -76,7 +79,7 @@ function reLst(accordionEl, lstByTag, cols) {
 
         let counterBy = 0;
         legalEntities.forEach(row => {
-            if (row.fields[`${lstByTag}`] == keyBy || legalEntityPrjcts.get(`${row.fields[lstByTag]}`) == lstBy.get(`${keyBy}`)) {
+            if (row.fields[`${grpByTag}`] == keyBy || legalEntityPrjcts.get(`${row.fields[grpByTag]}`) == grpBy.get(`${keyBy}`)) {
                 tableTrEl = document.createElement('tr');
                 tableTrEl.innerHTML = `<td><input type="checkbox" name="legal_entity_${row.pk}" id="${legalEntities}TblTd${row.pk}" value="${row.pk}" /></td>`;
                 cols.forEach(col => {
@@ -119,4 +122,5 @@ function reLst(accordionEl, lstByTag, cols) {
         accordionElItemHeaderBtnbadge.textContent = counterBy;
         accordionElItemHeaderBtn.appendChild(accordionElItemHeaderBtnbadge);
     })
+    return `re-grouped by ${grpByTag}`;
 }
