@@ -1,4 +1,10 @@
+# import json
+
+from django.http import JsonResponse
+
+from django.core.serializers import serialize
 from django.core.mail import EmailMessage
+# from django.core.exceptions import FieldDoesNotExist
 
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -6,13 +12,74 @@ from django.contrib import messages
 
 from django.urls import reverse
 from django.utils import timezone
-from django.http import JsonResponse
+
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 
 from .models import ModelType, Instance, branchSite, disposalRequest
 from nanopay.models import Contract
 from nanobase.models import ChangeHistory, SubCategory
+
+
+@login_required
+def jsonResponse_instance_lst(request):
+    if request.method == 'GET':
+        instances = Instance.objects.filter(branchSite__onSiteTech=request.user)  # 跨多表查询
+
+        instance_lst = {}
+        # owner_lst = {}
+        status_lst = {}
+        model_type_lst = {}
+        sub_categories_lst = {}
+        manufacturer_lst = {}
+        branchSite_lst = {}
+        # contract_lst = {}
+
+        for instance in instances:
+            instance_lst[instance.pk] = {}
+
+            for field in instance._meta.get_fields():
+                if field.name == 'disposal_request':
+                    pass
+                elif field.name == 'status':
+                    if instance.status:
+                        instance_lst[instance.pk][field.name] = instance.get_status_display()
+                        status_lst[instance.status] = instance.get_status_display()
+                    else:
+                        instance_lst[instance.pk][field.name] = ''
+                elif field.name == 'contract':
+                    instance_lst[instance.pk]['contract'] = {instance.contract_set.first().pk: instance.contract_set.first().get_type_display()} if instance.contract_set.all() else {}
+                else:
+                    instance_field = getattr(instance, field.name)
+                    if field.is_relation:
+                        if field.name == 'owner':
+                            instance_lst[instance.pk]['owner'] = {instance_field.pk: instance_field.get_full_name()} if instance_field else {}
+                        else:
+                            instance_lst[instance.pk][field.name] = {instance_field.pk: instance_field.name} if instance_field else {}
+
+                            if field.name == 'branchSite':
+                                branchSite_lst[instance_field.pk] = instance_field.name
+                            elif field.name == 'model_type':
+                                model_type_lst[instance_field.pk] = instance_field.name
+                                if instance_field.sub_category:
+                                    instance_lst[instance.pk]['sub_category'] = {instance_field.sub_category.pk: instance_field.sub_category.name}
+                                    sub_categories_lst[instance_field.sub_category.pk] = instance_field.sub_category.name
+                                else:
+                                    instance_lst[instance.pk]['sub_category'] = {}
+                                if instance_field.manufacturer:
+                                    instance_lst[instance.pk]['manufacturer'] = {instance_field.manufacturer.pk: instance_field.manufacturer.name}
+                                    manufacturer_lst[instance_field.manufacturer.pk] = instance_field.manufacturer.name
+                                else:
+                                    instance_lst[instance.pk]['manufacturer'] = {}
+                    else:
+                        instance_lst[instance.pk][field.name] = instance_field if instance_field else ''
+
+        # response = [json.loads(serialize("json", instances)), owner_lst, status_lst, model_type_lst, sub_categories_lst, manufacturer_lst, branchSite_lst, contract_lst, ]
+        response = [instance_lst, status_lst, model_type_lst, sub_categories_lst, manufacturer_lst, branchSite_lst, ]
+
+        return JsonResponse(response, safe=False)
+
+
 
 # --- new ---
 

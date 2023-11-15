@@ -36,8 +36,10 @@ urlpatterns += [
 
 urlpatterns += [
 
+    path('json_response/instance_lst/', views_api.jsonResponse_instance_lst, name='jsonResponse-instance-lst'),
+
     path('instance/new/', views_api.new, name='instance-new'),
-    path('json_response/jsonResponse_new_lst/', views_api.jsonResponse_new_lst, name='jsonResponse-new-lst'),
+    path('json_response/new_lst/', views_api.jsonResponse_new_lst, name='jsonResponse-new-lst'),
 
     path('instance/disposal_request_approve/', views_api.disposal_request_approve, name='instance-disposal-request-approve'),
     path('instance/disposal_request/', views_api.disposal_request, name='instance-disposal-request'),

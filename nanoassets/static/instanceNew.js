@@ -15,7 +15,7 @@ let modalLbl, modalInputTag, getLstUri, postUpdUri, serialNumberOptLst, modelTyp
 newAssetsModal.addEventListener('show.bs.modal', () => {
     modalLbl = '';
     modalInputTag = 'new';
-    getLstUri = window.location.origin + '/json_response/jsonResponse_new_lst/';
+    getLstUri = window.location.origin + '/json_response/new_lst/';
     postUpdUri = window.location.origin + '/instance/new/';
 
     fetch(getLstUri
