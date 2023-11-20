@@ -2,6 +2,7 @@
 {% load static %}
 
 <table class="table table-striped table-hover fw-light">
+  <thead>
   <tr>
     <th></th>
     <th><small>Serial #</small></th>
@@ -18,6 +19,8 @@
     <th><small>Contract</small></th>
     {% endif %}
   </tr>
+  </thead>
+  <tbody>
   {% for instance in instances %}
     <tr>
       <td><input type="checkbox" name="instance" id="Instance{{ instance.pk }}" value="{{ instance.pk }}"/></td>
@@ -88,6 +91,7 @@
       {% endif %}
     </tr>
   {% endfor %}
+  </tbody>
 </table>
 
 <!-- js -->

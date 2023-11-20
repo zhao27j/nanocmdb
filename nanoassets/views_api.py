@@ -33,7 +33,7 @@ def jsonResponse_instance_lst(request):
         sub_categories_lst = {}
         manufacturer_lst = {}
         branchSite_lst = {}
-        # contract_lst = {}
+        contract_lst = {}
 
         for instance in instances:
             instance_lst[instance.pk] = {}
@@ -48,34 +48,45 @@ def jsonResponse_instance_lst(request):
                     else:
                         instance_lst[instance.pk][field.name] = ''
                 elif field.name == 'contract':
-                    instance_lst[instance.pk]['contract'] = {instance.contract_set.first().pk: instance.contract_set.first().get_type_display()} if instance.contract_set.all() else {}
+                    # instance_lst[instance.pk]['contract'] = {instance.contract_set.first().pk: instance.contract_set.first().get_type_display()} if instance.contract_set.all() else {}
+                    if instance.contract_set.all():
+                        instance_lst[instance.pk]['contract'] = instance.contract_set.first().get_type_display()
+                        contract_lst[instance.contract_set.first().briefing] = instance.contract_set.first().pk
+                    else:
+                        instance_lst[instance.pk]['contract'] = ''
                 else:
                     instance_field = getattr(instance, field.name)
                     if field.is_relation:
                         if field.name == 'owner':
-                            instance_lst[instance.pk]['owner'] = {instance_field.pk: instance_field.get_full_name()} if instance_field else {}
+                            instance_lst[instance.pk]['owner'] = instance_field.get_full_name() if instance_field else ''
+                            # instance_lst[instance.pk]['owner'] = {instance_field.pk: instance_field.get_full_name()} if instance_field else {}
                         else:
-                            instance_lst[instance.pk][field.name] = {instance_field.pk: instance_field.name} if instance_field else {}
+                            instance_lst[instance.pk][field.name] = instance_field.name if instance_field else ''
+                            # instance_lst[instance.pk][field.name] = {instance_field.pk: instance_field.name} if instance_field else {}
 
                             if field.name == 'branchSite':
-                                branchSite_lst[instance_field.pk] = instance_field.name
+                                branchSite_lst[instance_field.name] = instance_field.pk
                             elif field.name == 'model_type':
-                                model_type_lst[instance_field.pk] = instance_field.name
+                                model_type_lst[instance_field.name] = instance_field.pk
                                 if instance_field.sub_category:
-                                    instance_lst[instance.pk]['sub_category'] = {instance_field.sub_category.pk: instance_field.sub_category.name}
-                                    sub_categories_lst[instance_field.sub_category.pk] = instance_field.sub_category.name
+                                    instance_lst[instance.pk]['sub_category'] = instance_field.sub_category.name
+                                    # instance_lst[instance.pk]['sub_category'] = {instance_field.sub_category.pk: instance_field.sub_category.name}
+                                    sub_categories_lst[instance_field.sub_category.name] = instance_field.sub_category.pk
                                 else:
-                                    instance_lst[instance.pk]['sub_category'] = {}
+                                    instance_lst[instance.pk]['sub_category'] = ''
+                                    # instance_lst[instance.pk]['sub_category'] = {}
                                 if instance_field.manufacturer:
-                                    instance_lst[instance.pk]['manufacturer'] = {instance_field.manufacturer.pk: instance_field.manufacturer.name}
-                                    manufacturer_lst[instance_field.manufacturer.pk] = instance_field.manufacturer.name
+                                    instance_lst[instance.pk]['manufacturer'] = instance_field.manufacturer.name
+                                    # instance_lst[instance.pk]['manufacturer'] = {instance_field.manufacturer.pk: instance_field.manufacturer.name}
+                                    manufacturer_lst[instance_field.manufacturer.name] = instance_field.manufacturer.pk
                                 else:
-                                    instance_lst[instance.pk]['manufacturer'] = {}
+                                    instance_lst[instance.pk]['manufacturer'] = ''
+                                    # instance_lst[instance.pk]['manufacturer'] = {}
                     else:
                         instance_lst[instance.pk][field.name] = instance_field if instance_field else ''
 
         # response = [json.loads(serialize("json", instances)), owner_lst, status_lst, model_type_lst, sub_categories_lst, manufacturer_lst, branchSite_lst, contract_lst, ]
-        response = [instance_lst, status_lst, model_type_lst, sub_categories_lst, manufacturer_lst, branchSite_lst, ]
+        response = [instance_lst, status_lst, model_type_lst, sub_categories_lst, manufacturer_lst, branchSite_lst, contract_lst, ]
 
         return JsonResponse(response, safe=False)
 
