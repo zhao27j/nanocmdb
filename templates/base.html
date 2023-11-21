@@ -126,13 +126,15 @@
       </div>
     </nav>
 
+    {% include "base_messages.html" %}
+
     {% include "nanoassets/modalForm_instance_bulk_upd.html" %}
     {% include "nanoassets/modalForm_instance_new.html" %}
     {% include "nanopay/modalForm_legalEntity_cu.html" %}
     {% include "nanobase/modalForm_user_crud.html" %}
 
     <div class="container-fluid mt-3">
-      <div id="page_content">{% block page_content %}{% endblock page_content %}</div>
+      <div id="page_content">{% block page_content %}{% endblock page_content %}</div>    <!-- cuscomized html page content -->
       {% block pagination %}
         {% if is_paginated %}
         <nav aria-label="Page navigation nanoCMDB">

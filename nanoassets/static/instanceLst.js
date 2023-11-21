@@ -21,7 +21,7 @@ fetch(getLstUri
     manufacturer_lst = new Map(Object.entries(json[4]));
     branchSite_lst = new Map(Object.entries(json[5]));
     contract_lst = new Map(Object.entries(json[6]));
-    console.log('getLst has fetched');
+    console.log('getLst has been fetched');
 }).catch(error => {console.error('Error:', error ? error : null);})
 
 let accordionFlush;
@@ -30,32 +30,71 @@ document.addEventListener('click', e => {
         const pgCntnt = document.querySelector('div#page_content');
         pgCntnt.innerHTML = '';
 
-        const dropdownBtnGrpDivEl = document.createElement('div');
-        ['btn-group', 'dropend'].forEach(classItm => dropdownBtnGrpDivEl.classList.add(classItm));
-        dropdownBtnGrpDivEl.innerHTML = [
-            `<button class="btn btn-secondary dropdown-toggle mb-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">`,
-                `group by`,
-            `</button>`,
-            `<ul class="dropdown-menu">`,
-                `<li><a class="dropdown-item" href="#" id="sub_category">Sub Category</a></li>`,
-                `<li><a class="dropdown-item" href="#" id="model_type">Model / Type</a></li>`,
-                `<li><a class="dropdown-item" href="#" id="branchSite">Branch Site</a></li>`,
-            `</ul>`,
-        ].join('');
-        const dropdownInstance = bootstrap.Dropdown.getOrCreateInstance(dropdownBtnGrpDivEl.querySelector('button'));
-        ['mouseover', ].forEach(eventItm => dropdownBtnGrpDivEl.querySelector('button').addEventListener(eventItm, e => {
-            dropdownInstance.show()
-        }))
+        ['group by', 'filter by'].forEach(textContentItm => {
+            const dropdownBtnGrp = document.createElement('div');
+            ['btn-group', 'dropend', 'm-3', ].forEach(classItm => dropdownBtnGrp.classList.add(classItm));
 
-        dropdownBtnGrpDivEl.querySelector('ul').addEventListener('mouseleave', e => {
-            setTimeout(() => { dropdownInstance.hide();}, 300);
+            const dropdownBtn = document.createElement('button');
+            new Map([
+                ['class', 'btn btn-secondary dropdown-toggle'],
+                ['type', 'button'],
+                ['data-bs-toggle', 'dropdown'],
+                ['aria-expanded', 'false'],
+            ]).forEach((attrValue, attrKey, attrMap) => {
+                dropdownBtn.setAttribute(attrKey, attrValue);
+                dropdownBtn.textContent = textContentItm;
+            });
+            dropdownBtnGrp.appendChild(dropdownBtn);
+
+            const dropdownBtnUl = document.createElement('ul');
+            dropdownBtnUl.classList.add('dropdown-menu');
+            dropdownBtnGrp.appendChild(dropdownBtnUl);
+
+            if (textContentItm == 'group by') {
+                new Map([
+                    ['status', status_lst],
+                    ['sub_category', sub_categories_lst],
+                    ['model_type', model_type_lst],
+                    ['branchSite', branchSite_lst],
+                ]).forEach((groupByValue, groupByKey, groupBymap) => {
+                    // dropdownBtnUl.innerHTML += [`<li><a class="dropdown-item" href="#" id="${key}">${key.replaceAll('_', ' ')}</a></li>`,].join('');
+                    const dropdownItemLi = document.createElement('li');
+                    const dropdownItemHref = document.createElement('a');
+                    new Map([
+                        ['class', "dropdown-item"],
+                        ['href', "#"],
+                        ['id', groupByKey],
+                    ]).forEach((attrValue, attrKey, attrMap) => {
+                        dropdownItemHref.setAttribute(attrKey, attrValue);
+                        dropdownItemHref.textContent = groupByKey.replaceAll('_', ' ');
+                    });
+                    dropdownItemLi.appendChild(dropdownItemHref);
+                    // dropdownBtnUl.querySelector(`#${key}`).addEventListener('click', e => {
+                    dropdownItemHref.addEventListener('click', e => {
+                        accordionFlush.innerHTML = '';
+                        groupByValue.forEach((lstValue, lstKey, lstMap) => {reGrp(e.target.id, lstKey, accordionFlush)});
+                        baseMessagesAlert(`grouped by ${e.target.textContent}`, 'success');
+                    });
+                    dropdownBtnUl.appendChild(dropdownItemLi);
+                })
+            }
+
+            const dropdownInstance = bootstrap.Dropdown.getOrCreateInstance(dropdownBtn);
+            dropdownBtn.addEventListener('mouseover', e => {
+                dropdownInstance.show()
+            })
+
+            dropdownBtnUl.addEventListener('mouseleave', e => {
+                setTimeout(() => { dropdownInstance.hide();}, 300);
+            })
+
+            dropdownBtnGrp.addEventListener('mouseleave', e => {
+                setTimeout(() => { dropdownInstance.hide();}, 300);
+            })
+
+            pgCntnt.appendChild(dropdownBtnGrp);
+
         })
-
-        dropdownBtnGrpDivEl.addEventListener('mouseleave', e => {
-            setTimeout(() => { dropdownInstance.hide();}, 300);
-        })
-
-        pgCntnt.appendChild(dropdownBtnGrpDivEl);
 
         accordionFlush = document.createElement('div');
         ['accordion', 'accordion-flush'].forEach(classItm => accordionFlush.classList.add(classItm));
@@ -64,20 +103,8 @@ document.addEventListener('click', e => {
 
         if (sub_categories_lst) {
             sub_categories_lst.forEach((value, key, map) => {reGrp('sub_category', key, accordionFlush)});
+            baseMessagesAlert('grouped by Sub category', 'success');
         }
-    }
-})
-
-document.addEventListener('click', e => {
-    if (e.target.className == 'dropdown-item' && e.target.textContent == 'Sub Category') {
-        accordionFlush.innerHTML = '';
-        sub_categories_lst.forEach((value, key, map) => {reGrp(e.target.id, key, accordionFlush)});
-    } else if (e.target.className == 'dropdown-item' && e.target.textContent == 'Model / Type') {
-        accordionFlush.innerHTML = '';
-        model_type_lst.forEach((value, key, map) => {reGrp(e.target.id, key, accordionFlush)});
-    } else if (e.target.className == 'dropdown-item' && e.target.textContent == 'Branch Site') {
-        accordionFlush.innerHTML = '';
-        branchSite_lst.forEach((value, key, map) => {reGrp(e.target.id, key, accordionFlush)});
     }
 })
 

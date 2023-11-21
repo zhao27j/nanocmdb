@@ -44,7 +44,8 @@ def jsonResponse_instance_lst(request):
                 elif field.name == 'status':
                     if instance.status:
                         instance_lst[instance.pk][field.name] = instance.get_status_display()
-                        status_lst[instance.status] = instance.get_status_display()
+                        # status_lst[instance.status] = instance.get_status_display()
+                        status_lst[instance.get_status_display()] = instance.status
                     else:
                         instance_lst[instance.pk][field.name] = ''
                 elif field.name == 'contract':
