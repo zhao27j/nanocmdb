@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% load auth_extras %}
 {% load static %}
@@ -43,7 +43,7 @@
         </h2>
         <div id="{{ sub_category }}" class="accordion-collapse collapse show" data-bs-parent="#accordionFlushExample">
           <div class="accordion-body">
-            {% include 'base_instance_list.html' with instances=instance_list|grouped_by_sub_category:sub_category %}
+            {% include "base_instance_list.html" with instances=instance_list|grouped_by_sub_category:sub_category %}
           </div>
         </div>
       </div>

@@ -4,6 +4,8 @@ import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesA
 
 let instance_lst, owner_lst, status_lst, model_type_lst, sub_categories_lst, manufacturer_lst, branchSite_lst, contract_lst;
 
+let supportedPlusBtn, accordionFlush;
+
 const getLstUri = window.location.origin + '/json_response/instance_lst/';
 
 fetch(getLstUri
@@ -21,62 +23,93 @@ fetch(getLstUri
     manufacturer_lst = new Map(Object.entries(json[4]));
     branchSite_lst = new Map(Object.entries(json[5]));
     contract_lst = new Map(Object.entries(json[6]));
-    console.log('getLst has been fetched');
-}).catch(error => {console.error('Error:', error ? error : null);})
 
-let accordionFlush;
+    // <li><button type="button" class="dropdown-item"><small>Supported+</small></button></li>
+    supportedPlusBtn = document.createElement('button');
+    new Map([
+        ['class', 'dropdown-item'],
+        ['type', 'button'],
+    ]).forEach((attrValue, attrKey, attrMap) => {
+        supportedPlusBtn.setAttribute(attrKey, attrValue);
+        supportedPlusBtn.innerHTML = `<small>Supported+</small>`;
+    });
+    document.querySelector('#dropdownItemPlaceholderForSupportedPlus').appendChild(supportedPlusBtn);
+
+    baseMessagesAlert('getLst has been fetched', 'success');
+}).catch(error => {console.error('Error:', error ? error : null);});
+
 document.addEventListener('click', e => {
-    if (e.target.textContent == 'Supported+') {
-        const pgCntnt = document.querySelector('div#page_content');
-        pgCntnt.innerHTML = '';
+    if (e.target.innerHTML.includes('Supported+')) {
+        const supportedPlusBtnGrp = document.createElement('div');
+        ['btn-group', 'dropend', ].forEach(classItm => supportedPlusBtnGrp.classList.add(classItm));
+        
+        new Map([
+            ['class', 'dropdown-item dropdown-toggle'],
+            ['type', 'button'],
+            ['data-bs-toggle', 'dropdown'],
+            ['aria-expanded', 'false'],
+        ]).forEach((attrValue, attrKey, attrMap) => {
+            supportedPlusBtn.setAttribute(attrKey, attrValue);
+            supportedPlusBtn.innerHTML = `<small>Supported+</small>`;
+        });
+        supportedPlusBtn.parentNode.replaceChild(supportedPlusBtnGrp, supportedPlusBtn);
+        supportedPlusBtnGrp.appendChild(supportedPlusBtn);
 
-        ['group by', 'filter by'].forEach(textContentItm => {
-            const dropdownBtnGrp = document.createElement('div');
-            ['btn-group', 'dropend', 'm-3', ].forEach(classItm => dropdownBtnGrp.classList.add(classItm));
+        const supportedPlusBtnUl = document.createElement('ul');
+        supportedPlusBtnUl.classList.add('dropdown-menu');
+        supportedPlusBtnGrp.appendChild(supportedPlusBtnUl);
 
-            const dropdownBtn = document.createElement('button');
+        ['group by', 'filter by'].forEach(byMenuItm => {
+            const supportedPlusBtnUlLi = document.createElement('li');
+            supportedPlusBtnUl.appendChild(supportedPlusBtnUlLi);
+            const byMenuBtnGrp = document.createElement('div');
+            ['btn-group', 'dropend', ].forEach(classItm => byMenuBtnGrp.classList.add(classItm));
+            supportedPlusBtnUlLi.appendChild(byMenuBtnGrp);
+
+            const byMenuBtn = document.createElement('button');
             new Map([
-                ['class', 'btn btn-secondary dropdown-toggle'],
+                ['class', 'dropdown-item dropdown-toggle'],
                 ['type', 'button'],
                 ['data-bs-toggle', 'dropdown'],
                 ['aria-expanded', 'false'],
             ]).forEach((attrValue, attrKey, attrMap) => {
-                dropdownBtn.setAttribute(attrKey, attrValue);
-                dropdownBtn.textContent = textContentItm;
+                byMenuBtn.setAttribute(attrKey, attrValue);
+                byMenuBtn.textContent = byMenuItm;
             });
-            dropdownBtnGrp.appendChild(dropdownBtn);
+            byMenuBtnGrp.appendChild(byMenuBtn);
+            // supportedPlusBtnUl.appendChild(byMenuBtn);
 
-            const dropdownBtnUl = document.createElement('ul');
-            dropdownBtnUl.classList.add('dropdown-menu');
-            dropdownBtnGrp.appendChild(dropdownBtnUl);
+            const byMenuBtnUl = document.createElement('ul');
+            byMenuBtnUl.classList.add('dropdown-menu');
+            byMenuBtnGrp.appendChild(byMenuBtnUl);
 
-            if (textContentItm == 'group by') {
+            if (byMenuItm == 'group by') {
                 new Map([
                     ['status', status_lst],
                     ['sub_category', sub_categories_lst],
                     ['model_type', model_type_lst],
                     ['branchSite', branchSite_lst],
                 ]).forEach((groupByValue, groupByKey, groupBymap) => {
-                    const dropdownItemLi = document.createElement('li');
-                    const dropdownItemHref = document.createElement('a');
+                    const dropdownItmLi = document.createElement('li');
+                    const dropdownItmHref = document.createElement('a');
                     new Map([
                         ['class', "dropdown-item"],
                         ['href', "#"],
                         ['id', groupByKey],
                     ]).forEach((attrValue, attrKey, attrMap) => {
-                        dropdownItemHref.setAttribute(attrKey, attrValue);
-                        dropdownItemHref.textContent = groupByKey.replaceAll('_', ' ');
+                        dropdownItmHref.setAttribute(attrKey, attrValue);
+                        dropdownItmHref.textContent = groupByKey.replaceAll('_', ' ');
                     });
-                    dropdownItemLi.appendChild(dropdownItemHref);
-                    dropdownItemHref.addEventListener('click', e => {
+                    dropdownItmLi.appendChild(dropdownItmHref);
+                    dropdownItmHref.addEventListener('click', e => {
                         accordionFlush.innerHTML = '';
                         groupByValue.forEach((lstValue, lstKey, lstMap) => {reLst(e.target.id, lstKey, accordionFlush)});
                         baseMessagesAlert(`grouped by ${e.target.textContent}`, 'success');
                     });
-                    dropdownBtnUl.appendChild(dropdownItemLi);
+                    byMenuBtnUl.appendChild(dropdownItmLi);
                 })
             } 
-            /* else if (textContentItm == 'filter by') {
+            /* else if (byMenuItm == 'filter by') {
                 status_lst.forEach((value, key, map) => {
                     const chkBox = document.createElement('input');
                     new Map([
@@ -86,9 +119,9 @@ document.addEventListener('click', e => {
                         ['autocomplete', 'off'],
                     ]).forEach((attrValue, attrKey, attrMap) => {
                         chkBox.setAttribute(attrKey, attrValue);
-                        // dropdownItemHref.textContent = groupByKey.replaceAll('_', ' ');
+                        // dropdownItmHref.textContent = groupByKey.replaceAll('_', ' ');
                     });
-                    dropdownBtnUl.appendChild(chkBox);
+                    byMenuBtnUl.appendChild(chkBox);
                     const chkBoxLbl = document.createElement('label');
                     new Map([
                         ['class', 'btn btn-primary'],
@@ -97,27 +130,28 @@ document.addEventListener('click', e => {
                         chkBoxLbl.setAttribute(attrKey, attrValue);
                     });
                     chkBoxLbl.textContent = key;
-                    dropdownBtnUl.appendChild(chkBoxLbl);
+                    byMenuBtnUl.appendChild(chkBoxLbl);
                 })
             }
             */
 
-            const dropdownInstance = bootstrap.Dropdown.getOrCreateInstance(dropdownBtn);
-            dropdownBtn.addEventListener('mouseover', e => {
-                dropdownInstance.show()
-            })
+            const supportedPlusBtnInstance = bootstrap.Dropdown.getOrCreateInstance(supportedPlusBtn);
+            const byMenuBtnInstance = bootstrap.Dropdown.getOrCreateInstance(byMenuBtn);
 
-            dropdownBtnUl.addEventListener('mouseleave', e => {
-                setTimeout(() => { dropdownInstance.hide();}, 300);
-            })
+            supportedPlusBtn.addEventListener('mouseover', e => {supportedPlusBtnInstance.show();});
+            byMenuBtn.addEventListener('mouseover', e => {byMenuBtnInstance.show();});
 
-            dropdownBtnGrp.addEventListener('mouseleave', e => {
-                setTimeout(() => { dropdownInstance.hide();}, 300);
-            })
+            supportedPlusBtnUl.addEventListener('mouseleave', e => {setTimeout(() => { supportedPlusBtnInstance.hide();}, 300);})
+            supportedPlusBtnUlLi.addEventListener('mouseleave', e => {setTimeout(() => { byMenuBtnInstance.hide();}, 300);});
 
-            pgCntnt.appendChild(dropdownBtnGrp);
+            byMenuBtnUl.addEventListener('mouseleave', e => {setTimeout(() => { supportedPlusBtnInstance.hide();}, 300);});
+
+            // byMenuBtnGrp.addEventListener('mouseleave', e => {setTimeout(() => { byMenuBtnInstance.hide();}, 300);});
 
         })
+        
+        const pgCntnt = document.querySelector('div#page_content');
+        pgCntnt.innerHTML = '';
 
         accordionFlush = document.createElement('div');
         ['accordion', 'accordion-flush'].forEach(classItm => accordionFlush.classList.add(classItm));
@@ -211,7 +245,7 @@ function reLst(grpBy, accordionBtnTxt, accordion) {
                     case 'contract':
                         td.id = `${td_txt}Instance${lstKey}`;
                         if (lstValue[td_txt] == '') {
-
+                            td.innerHTML = `<small>${lstValue[td_txt]}</small>`;
                         } else if (typeof lstValue[td_txt] === 'object') {
                             for (var k in lstValue[td_txt]) {
                             // Object.keys(lstValue[td_txt]).forEach(k => {

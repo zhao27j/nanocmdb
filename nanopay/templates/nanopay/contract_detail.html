@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load auth_extras %}
 {% block page_content %}
 
@@ -80,7 +80,7 @@
         <div class="card mb-3">
           <div class="row g-0">
             <div class="col-md-4">
-              {% include 'base_carousel_portrait.html' %}
+              {% include "base_carousel_portrait.html" %}
             </div>
             <div class="col-md-8">
               <div class="card-body">
@@ -218,7 +218,7 @@
         <h5 class="card-title  text-body-secondary">{{ contract.briefing }}</h5>
         <ul class="list-group list-group-flush">
           <li class="list-group-item">
-            {% include 'base_instance_list.html' with instances=contract.assets.all %}
+            {% include "base_instance_list.html" with instances=contract.assets.all %}
           </li>
           <li class="list-group-item"><em>...</em></li>
         </ul>
@@ -229,7 +229,7 @@
     </div>
   </div>
   <div class="card-body">
-    {% include 'base_change_history.html' with changes=changes %}
+    {% include "base_change_history.html" with changes=changes %}
   </div>
 </div>
 {% else %}

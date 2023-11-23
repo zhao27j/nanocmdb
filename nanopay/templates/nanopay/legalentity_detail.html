@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load auth_extras %}
 {% load static %}
 {% block page_content %}
@@ -21,7 +21,7 @@
 <div class="card mb-3" ">
     <div class="row g-0">
       <div class="col-md-4">
-        {% include 'base_carousel_portrait.html' %}
+        {% include "base_carousel_portrait.html" %}
         {# <img src="{% static 'default_img.bmp' %}" class="img-fluid rounded-start" alt="..."> #}
       </div>
       <div class="col-md-8">
@@ -91,12 +91,12 @@
       </div>
       {% if userprofiles %}
       <div class="card-body">
-        {% include 'base_userprofile_list.html' with userprofiles=userprofiles %}
+        {% include "base_userprofile_list.html" with userprofiles=userprofiles %}
       </div>
       {% endif %}
       {% if changes %}
       <div class="card-body">
-        {% include 'base_change_history.html' with changes=changes %}
+        {% include "base_change_history.html" with changes=changes %}
       </div>
       {% endif %}
     </div>

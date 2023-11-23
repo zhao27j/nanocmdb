@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load auth_extras %}
 {% block page_content %}
 
@@ -19,7 +19,7 @@
   
 {% if instance_list %}
 
-{% include 'base_instance_list.html' with instances=instance_list %}
+{% include "base_instance_list.html" with instances=instance_list %}
   
 {% else %}
 <p class="lead">You don't have any IT assets !</p>

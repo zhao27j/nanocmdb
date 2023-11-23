@@ -62,7 +62,7 @@
                 <li><a class="dropdown-item" href="{% url 'nanoassets:my-instance-list' %}"><small>Owned</small></a></li>
                 {% if user|has_group:"IT China" %}
                 <li><a class="dropdown-item" href="{% url 'nanoassets:supported-instance-list' %}"><small>Supported</small></a></li>
-                <li><button type="button" class="dropdown-item"><small>Supported+</small></button></li>
+                <li id="dropdownItemPlaceholderForSupportedPlus"></li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                   {% if user|has_group:"IT China" and request.user.is_staff %}

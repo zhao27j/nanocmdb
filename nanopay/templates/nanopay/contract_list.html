@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load auth_extras %}
 {% block page_content %}
 
@@ -20,7 +20,7 @@
   {# <a href="{% url 'nanopay:contract-new' %}" class="btn btn-outline-primary d-inline-flex align-items-center">New Contract ...</a> #}
   {% if contract_list %}
   
-  {% include 'base_contract_list.html' with contracts=contract_list %}
+  {% include "base_contract_list.html" with contracts=contract_list %}
 
   {% endif %}
 {% else %}

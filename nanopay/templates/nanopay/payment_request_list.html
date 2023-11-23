@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load auth_extras %}
 {% block page_content %}
 
@@ -28,7 +28,7 @@
       <th><small>non Payroll Expense</small></th>
       <th><small>on</small></th>
       <th><small>by</small></th>
-      {% if  request.user|has_group:"IT Reviewer" %}
+      {% if request.user|has_group:"IT Reviewer" %}
       <th><small>IT reviewed by</small></th>
       {% endif %}
     </tr>
