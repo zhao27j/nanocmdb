@@ -32,10 +32,10 @@
                 <div class="col"><small><b>{{ sub_category }}</b></small></div>
                 <div class="col"><span class="badge text-bg-light">{{ instance_list|grouped_by_sub_category_subtotal:sub_category }}</span></div>
                 {% if instance_list|grouped_by_sub_category_subtotal_available:sub_category %}
-                <div class="col"><span class="badge text-bg-warning">{{ instance_list|grouped_by_sub_category_subtotal_available:sub_category }} x Available</span></div>
+                <div class="col"><span class="badge text-bg-warning">{{ instance_list|grouped_by_sub_category_subtotal_available:sub_category }}</span></div>
                 {% endif %}
                 {% if instance_list|grouped_by_sub_category_subtotal_in_repair:sub_category %}
-                <div class="col"><span class="badge text-bg-danger">{{ instance_list|grouped_by_sub_category_subtotal_in_repair:sub_category }} in Repair</span></div>
+                <div class="col"><span class="badge text-bg-danger">{{ instance_list|grouped_by_sub_category_subtotal_in_repair:sub_category }}</span></div>
                 {% endif %}
               </div>
             </small>

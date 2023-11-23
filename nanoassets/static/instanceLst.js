@@ -24,7 +24,6 @@ fetch(getLstUri
     branchSite_lst = new Map(Object.entries(json[5]));
     contract_lst = new Map(Object.entries(json[6]));
 
-    // <li><button type="button" class="dropdown-item"><small>Supported+</small></button></li>
     supportedPlusBtn = document.createElement('button');
     new Map([
         ['class', 'dropdown-item'],
@@ -34,11 +33,12 @@ fetch(getLstUri
         supportedPlusBtn.innerHTML = `<small>Supported+</small>`;
     });
     document.querySelector('#dropdownItemPlaceholderForSupportedPlus').appendChild(supportedPlusBtn);
+    supportedPlusBtn.addEventListener('click', e => supportedLstCreation(e));
 
     baseMessagesAlert('getLst has been fetched', 'success');
 }).catch(error => {console.error('Error:', error ? error : null);});
 
-document.addEventListener('click', e => {
+function supportedLstCreation(e) {
     if (e.target.innerHTML.includes('Supported+')) {
         const supportedPlusBtnGrp = document.createElement('div');
         ['btn-group', 'dropend', ].forEach(classItm => supportedPlusBtnGrp.classList.add(classItm));
@@ -74,7 +74,7 @@ document.addEventListener('click', e => {
                 ['aria-expanded', 'false'],
             ]).forEach((attrValue, attrKey, attrMap) => {
                 byMenuBtn.setAttribute(attrKey, attrValue);
-                byMenuBtn.textContent = byMenuItm;
+                byMenuBtn.innerHTML = `<small>${byMenuItm}</small>`
             });
             byMenuBtnGrp.appendChild(byMenuBtn);
             // supportedPlusBtnUl.appendChild(byMenuBtn);
@@ -98,7 +98,7 @@ document.addEventListener('click', e => {
                         ['id', groupByKey],
                     ]).forEach((attrValue, attrKey, attrMap) => {
                         dropdownItmHref.setAttribute(attrKey, attrValue);
-                        dropdownItmHref.textContent = groupByKey.replaceAll('_', ' ');
+                        dropdownItmHref.innerHTML = `<small>${groupByKey.replaceAll('_', ' ')}</small>`
                     });
                     dropdownItmLi.appendChild(dropdownItmHref);
                     dropdownItmHref.addEventListener('click', e => {
@@ -151,7 +151,7 @@ document.addEventListener('click', e => {
         })
         
         const pgCntnt = document.querySelector('div#page_content');
-        pgCntnt.innerHTML = '';
+        pgCntnt.innerHTML = '<h3 class="m-3">Supported IT Assets</h3>';
 
         accordionFlush = document.createElement('div');
         ['accordion', 'accordion-flush'].forEach(classItm => accordionFlush.classList.add(classItm));
@@ -163,7 +163,7 @@ document.addEventListener('click', e => {
             baseMessagesAlert('grouped by Sub category', 'success');
         }
     }
-})
+}
 
 function reLst(grpBy, accordionBtnTxt, accordion) {
 
@@ -235,7 +235,7 @@ function reLst(grpBy, accordionBtnTxt, accordion) {
                         td.innerHTML = `<small>${lstValue[td_txt]}</small>`;
                         if (lstValue['disposal_request']) {
                             td.innerHTML += [
-                                `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-recycle" viewBox="0 0 16 16">`,
+                                `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-recycle ms-3" viewBox="0 0 16 16">`,
                                    `<path d="M9.302 1.256a1.5 1.5 0 0 0-2.604 0l-1.704 2.98a.5.5 0 0 0 .869.497l1.703-2.981a.5.5 0 0 1 .868 0l2.54 4.444-1.256-.337a.5.5 0 1 0-.26.966l2.415.647a.5.5 0 0 0 .613-.353l.647-2.415a.5.5 0 1 0-.966-.259l-.333 1.242-2.532-4.431zM2.973 7.773l-1.255.337a.5.5 0 1 1-.26-.966l2.416-.647a.5.5 0 0 1 .612.353l.647 2.415a.5.5 0 0 1-.966.259l-.333-1.242-2.545 4.454a.5.5 0 0 0 .434.748H5a.5.5 0 0 1 0 1H1.723A1.5 1.5 0 0 1 .421 12.24l2.552-4.467zm10.89 1.463a.5.5 0 1 0-.868.496l1.716 3.004a.5.5 0 0 1-.434.748h-5.57l.647-.646a.5.5 0 1 0-.708-.707l-1.5 1.5a.498.498 0 0 0 0 .707l1.5 1.5a.5.5 0 1 0 .708-.707l-.647-.647h5.57a1.5 1.5 0 0 0 1.302-2.244l-1.716-3.004z"/>`,
                                 `</svg>`,
                             ].join('');
