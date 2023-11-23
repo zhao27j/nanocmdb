@@ -40,7 +40,10 @@ def jsonResponse_instance_lst(request):
 
             for field in instance._meta.get_fields():
                 if field.name == 'disposal_request':
-                    pass
+                    if instance.disposal_request:
+                        instance_lst[instance.pk][field.name] = True
+                    else:
+                        instance_lst[instance.pk][field.name] = False
                 elif field.name == 'status':
                     if instance.status:
                         instance_lst[instance.pk][field.name] = instance.get_status_display()
@@ -51,7 +54,8 @@ def jsonResponse_instance_lst(request):
                 elif field.name == 'contract':
                     # instance_lst[instance.pk]['contract'] = {instance.contract_set.first().pk: instance.contract_set.first().get_type_display()} if instance.contract_set.all() else {}
                     if instance.contract_set.all():
-                        instance_lst[instance.pk]['contract'] = instance.contract_set.first().get_type_display()
+                        # instance_lst[instance.pk]['contract'] = instance.contract_set.first().get_type_display()
+                        instance_lst[instance.pk]['contract'] = {instance.contract_set.first().pk: instance.contract_set.first().get_type_display()}
                         contract_lst[instance.contract_set.first().briefing] = instance.contract_set.first().pk
                     else:
                         instance_lst[instance.pk]['contract'] = ''
@@ -90,7 +94,6 @@ def jsonResponse_instance_lst(request):
         response = [instance_lst, status_lst, model_type_lst, sub_categories_lst, manufacturer_lst, branchSite_lst, contract_lst, ]
 
         return JsonResponse(response, safe=False)
-
 
 
 # --- new ---

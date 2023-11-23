@@ -32,7 +32,7 @@ document.addEventListener('dblclick', e => { // listerning all Double Click even
             case 'inRepair':
                 break;
             case 'subCategory':
-                if (document.querySelector(`#modelTypeInstance${dblClickedInstancePk}`).querySelector('small').innerHTML != '') {
+                if (document.querySelector(`#model_typeInstance${dblClickedInstancePk}`).querySelector('small').innerHTML != '') {
                     modalLbl = 'Re-categorize to ...';
                     modalInputTag = 'subCategory';
                     getLstUri = window.location.origin + '/json_response/sub_category_lst/';
@@ -85,7 +85,7 @@ document.addEventListener('dblclick', e => { // listerning all Double Click even
     else if (e.target.closest("[id^='instanceSubcategory']")) {
         dblClickedEl = e.target.closest("[id^='instanceSubcategory']");
         dblClickedElInnerHTML = dblClickedEl.querySelector('small').innerHTML === '🈳' ? '' : dblClickedEl.querySelector('small').innerHTML;
-        if (document.querySelector(`#modelTypeInstance${dblClickedEl.id.split('instanceSubcategory')[1]}`).querySelector('small').innerHTML != '') {
+        if (document.querySelector(`#model_typeInstance${dblClickedEl.id.split('instanceSubcategory')[1]}`).querySelector('small').innerHTML != '') {
             bulkUpdModalInstance.show();
         } else {
             baseMessagesAlert(`please apply a Model / Type to this IT Assets first`, 'warning');

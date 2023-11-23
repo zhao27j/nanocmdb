@@ -25,7 +25,7 @@
     <tr>
       <td><input type="checkbox" name="instance" id="Instance{{ instance.pk }}" value="{{ instance.pk }}"/></td>
       <td>
-        <label for="instance{{ instance.pk }}">
+        <label for="Instance{{ instance.pk }}">
           <a href="{% url 'nanoassets:instance-detail' instance.pk %}" class="text-decoration-none">
             <small>{{ instance.serial_number }}</small>
           </a>
@@ -50,7 +50,7 @@
         <!-- </a> -->
         {% endif %}
       </td>
-      <td id="modelTypeInstance{{ instance.pk }}"><small>{{ instance.model_type }}</small></td>
+      <td id="model_typeInstance{{ instance.pk }}"><small>{{ instance.model_type }}</small></td>
       <td id="hostnameInstance{{ instance.pk }}"><small>{{ instance.hostname }}</small></td>
       <td id="statusInstance{{ instance.pk }}">
         <small>{{ instance.get_status_display }}</small>
