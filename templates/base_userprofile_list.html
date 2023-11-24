@@ -27,7 +27,9 @@
         </div>
       </td>
       <td>
-        <small>{{ userprofile.user.last_name }}, {{ userprofile.user.first_name }}</small>
+        <a href="{% url 'nanobase:user-profile-update' userprofile.pk %}" class="text-decoration-none">
+          <small>{{ userprofile.user.last_name }}, {{ userprofile.user.first_name }}</small>
+        </a>
         
         <!-- <button type="button" class="btn btn-link text-decoration-none" data-bs-toggle="modal" data-bs-target="#crudUserModal" name="">
           {% if userprofile.user.is_active %}

@@ -19,6 +19,8 @@
   {% endfor %}
 {% endif %}
 
+{% if user|has_group:"IT China" %}
+
 <h3>All Legal Entities
   <button type="button" id="legalEntitiesBtnByType" class="btn btn-outline-secondary btn-sm" style="display: inline-block">by Type</button>
   <button type="button" id="legalEntitiesBtnByPrjct" class="btn btn-outline-secondary btn-sm" style="display: inline-block">by Project</button>
@@ -88,5 +90,9 @@
 
 <!-- js -->
 <script type="module" src="{% static 'legalEntity_lst.js' %}" defer></script>
+
+{% else %}
+<p class="lead">You're not the authorized IT staff</p>
+{% endif %}
 
 {% endblock page_content %}

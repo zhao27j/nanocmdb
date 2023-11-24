@@ -19,12 +19,14 @@
   {% endfor %}
 {% endif %}
 
+{% if user|has_group:"IT China" %}
+
 <h3>all Users
   <!--
   <button type="button" id="legalEntitiesBtnByType" class="btn btn-outline-secondary btn-sm" style="display: inline-block">by Type</button>
   <button type="button" id="legalEntitiesBtnByPrjct" class="btn btn-outline-secondary btn-sm" style="display: inline-block">by Project</button>
   -->
-  <div class="form-check form-switch form-check-inline fs-6">
+  <div class="form-check form-switch form-check-inline fs-6 ms-3">
     <input class="form-check-input" type="checkbox" role="switch" id="userLstSwitch">
     <label class="form-check-label" for="flexSwitchCheckDefault"></label>
   </div>
@@ -36,5 +38,9 @@
 
 <!-- js -->
 <script type="module" src="{% static 'user_lst.js' %}" defer></script>
+
+{% else %}
+<p class="lead">You're not the authorized IT staff</p>
+{% endif %}
 
 {% endblock page_content %}
