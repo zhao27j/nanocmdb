@@ -2,7 +2,7 @@
 
 const baseMessagesAlertPlaceholder = document.getElementById('baseMessagesAlertPlaceholder');
 
-const baseMessagesAlert = (msg, type, toastAutoHide = true) => {
+const baseMessagesAlert = (msg, type, toastAutoHide = true, hyperLink = {}) => {
     let svg_icon;
     switch (type) {
         case 'success':
@@ -49,6 +49,12 @@ const baseMessagesAlert = (msg, type, toastAutoHide = true) => {
     ]).forEach((value, key, map) => {
         toastDivEl.setAttribute(key, value);
     })
+    
+    if (hyperLink.size) {
+        hyperLink.forEach((link, replacement, map) => {
+            msg.replaceAll(replacement, `<a href="${link}">${replacement}</a>`)
+        })
+    }
 
     toastDivEl.innerHTML = [
         `<div class="toast-header text-${type}">`,
@@ -82,7 +88,7 @@ const baseMessagesAlert = (msg, type, toastAutoHide = true) => {
                 toastBtn.textContent = 'no';
                 toastBtn.classList.add('btn-secondary');
             }
-            toastDivEl.querySelector('.mt-2.pt-2.border-top').appendChild(toastBtn);
+            toastDivEl.querySelector('div.mt-2.pt-2.border-top').appendChild(toastBtn);
             toastDivEl.setAttribute('data-bs-autohide', 'false');
         })
     }

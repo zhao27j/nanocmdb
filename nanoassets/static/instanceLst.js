@@ -30,16 +30,15 @@ fetch(getLstUri
         ['type', 'button'],
     ]).forEach((attrValue, attrKey, attrMap) => {
         supportedPlusBtn.setAttribute(attrKey, attrValue);
-        supportedPlusBtn.innerHTML = `<small>Supported+</small>`;
+        supportedPlusBtn.innerHTML = `<small>supported +</small>`;
     });
     document.querySelector('#dropdownItemPlaceholderForSupportedPlus').appendChild(supportedPlusBtn);
     supportedPlusBtn.addEventListener('click', e => supportedLstCreation(e));
-
-    baseMessagesAlert('getLst has been fetched', 'success');
+    baseMessagesAlert('supported + is ready', 'success');
 }).catch(error => {console.error('Error:', error ? error : null);});
 
 function supportedLstCreation(e) {
-    if (e.target.innerHTML.includes('Supported+')) {
+    if (e.target.innerHTML.includes('supported +')) {
         const supportedPlusBtnGrp = document.createElement('div');
         ['btn-group', 'dropend', ].forEach(classItm => supportedPlusBtnGrp.classList.add(classItm));
         
@@ -50,7 +49,7 @@ function supportedLstCreation(e) {
             ['aria-expanded', 'false'],
         ]).forEach((attrValue, attrKey, attrMap) => {
             supportedPlusBtn.setAttribute(attrKey, attrValue);
-            supportedPlusBtn.innerHTML = `<small>Supported+</small>`;
+            supportedPlusBtn.innerHTML = `<small>supported +</small>`;
         });
         supportedPlusBtn.parentNode.replaceChild(supportedPlusBtnGrp, supportedPlusBtn);
         supportedPlusBtnGrp.appendChild(supportedPlusBtn);
@@ -103,7 +102,8 @@ function supportedLstCreation(e) {
                     dropdownItmLi.appendChild(dropdownItmHref);
                     dropdownItmHref.addEventListener('click', e => {
                         accordionFlush.innerHTML = '';
-                        groupByValue.forEach((lstValue, lstKey, lstMap) => {reLst(e.target.id, lstKey, accordionFlush)});
+                        const category = e.target.id ? e.target.id : e.target.closest('*[id]').id;
+                        groupByValue.forEach((lstValue, lstKey, lstMap) => {reLst(category, lstKey, accordionFlush)});
                         baseMessagesAlert(`grouped by ${e.target.textContent}`, 'success');
                     });
                     byMenuBtnUl.appendChild(dropdownItmLi);
