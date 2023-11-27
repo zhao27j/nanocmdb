@@ -232,8 +232,9 @@
     {% include "base_change_history.html" with changes=changes %}
   </div>
 </div>
+
 {% else %}
-<p>You're not the authorized IT staff</p>
+<p class="lead">You're not the authorized IT staff</p>
 {% endif %}
 
 {% endblock page_content %}

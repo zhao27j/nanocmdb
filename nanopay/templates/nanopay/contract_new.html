@@ -17,6 +17,7 @@
 {% endif %}
 
 {% if user|has_group:"IT China" and request.user.is_staff %}
+
 <form action="" method="post" enctype="multipart/form-data">
   {% csrf_token %}
 
@@ -79,6 +80,7 @@
     </div>
   </div>
 </form>
+
 {% else %}
 <p class="lead">You're not the authorized IT staff</p>
 {% endif %}
