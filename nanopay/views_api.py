@@ -5,14 +5,58 @@ from django.utils import timezone
 
 from django.core.exceptions import FieldDoesNotExist
 from django.core.serializers import serialize
+from django.core.mail import EmailMessage
 
 from django.http import JsonResponse
+from django.template.loader import get_template
 
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
-from .models import LegalEntity, Prjct
+from .models import Contract, LegalEntity, Prjct
 from nanobase.models import UserProfile, ChangeHistory
+
+@login_required
+def contract_mail_me_the_list(request):
+    if request.method == 'GET':
+        contract = Contract.objects.get(pk=request.GET.get('contractPk'))
+        instances = contract.assets.none()
+        if request.GET.get('instancesPk'):
+            instances_selected_pk = request.GET.get('instancesPk').strip(',').split(',')
+            for pk in instances_selected_pk:
+                instance = contract.assets.filter(pk=pk)
+                instances = instances | instance
+        else:
+            instances = contract.assets.all()
+        
+        message = get_template("nanopay/contract_mail_me_the_assets_list.html").render({
+                'protocol': 'http',
+                'domain': '127.0.0.1:8000',
+                'contract': contract,
+                'instances': instances,
+                'by': request.user.get_full_name(),
+                'on': timezone.now(),
+        })
+        mail = EmailMessage(
+            subject='ITS express - IT asset list of ' + contract.briefing,
+            body=message,
+            from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
+            to=[request.user.email, ],
+            # cc=[request.user.email],
+            # reply_to=[EMAIL_ADMIN],
+            # connection=
+        )
+        mail.content_subtype = "html"
+        is_sent = mail.send()
+        if is_sent:
+            messages.success(request, "the asset list of " + contract.briefing + " was successfully sent")
+            response = JsonResponse({'is_sent': True})
+        else:
+            messages.success(request, "the asset list of " + contract.briefing + " was NOT sent dur to some errors")
+            response = JsonResponse({'is_sent': False})
+
+        return response
 
 
 @login_required

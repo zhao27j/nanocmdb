@@ -37,6 +37,8 @@ urlpatterns += {
 
 # json api
 urlpatterns += {
+    path('contract/mail_me_the_list/', views_api.contract_mail_me_the_list, name='contract-mail-me-the-list'),
+
     path('json_response/legalEntity_getLst/', views_api.jsonResponse_legalEntity_getLst, name='jsonResponse-legalEntity-getLst'),
     path('legal_entity/', views_api.legal_entity, name='legal-entity'),
 

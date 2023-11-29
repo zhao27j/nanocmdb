@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load auth_extras %}
+{% load static %}
 {% block page_content %}
 
 {% if form.non_field_errors %}
@@ -215,7 +216,12 @@
         </ul>
       </div>
       <div class="tab-pane fade" id="assets-tab-pane" role="tabpanel" aria-labelledby="assets-tab" tabindex="0">
-        <h5 class="card-title  text-body-secondary">{{ contract.briefing }}</h5>
+        <h5 class="card-title  text-body-secondary">
+          {{ contract.briefing }}
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button class="btn btn-outline-secondary me-md-2" type="button" id="{{ contract.pk }}">mail me the list</button>
+          </div>
+        </h5>
         <ul class="list-group list-group-flush">
           <li class="list-group-item">
             {% include "base_instance_list.html" with instances=contract.assets.all %}
@@ -232,6 +238,9 @@
     {% include "base_change_history.html" with changes=changes %}
   </div>
 </div>
+
+<!-- js -->
+<script type="module" src="{% static 'contract_mail_me_the_assets_list.js' %}" defer></script>
 
 {% else %}
 <p class="lead">You're not the authorized IT staff</p>
