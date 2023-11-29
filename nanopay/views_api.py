@@ -18,7 +18,7 @@ from .models import Contract, LegalEntity, Prjct
 from nanobase.models import UserProfile, ChangeHistory
 
 @login_required
-def contract_mail_me_the_list(request):
+def contract_mail_me_the_assets_list(request):
     if request.method == 'GET':
         contract = Contract.objects.get(pk=request.GET.get('contractPk'))
         instances = contract.assets.none()
@@ -51,7 +51,7 @@ def contract_mail_me_the_list(request):
         is_sent = mail.send()
         if is_sent:
             messages.success(request, "the asset list of " + contract.briefing + " was successfully sent")
-            response = JsonResponse({'is_sent': True})
+            response = JsonResponse({'is_sent': contract.briefing})
         else:
             messages.success(request, "the asset list of " + contract.briefing + " was NOT sent dur to some errors")
             response = JsonResponse({'is_sent': False})
