@@ -1,3 +1,4 @@
+import { getRequesterPermissions } from './get_requester_permissions.js'
 import { formsValidation } from './modalFormsValidation.js';
 import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
 import {modalInputChk} from './modalInputChk.js';
@@ -14,6 +15,26 @@ const bulkUpdModalInput = document.querySelector('#bulkUpdModalInput');
 const bulkUpdModalDatalist = document.querySelector('#bulkUpdModalDatalist');
 const bulkUpdModalBtn = document.querySelector('#bulkUpdModalBtn');
 
+
+let is_IT_staff;
+async function getRequesterPermissionsAsync() {
+    try {
+        const json = await getRequesterPermissions();
+        if (json.is_IT_staff) {
+            is_IT_staff = json.is_IT_staff;
+            baseMessagesAlert("you're authorized IT staff", 'info');
+        } else {
+            baseMessagesAlert("you're NOT authorized IT staff", 'danger');
+        }
+    } catch (error) {
+        console.error('There was a problem with the async operation:', error);
+    }
+}
+const requesterPermissions = getRequesterPermissionsAsync();
+
+
+getRequesterPermissionsAsync();
+
 let dblClickedEl = null, dblClickedElInnerHTML, dblClickedInstancePk;
 let modalLbl, modalInputTag, getLstUri, optLst, chkLst, postUpdUri, instanceSelected, instanceSelectedPk;
 document.addEventListener('dblclick', e => { // listerning all Double Click events on the Document
@@ -21,7 +42,8 @@ document.addEventListener('dblclick', e => { // listerning all Double Click even
     if (dblClickedEl) {
         dblClickedElInnerHTML = dblClickedEl.querySelector('small').innerHTML === '🈳' ? '' : dblClickedEl.querySelector('small').innerHTML;
         dblClickedInstancePk = dblClickedEl.id.split('Instance')[1];
-        switch (dblClickedEl.id.split('Instance')[0]) {
+        const dblClickedInstanceCase = dblClickedEl.id.split('Instance')[0];
+        switch (dblClickedInstanceCase) {
             case 'status':
                 modalLbl = 'Apply for disposal ...';
                 modalInputTag = 'status';
@@ -43,9 +65,9 @@ document.addEventListener('dblclick', e => { // listerning all Double Click even
                     bulkUpdModalInstance.hide();
                 }
                 break;
-            case 'modelType':
+            case 'model_type':
                 modalLbl = 'Change to ...';
-                modalInputTag = 'modelType';
+                modalInputTag = 'model_type';
                 getLstUri = window.location.origin + '/json_response/model_type_lst/';
                 postUpdUri = window.location.origin + '/instance/model_type_changing_to/';
                 bulkUpdModalInstance.show();
@@ -92,8 +114,8 @@ document.addEventListener('dblclick', e => { // listerning all Double Click even
             bulkUpdModalInstance.hide();
         }
     }
-    else if (e.target.closest("[id^='instanceModelType']")) {
-        dblClickedEl = e.target.closest("[id^='instanceModelType']");
+    else if (e.target.closest("[id^='instancemodel_type']")) {
+        dblClickedEl = e.target.closest("[id^='instancemodel_type']");
         dblClickedElInnerHTML = dblClickedEl.querySelector('small').innerHTML === '🈳' ? '' : dblClickedEl.querySelector('small').innerHTML;
         bulkUpdModalInstance.show();
     }
@@ -127,7 +149,7 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
     else {
         if (dblClickedEl.id.includes('instanceOwner')) {}
         else if (dblClickedEl.id.includes('instanceSubcategory')) {}
-        else if (dblClickedEl.id.includes('instanceModelType')) {}
+        else if (dblClickedEl.id.includes('instancemodel_type')) {}
     }
 */
     instanceSelectedPk = [];
@@ -163,7 +185,10 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
 })
 
 bulkUpdModal.addEventListener('shown.bs.modal', () => {
-    if (instanceSelected.length > 0) {
+    if (!is_IT_staff) {
+        baseMessagesAlert("you're NOT authorized IT staff", 'danger');
+        bulkUpdModalInstance.hide();
+    } else if (instanceSelected.length > 0) {
         if ( bulkUpdModalDatalist.querySelectorAll('option').length > 0 ) {
             while (bulkUpdModalDatalist.querySelector('option')) {
                 bulkUpdModalDatalist.removeChild(bulkUpdModalDatalist.querySelector('option'))
@@ -223,7 +248,7 @@ bulkUpdModalForm.addEventListener('submit', (e) => { // listening Form Submissio
                 else if (modalInputTag == 'subCategory') {
                     const msgAlert = `the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] was re-subCategorized to [ ${bulkUpdModalInputValue} ]`;
                 }
-                else if (modalInputTag == 'modelType') {
+                else if (modalInputTag == 'model_type') {
                     const msgAlert = `the Model / Type of the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] was Changed to [ ${bulkUpdModalInputValue} ]`;
                 }
                 else if (modalInputTag == 'status') {

@@ -8,34 +8,36 @@ let supportedPlusBtn, accordionFlush;
 
 const getLstUri = window.location.origin + '/json_response/instance_lst/';
 
-fetch(getLstUri
-).then(response => {
-    if (response.ok) {
-        return response.json();
-    } else {
-        throw new Error(`HTTP error: ${response.status}`);
-    }
-}).then(json => {
-    instance_lst = new Map(Object.entries(json[0]));
-    status_lst = new Map(Object.entries(json[1]));
-    model_type_lst = new Map(Object.entries(json[2]));
-    sub_categories_lst = new Map(Object.entries(json[3]));
-    manufacturer_lst = new Map(Object.entries(json[4]));
-    branchSite_lst = new Map(Object.entries(json[5]));
-    contract_lst = new Map(Object.entries(json[6]));
+if (document.querySelector('#dropdownItemPlaceholderForSupportedPlus')) {
+    fetch(getLstUri
+    ).then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error(`HTTP error: ${response.status}`);
+        }
+    }).then(json => {
+        instance_lst = new Map(Object.entries(json[0]));
+        status_lst = new Map(Object.entries(json[1]));
+        model_type_lst = new Map(Object.entries(json[2]));
+        sub_categories_lst = new Map(Object.entries(json[3]));
+        manufacturer_lst = new Map(Object.entries(json[4]));
+        branchSite_lst = new Map(Object.entries(json[5]));
+        contract_lst = new Map(Object.entries(json[6]));
 
-    supportedPlusBtn = document.createElement('button');
-    new Map([
-        ['class', 'dropdown-item'],
-        ['type', 'button'],
-    ]).forEach((attrValue, attrKey, attrMap) => {
-        supportedPlusBtn.setAttribute(attrKey, attrValue);
-        supportedPlusBtn.innerHTML = `<small>supported +</small>`;
-    });
-    document.querySelector('#dropdownItemPlaceholderForSupportedPlus').appendChild(supportedPlusBtn);
-    supportedPlusBtn.addEventListener('click', e => supportedLstCreation(e));
-    baseMessagesAlert('supported + is ready', 'success');
-}).catch(error => {console.error('Error:', error ? error : null);});
+        supportedPlusBtn = document.createElement('button');
+        new Map([
+            ['class', 'dropdown-item'],
+            ['type', 'button'],
+        ]).forEach((attrValue, attrKey, attrMap) => {
+            supportedPlusBtn.setAttribute(attrKey, attrValue);
+            supportedPlusBtn.innerHTML = `<small>supported +</small>`;
+        });
+        document.querySelector('#dropdownItemPlaceholderForSupportedPlus').appendChild(supportedPlusBtn);
+        supportedPlusBtn.addEventListener('click', e => supportedLstCreation(e));
+        baseMessagesAlert('supported + is ready', 'success');
+    }).catch(error => {error ? console.error('Error:', error) : null;});
+}
 
 function supportedLstCreation(e) {
     if (e.target.innerHTML.includes('supported +')) {

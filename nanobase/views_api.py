@@ -10,11 +10,25 @@ from django.core.serializers import serialize
 from django.core.exceptions import FieldDoesNotExist
 
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 from .models import UserProfile, UserDept, ChangeHistory
 from nanopay.models import LegalEntity
 
+
+@login_required
+def jsonResponse_requester_permissions(request):
+    if request.method == 'GET':
+        requester_permission = {}
+        requester_permission['is_activate'] = request.user.is_active
+        requester_permission['is_authenticated'] = request.user.is_authenticated
+        requester_permission['is_staff'] = request.user.is_staff
+
+        group = Group.objects.get(name='IT China')
+        requester_permission['is_IT_staff'] = group in request.user.groups.all()
+
+        response = JsonResponse(requester_permission)
+        return response
 
 @login_required
 def jsonResponse_users_getLst(request):

@@ -31,6 +31,8 @@ urlpatterns += [
     path('user/crud/', views_api.user_crud, name='user-crud'),
 
     path('json_response/users_getLst/', views_api.jsonResponse_users_getLst, name='users-getLst'),
+
+    path('json_response/requester_permissions/', views_api.jsonResponse_requester_permissions, name='requester-permissions')
 ]
 
 # temp - data migrations
