@@ -17,9 +17,9 @@
 {% endif %}
 
 {% if user|has_group:"IT China" and request.user.is_staff %}
+
 <form action="" method="post">
   {% csrf_token %}
-
   <div class="card mb-3" ">
     <div class="row g-0">
       <div class="col-md-4">
@@ -116,8 +116,8 @@
       </div>
     </div>
   </div>
-
 </form>
+
 {% else %}
 <p>You're not the authorized IT staff</p>
 {% endif %} 

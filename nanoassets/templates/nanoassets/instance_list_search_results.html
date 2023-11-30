@@ -18,10 +18,10 @@
   {% endfor %}
 {% endif %}
 
-<p class="h3">search results</p>
 {% if user|has_group:"IT China" %}
-  {% if instance_list %}
 
+<p class="h3">search results</p>
+  {% if instance_list %}
     <div class="accordion accordion-flush mt-3" id="accordionFlushExample">
       {% for sub_category in sub_categories %}
       <div class="accordion-item">
@@ -53,6 +53,7 @@
   {% else %}
   <p class="lead">No IT assets are under your support !</p>
   {% endif %}
+
 {% else %}
 <p class="lead">You're not the authorized IT staff</p>
 {% endif %}

@@ -16,6 +16,8 @@
   {% endfor %}
 {% endif %}
 
+{% if user|has_group:"IT China" %}
+
 {# <form action="{% url 'nanoassets:instance-disposal-request-approve' disposalrequest.pk %}" method="post"> #}
 <form action="" method="">
   {% csrf_token %}
@@ -40,5 +42,9 @@
 </form>
 
 <script type="module" src="{% static 'instanceDisposalRequestApprove.js' %}" defer></script>
+
+{% else %}
+<p class="lead">You're not the authorized IT staff</p>
+{% endif %}
 
 {% endblock page_content %}
