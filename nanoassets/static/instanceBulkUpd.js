@@ -30,9 +30,6 @@ async function getRequesterPermissionsAsync() {
         console.error('There was a problem with the async operation:', error);
     }
 }
-const requesterPermissions = getRequesterPermissionsAsync();
-
-
 getRequesterPermissionsAsync();
 
 let dblClickedEl = null, dblClickedElInnerHTML, dblClickedInstancePk;
