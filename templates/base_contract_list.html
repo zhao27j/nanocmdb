@@ -1,6 +1,7 @@
 {% load auth_extras %}
 
 <table class="table table-striped table-hover">
+  <thead>
   <tr>
     <th></th>
     <th><small>Briefing</small></th>
@@ -12,6 +13,8 @@
     <th><small>Duration</small></th>
     <th><small>Remaining</small></th>
   </tr>
+  </thead>
+  <tbody>
   {% for contract in contracts %}
   <tr>
     <td><input type="checkbox" name="contract" id="contract{{ forloop.counter }}" value="{{ contract.pk }}"/></td>
@@ -63,4 +66,5 @@
     </td>
   </tr>
   {% endfor %}
+  </tbody>
 </table>

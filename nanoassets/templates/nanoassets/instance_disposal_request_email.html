@@ -33,6 +33,7 @@
         <hr>
         <h5>{{ new_req.get_type_display }} Requested IT Assets</h5>
         <table class="table table-striped table-hover">
+            <thead>
             <tr>
                 <th>Serial #</th>
                 <th>Model / Type</th>
@@ -41,6 +42,8 @@
                 <th>Site</th>
                 <th>EOL</th>
             </tr>
+            </thead>
+            <tbody>
             {% for instance in new_req.instance_set.all %}
             <tr>
                 <td>{{ instance.serial_number }}</td>
@@ -51,6 +54,7 @@
                 <td>{{ instance.eol_date }}</td>
             </tr>
             {% endfor %}
+            </tbody>
         </table>
         <hr>
         <p>Requested by {{ new_req.requested_by.get_full_name }} on {{ new_req.requested_on }}</p>

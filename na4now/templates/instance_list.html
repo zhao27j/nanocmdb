@@ -26,9 +26,12 @@
           {% csrf_token %}
           <input type="submit" value="Apply for Scrapping"/>
           <table class="table table-striped table-hover">
+            <thead>
             <tr>
               <th></th> <th>Serial #</th> <th>Model / Type</th> <th>Status</th> <th>Owner</th> <th>Site</th>
             </tr>
+            </thead>
+            <tbody>
             {% for instance in instance_list %}
               <tr>
                 <td><input type="checkbox" name="instance" id="instance{{ forloop.counter }}" value="{{ instance.pk }}"/></td>
@@ -46,6 +49,7 @@
                 <td>{{ instance.branchSite }}</td>
               </tr>
             {% endfor %}
+            </tbody>
           </table>
         </form>
       {% endif %}

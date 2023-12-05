@@ -118,6 +118,7 @@
                             <a href="{% url 'nanopay:payment-term-new' contract.pk %}" class="m-1 btn btn-outline-primary d-inline-flex align-items-center">Add ...</a>
                         </span>
                         <table class="table table-striped table-hover">
+                            <thead>
                             <tr>
                                 <th></th>
                                 <th><small>Interval</small></th>
@@ -126,6 +127,8 @@
                                 <th><small>Amount</small></th>
                                 <th><small>Applied on</small></th>
                             </tr>
+                            </thead>
+                            <tbody>
                             {% for term in contract.paymentterm_set.all %}
                             <tr>
                                 <td><input type="checkbox" name="term" id="term{{ forloop.counter }}" value="{{ term.pk }}"/></td>
@@ -144,6 +147,7 @@
                                 </td>
                             </tr>
                             {% endfor %}
+                            </tbody>
                         </table>
                     </li>
                     <li class="list-group-item"><em>...</em></li>
@@ -154,6 +158,7 @@
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">
                         <table class="table table-striped table-hover">
+                            <thead>
                             <tr>
                                 <th><small>Serial Number</small></th>
                                 <th><small>Model / Type</small></th>
@@ -161,6 +166,8 @@
                                 <th><small>Owner</small></th>
                                 <th><small>Site</small></th>
                             </tr>
+                            </thead>
+                            <tbody>
                             {% for instance in contract.assets.all %}
                             <tr>
                                 <td><a href="{% url 'nanoassets:instance-detail' instance.pk %}"><small>{{ instance.serial_number }}</small></a></td>
@@ -174,6 +181,7 @@
                                 <td><small>{{ instance.branchSite }}</small></td>
                             </tr>
                             {% endfor %}
+                            </tbody>
                         </table>
                     </li>
                     <li class="list-group-item"><em>...</em></li>
@@ -187,16 +195,20 @@
             <div class="collapse" id="collapseExample">
                 <div class="card card-body">
                     <table class="table table-striped table-hover">
+                        <thead>
                         <tr>
                             <th></th>
                             <th></th>
                         </tr>
+                        </thead>
+                        <tbody>
                         {% for activityhistory in contract.activityhistory_set.all %}
                         <tr>
                             <td><small>{{ activityhistory.Contract }}</small></td>
                             <td><small>{{ activityhistory.description }}</small></td>
                         </tr>
                         {% endfor %}
+                        </tbody>
                     </table>
                 </div>
             </div>
