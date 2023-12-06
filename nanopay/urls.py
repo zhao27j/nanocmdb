@@ -5,8 +5,13 @@ from . import views, views_api
 
 app_name = 'nanopay'
 
-# Legal Entity
+# non Payroll Expense
 urlpatterns = [
+    path('non_payroll_expenses/', views.NonPayrollExpenseListView.as_view(), name='non-payroll-expense-list'),
+]
+
+# Legal Entity
+urlpatterns += [
     path('legal_entity/<int:pk>/update/', views.LegalEntityUpdateView.as_view(), name='legal-entity-update'),
     # path('legal_entity/new/', views.LegalEntityCreateView.as_view(), name='legal-entity-new'),
     # path('legal_entity/new/', views.legal_entity_new, name='legal-entity-new'),

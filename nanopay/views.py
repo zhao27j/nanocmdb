@@ -1,5 +1,6 @@
 from io import BytesIO
 import datetime
+from typing import Any
 # import pathlib
 
 # from typing import Any, Dict
@@ -26,6 +27,16 @@ from nanobase.models import ChangeHistory, UploadedFile
 from .forms import NewLegalEntityForm, NewContractForm, NewPaymentTermForm, NewPaymentRequestForm
 
 # Create your views here.
+
+class NonPayrollExpenseListView(LoginRequiredMixin, generic.ListView):
+    model = NonPayrollExpense
+    # template_name = 'nonpayrollexpense_list.html'
+    # paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
 
 @login_required
 def payment_request_paper_form(request, pk):

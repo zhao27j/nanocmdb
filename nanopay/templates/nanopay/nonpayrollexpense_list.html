@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load auth_extras %}
+{% block page_content %}
+
+{% if form.non_field_errors %}
+  {% for message in form.non_field_errors %}
+  <div class="container-fluid">
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <div>{{ message }}</div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+        {# <span aria-hidden="True">&times;</span> #}
+      </button>
+    </div>
+  </div>
+  {% endfor %}
+{% endif %}
+
+{% if user|has_group:"IT China" and request.user.is_staff %}
+
+<div class="table-responsive-lg">
+  <table class="table table-hover">
+    <thead class="table-light">
+      <tr><th></th><th>JAN</th><th>FEB</th><th>MAR</th><th>APR</th><th>MAY</th><th>JUN</th><th>JUL</th><th>AUG</th><th>SEP</th><th>OCT</th><th>NOV</th><th>DEC</th></tr>
+    </thead>
+    <tbody>
+      {% for itm in object_list %}
+      <tr>
+        {% if itm.paymentrequest_set.all %}
+        <td rowspan="2"><small>✅ {{ itm.description }}</small></td>
+        {% else %}
+        <td><small>{{ itm.description }}</small></td>
+        {% endif %}
+        
+        <td>{{ itm.jan }}</td>
+        <td>{{ itm.feb }}</td>
+        <td>{{ itm.mar }}</td>
+        <td>{{ itm.apr }}</td>
+        <td>{{ itm.may }}</td>
+        <td>{{ itm.jun }}</td>
+        <td>{{ itm.jul }}</td>
+        <td>{{ itm.aug }}</td>
+        <td>{{ itm.sep }}</td>
+        <td>{{ itm.oct }}</td>
+        <td>{{ itm.nov }}</td>
+        <td>{{ itm.dec }}</td>
+      </tr>
+      {% if itm.paymentrequest_set.all %}
+      <tr>
+        <td>{{ itm.jan }}</td>
+        <td>{{ itm.feb }}</td>
+        <td>{{ itm.mar }}</td>
+        <td>{{ itm.apr }}</td>
+        <td>{{ itm.may }}</td>
+        <td>{{ itm.jun }}</td>
+        <td>{{ itm.jul }}</td>
+        <td>{{ itm.aug }}</td>
+        <td>{{ itm.sep }}</td>
+        <td>{{ itm.oct }}</td>
+        <td>{{ itm.nov }}</td>
+        <td>{{ itm.dec }}</td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+
+{% else %}
+  <p class="lead">You're not the authorized IT staff</p>
+{% endif %}
+
+{% endblock page_content %}
