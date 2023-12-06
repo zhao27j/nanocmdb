@@ -1,14 +1,13 @@
 import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
 
+
 'use strict'
 
-let instance_lst, owner_lst, status_lst, model_type_lst, sub_categories_lst, manufacturer_lst, branchSite_lst, contract_lst;
 
-let supportedPlusBtn, accordionFlush;
+let accordionFlush, instance_lst, owner_lst, status_lst, model_type_lst, sub_categories_lst, manufacturer_lst, branchSite_lst, contract_lst;
 
-const getLstUri = window.location.origin + '/json_response/instance_lst/';
-
-if (document.querySelector('#dropdownItemPlaceholderForSupportedPlus')) {
+if (document.querySelector('#dropdownItemPlaceholderForSupportedPlusInstanceList')) {
+    const getLstUri = window.location.origin + '/json_response/instance_lst/';
     fetch(getLstUri
     ).then(response => {
         if (response.ok) {
@@ -25,24 +24,25 @@ if (document.querySelector('#dropdownItemPlaceholderForSupportedPlus')) {
         branchSite_lst = new Map(Object.entries(json[5]));
         contract_lst = new Map(Object.entries(json[6]));
 
-        supportedPlusBtn = document.createElement('button');
+        const dropdownItemBtn = document.createElement('button');
         new Map([
             ['class', 'dropdown-item'],
             ['type', 'button'],
         ]).forEach((attrValue, attrKey, attrMap) => {
-            supportedPlusBtn.setAttribute(attrKey, attrValue);
-            supportedPlusBtn.innerHTML = `<small>supported +</small>`;
+            dropdownItemBtn.setAttribute(attrKey, attrValue);
+            dropdownItemBtn.innerHTML = `<small>Supported +</small>`;
         });
-        document.querySelector('#dropdownItemPlaceholderForSupportedPlus').appendChild(supportedPlusBtn);
-        supportedPlusBtn.addEventListener('click', e => supportedLstCreation(e));
-        baseMessagesAlert('supported + is ready', 'success');
+        document.querySelector('#dropdownItemPlaceholderForSupportedPlusInstanceList').appendChild(dropdownItemBtn);
+        dropdownItemBtn.addEventListener('click', e => dropdownItemsBldr(e));
+        // baseMessagesAlert('supported + is ready', 'success');
     }).catch(error => {error ? console.error('Error:', error) : null;});
 }
 
-function supportedLstCreation(e) {
-    if (e.target.innerHTML.includes('supported +')) {
-        const supportedPlusBtnGrp = document.createElement('div');
-        ['btn-group', 'dropend', ].forEach(classItm => supportedPlusBtnGrp.classList.add(classItm));
+function dropdownItemsBldr(e) {
+    const dropdownBtn = e.target.closest('button');
+    // if (e.target.innerHTML.includes('Supported +')) {
+        const dropdownBtnGrp = document.createElement('div');
+        ['btn-group', 'dropend', ].forEach(classItm => dropdownBtnGrp.classList.add(classItm));
         
         new Map([
             ['class', 'dropdown-item dropdown-toggle'],
@@ -50,22 +50,22 @@ function supportedLstCreation(e) {
             ['data-bs-toggle', 'dropdown'],
             ['aria-expanded', 'false'],
         ]).forEach((attrValue, attrKey, attrMap) => {
-            supportedPlusBtn.setAttribute(attrKey, attrValue);
-            supportedPlusBtn.innerHTML = `<small>supported +</small>`;
+            dropdownBtn.setAttribute(attrKey, attrValue);
+            dropdownBtn.innerHTML = `<small>Supported +</small>`;
         });
-        supportedPlusBtn.parentNode.replaceChild(supportedPlusBtnGrp, supportedPlusBtn);
-        supportedPlusBtnGrp.appendChild(supportedPlusBtn);
+        dropdownBtn.parentNode.replaceChild(dropdownBtnGrp, dropdownBtn);
+        dropdownBtnGrp.appendChild(dropdownBtn);
 
-        const supportedPlusBtnUl = document.createElement('ul');
-        supportedPlusBtnUl.classList.add('dropdown-menu');
-        supportedPlusBtnGrp.appendChild(supportedPlusBtnUl);
+        const dropdownBtnUl = document.createElement('ul');
+        dropdownBtnUl.classList.add('dropdown-menu');
+        dropdownBtnGrp.appendChild(dropdownBtnUl);
 
         ['group by', 'filter by'].forEach(byMenuItm => {
-            const supportedPlusBtnUlLi = document.createElement('li');
-            supportedPlusBtnUl.appendChild(supportedPlusBtnUlLi);
+            const dropdownBtnUlLi = document.createElement('li');
+            dropdownBtnUl.appendChild(dropdownBtnUlLi);
             const byMenuBtnGrp = document.createElement('div');
             ['btn-group', 'dropend', ].forEach(classItm => byMenuBtnGrp.classList.add(classItm));
-            supportedPlusBtnUlLi.appendChild(byMenuBtnGrp);
+            dropdownBtnUlLi.appendChild(byMenuBtnGrp);
 
             const byMenuBtn = document.createElement('button');
             new Map([
@@ -78,7 +78,7 @@ function supportedLstCreation(e) {
                 byMenuBtn.innerHTML = `<small>${byMenuItm}</small>`
             });
             byMenuBtnGrp.appendChild(byMenuBtn);
-            // supportedPlusBtnUl.appendChild(byMenuBtn);
+            // dropdownBtnUl.appendChild(byMenuBtn);
 
             const byMenuBtnUl = document.createElement('ul');
             byMenuBtnUl.classList.add('dropdown-menu');
@@ -137,16 +137,16 @@ function supportedLstCreation(e) {
             }
             */
 
-            const supportedPlusBtnInstance = bootstrap.Dropdown.getOrCreateInstance(supportedPlusBtn);
+            const dropdownBtnInstance = bootstrap.Dropdown.getOrCreateInstance(dropdownBtn);
             const byMenuBtnInstance = bootstrap.Dropdown.getOrCreateInstance(byMenuBtn);
 
-            supportedPlusBtn.addEventListener('mouseover', e => {supportedPlusBtnInstance.show();});
+            dropdownBtn.addEventListener('mouseover', e => {dropdownBtnInstance.show();});
             byMenuBtn.addEventListener('mouseover', e => {byMenuBtnInstance.show();});
 
-            supportedPlusBtnUl.addEventListener('mouseleave', e => {setTimeout(() => { supportedPlusBtnInstance.hide();}, 300);})
-            supportedPlusBtnUlLi.addEventListener('mouseleave', e => {setTimeout(() => { byMenuBtnInstance.hide();}, 300);});
+            dropdownBtnUl.addEventListener('mouseleave', e => {setTimeout(() => { dropdownBtnInstance.hide();}, 300);})
+            dropdownBtnUlLi.addEventListener('mouseleave', e => {setTimeout(() => { byMenuBtnInstance.hide();}, 300);});
 
-            byMenuBtnUl.addEventListener('mouseleave', e => {setTimeout(() => { supportedPlusBtnInstance.hide();}, 300);});
+            byMenuBtnUl.addEventListener('mouseleave', e => {setTimeout(() => { dropdownBtnInstance.hide();}, 300);});
 
             // byMenuBtnGrp.addEventListener('mouseleave', e => {setTimeout(() => { byMenuBtnInstance.hide();}, 300);});
 
@@ -164,7 +164,7 @@ function supportedLstCreation(e) {
             sub_categories_lst.forEach((value, key, map) => {reLst('sub_category', key, accordionFlush)});
             baseMessagesAlert('grouped by Sub category', 'success');
         }
-    }
+    // }
 }
 
 function reLst(grpBy, accordionBtnTxt, accordion) {

@@ -1,5 +1,6 @@
 
 import json
+from decimal import Decimal
 
 from django.utils import timezone
 
@@ -14,8 +15,25 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
-from .models import Contract, LegalEntity, Prjct
+from .models import Contract, LegalEntity, Prjct, NonPayrollExpense
 from nanobase.models import UserProfile, ChangeHistory
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return str(obj)
+        return super(DecimalEncoder, self).default(obj)
+
+
+@login_required
+def jsonResponse_nonPayrollExpense_getLst(request):
+    if request.method == 'GET':
+        nonPayrollExpense_budgetYears = list(set(NonPayrollExpense.objects.values_list('non_payroll_expense_year', flat=True).distinct()))
+
+        nonPayrollExpenses_by_budgetYear = NonPayrollExpense.objects.filter(non_payroll_expense_year=int(request.GET.get('budgetYear')))
+        response = [json.loads(serialize("json", nonPayrollExpenses_by_budgetYear)), json.dumps(nonPayrollExpense_budgetYears, cls=DecimalEncoder)]
+
+        return JsonResponse(response, safe=False)
 
 @login_required
 def contract_mail_me_the_assets_list(request):
