@@ -45,9 +45,9 @@ def jsonResponse_instance_lst(request):
                     else:
                         instance_lst[instance.pk][field.name] = False
                 elif field.name == 'status':
+                    instance_lst[instance.pk]['is_list'] = True
                     if instance.status:
-                        instance_lst[instance.pk][field.name] = instance.get_status_display()
-                        # status_lst[instance.status] = instance.get_status_display()
+                        instance_lst[instance.pk][field.name] = instance.get_status_display()   # status_lst[instance.status] = instance.get_status_display()
                         status_lst[instance.get_status_display()] = instance.status
                     else:
                         instance_lst[instance.pk][field.name] = ''
@@ -78,15 +78,13 @@ def jsonResponse_instance_lst(request):
                                     # instance_lst[instance.pk]['sub_category'] = {instance_field.sub_category.pk: instance_field.sub_category.name}
                                     sub_categories_lst[instance_field.sub_category.name] = instance_field.sub_category.pk
                                 else:
-                                    instance_lst[instance.pk]['sub_category'] = ''
-                                    # instance_lst[instance.pk]['sub_category'] = {}
+                                    instance_lst[instance.pk]['sub_category'] = ''  # instance_lst[instance.pk]['sub_category'] = {}
                                 if instance_field.manufacturer:
                                     instance_lst[instance.pk]['manufacturer'] = instance_field.manufacturer.name
                                     # instance_lst[instance.pk]['manufacturer'] = {instance_field.manufacturer.pk: instance_field.manufacturer.name}
                                     manufacturer_lst[instance_field.manufacturer.name] = instance_field.manufacturer.pk
                                 else:
-                                    instance_lst[instance.pk]['manufacturer'] = ''
-                                    # instance_lst[instance.pk]['manufacturer'] = {}
+                                    instance_lst[instance.pk]['manufacturer'] = ''  # instance_lst[instance.pk]['manufacturer'] = {}
                     else:
                         instance_lst[instance.pk][field.name] = instance_field if instance_field else ''
 

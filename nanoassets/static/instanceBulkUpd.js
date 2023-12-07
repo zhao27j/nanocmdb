@@ -22,9 +22,9 @@ async function getRequesterPermissionsAsync() {
         const json = await getRequesterPermissions();
         if (json.is_IT_staff) {
             is_IT_staff = json.is_IT_staff;
-            baseMessagesAlert("you're authorized IT staff", 'info');
+            baseMessagesAlert("you're the authorized IT staff", 'info');
         } else {
-            baseMessagesAlert("you're NOT authorized IT staff", 'danger');
+            baseMessagesAlert("you're NOT the authorized IT staff", 'danger');
         }
     } catch (error) {
         console.error('There was a problem with the async operation:', error);

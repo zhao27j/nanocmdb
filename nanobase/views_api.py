@@ -30,6 +30,7 @@ def jsonResponse_requester_permissions(request):
         response = JsonResponse(requester_permission)
         return response
 
+
 @login_required
 def jsonResponse_users_getLst(request):
     if request.method == 'GET':
