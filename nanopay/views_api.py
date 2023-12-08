@@ -28,12 +28,62 @@ class DecimalEncoder(json.JSONEncoder):
 @login_required
 def jsonResponse_nonPayrollExpense_getLst(request):
     if request.method == 'GET':
-        nonPayrollExpense_budgetYears = list(set(NonPayrollExpense.objects.values_list('non_payroll_expense_year', flat=True).distinct()))
+        budget_year_lst = list(set(NonPayrollExpense.objects.values_list('non_payroll_expense_year', flat=True).distinct()))
 
-        nonPayrollExpenses_by_budgetYear = NonPayrollExpense.objects.filter(non_payroll_expense_year=int(request.GET.get('budgetYear')))
-        response = [json.loads(serialize("json", nonPayrollExpenses_by_budgetYear)), json.dumps(nonPayrollExpense_budgetYears, cls=DecimalEncoder)]
+        non_payroll_expense_reforecasting_lst = {}
+        currency_lst = {}
+        is_direct_cost_lst = {}
+
+        non_payroll_expenses_by_budget_year = NonPayrollExpense.objects.filter(non_payroll_expense_year=int(request.GET.get('budgetYear')))
+
+        nonPayrollExpense_by_budgetYear_lst = {}
+
+        for non_payroll_expense in non_payroll_expenses_by_budget_year:
+
+            nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk] = {}
+
+            for field in non_payroll_expense._meta.get_fields():
+                if field.name == 'non_payroll_expense_reforecasting':
+                    nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk]['is_list'] = True # 标志 是否 在 页面 呈现
+                    if non_payroll_expense.non_payroll_expense_reforecasting:
+                        nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = non_payroll_expense.get_non_payroll_expense_reforecasting_display()   # status_lst[instance.status] = instance.get_status_display()
+                        non_payroll_expense_reforecasting_lst[non_payroll_expense.get_non_payroll_expense_reforecasting_display()] = non_payroll_expense.non_payroll_expense_reforecasting
+                    else:
+                        nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = ''
+                elif field.name == 'currency':
+                    if non_payroll_expense.currency:
+                        nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = non_payroll_expense.get_currency_display()   # status_lst[instance.status] = instance.get_status_display()
+                        currency_lst[non_payroll_expense.get_currency_display()] = non_payroll_expense.currency
+                    else:
+                        nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = ''
+                elif field.name == 'is_direct_cost':
+                    if non_payroll_expense.is_direct_cost:
+                        nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = non_payroll_expense.get_is_direct_cost_display()   # status_lst[instance.status] = instance.get_status_display()
+                        is_direct_cost_lst[non_payroll_expense.get_is_direct_cost_display()] = non_payroll_expense.is_direct_cost
+                    else:
+                        nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = ''
+                elif field.name == 'paymentrequest':
+
+                    if non_payroll_expense.paymentrequest_set.all():
+                        for paymentRequest in non_payroll_expense.paymentrequest_set.all():
+                            nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = {
+                                str(paymentRequest.pk): paymentRequest.amount
+                                }
+                    else:
+                        nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = ''
+
+                elif field.name == 'created_by' or field.name == 'created_on':
+                    pass
+                else:
+                    non_payroll_expense_field = getattr(non_payroll_expense, field.name)
+                    nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = non_payroll_expense_field if non_payroll_expense_field else ''
+
+
+        # response = [json.loads(serialize("json", non_payroll_expenses_by_budget_year)), json.dumps(budget_year_lst, cls=DecimalEncoder)]
+        response = [nonPayrollExpense_by_budgetYear_lst, json.dumps(budget_year_lst, cls=DecimalEncoder), non_payroll_expense_reforecasting_lst, currency_lst, is_direct_cost_lst, ]
 
         return JsonResponse(response, safe=False)
+
 
 @login_required
 def contract_mail_me_the_assets_list(request):

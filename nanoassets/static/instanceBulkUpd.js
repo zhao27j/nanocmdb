@@ -1,4 +1,4 @@
-import { getRequesterPermissions } from './get_requester_permissions.js'
+import { getJsonResponseApiData } from './getJsonResponseApiData.js';
 import { formsValidation } from './modalFormsValidation.js';
 import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
 import {modalInputChk} from './modalInputChk.js';
@@ -18,8 +18,9 @@ const bulkUpdModalBtn = document.querySelector('#bulkUpdModalBtn');
 
 let is_IT_staff;
 async function getRequesterPermissionsAsync() {
+    const getUri = window.location.origin + '/json_response/requester_permissions/';
     try {
-        const json = await getRequesterPermissions();
+        const json = await getJsonResponseApiData(getUri);
         if (json.is_IT_staff) {
             is_IT_staff = json.is_IT_staff;
             baseMessagesAlert("you're the authorized IT staff", 'info');

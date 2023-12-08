@@ -45,7 +45,7 @@ def jsonResponse_instance_lst(request):
                     else:
                         instance_lst[instance.pk][field.name] = False
                 elif field.name == 'status':
-                    instance_lst[instance.pk]['is_list'] = True
+                    instance_lst[instance.pk]['is_list'] = True # 标志 是否 在 页面 呈现
                     if instance.status:
                         instance_lst[instance.pk][field.name] = instance.get_status_display()   # status_lst[instance.status] = instance.get_status_display()
                         status_lst[instance.get_status_display()] = instance.status
@@ -58,7 +58,8 @@ def jsonResponse_instance_lst(request):
                         instance_lst[instance.pk]['contract'] = {instance.contract_set.first().pk: instance.contract_set.first().get_type_display()}
                         contract_lst[instance.contract_set.first().briefing] = instance.contract_set.first().pk
                     else:
-                        instance_lst[instance.pk]['contract'] = ''
+                        # instance_lst[instance.pk]['contract'] = ''
+                        instance_lst[instance.pk][field.name] = ''
                 else:
                     instance_field = getattr(instance, field.name)
                     if field.is_relation:

@@ -1,28 +1,18 @@
+import { getJsonResponseApiData } from './getJsonResponseApiData.js';
 import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
-
 
 'use strict'
 
 
-function getAllInstanceLst() {
-    const getUri = window.location.origin + '/json_response/instance_lst/';
-
-    return fetch(getUri
-    ).then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw new Error(`HTTP error: ${response.status}`);
-        }
-    }).catch(error => {error ? console.error('Error:', error) : null;})
-}
+if (document.querySelector('#dropdownItemPlaceholderForSupportedPlusInstanceList')) {getAllInstanceLstAsync();}
 
 async function getAllInstanceLstAsync() {
     let instance_lst, owner_lst, status_lst, model_type_lst, sub_category_lst, manufacturer_lst, branchSite_lst, contract_lst;
-    let accordionFlush, classLst, classBy;
+    let classLst, classBy;
 
+    const getUri = window.location.origin + '/json_response/instance_lst/';
     try {
-        const json = await getAllInstanceLst();
+        const json = await getJsonResponseApiData(getUri);
         if (json) {
             instance_lst = new Map(Object.entries(json[0]));
             status_lst = new Map(Object.entries(json[1]));
@@ -67,17 +57,19 @@ async function getAllInstanceLstAsync() {
                         const keyWord = e.target.id ? e.target.id : e.target.closest('*[id]').id;
                         let fltrdLst;
                         if (trgtValue == 'filtered by') {
-                            fltrdLst = lstFltr(new Map([...instance_lst]), byMenuItmLst.get(trgtValue).get(keyWord));
+                            fltrdLst = lstFltr(instance_lst, byMenuItmLst.get(trgtValue).get(keyWord));
+                            //fltrdLst = lstFltr(new Map(JSON.parse(JSON.stringify([...instance_lst]))), byMenuItmLst.get(trgtValue).get(keyWord));
+
                             classLst.forEach((classValue, classKey, classMap) => {
-                                reLst(fltrdLst, classBy, classKey, accordionFlush);
+                                reLst(accordionFlush, fltrdLst, classBy, classKey);
                             });
                         } else if (trgtValue == 'grouped by') {
                             classBy = keyWord;
                             classLst = byMenuItmLst.get(trgtValue).get(keyWord);
                             classLst.forEach((classValue, classKey, classMap) => {
-                                reLst(instance_lst, classBy, classKey, accordionFlush);
+                                reLst(accordionFlush, instance_lst, classBy, classKey, );
                             });
-                            // byMenuItmLst.get(trgtValue).get(keyWord).forEach((lstValue, lstKey, lstMap) => {reLst(instance_lst, keyWord, lstKey, accordionFlush)});
+                            // byMenuItmLst.get(trgtValue).get(keyWord).forEach((lstValue, lstKey, lstMap) => {reLst(accordionFlush, instance_lst, keyWord, lstKey)});
                         }
                         baseMessagesAlert(`${trgtValue} ${e.target.textContent}`, 'success');
                     });
@@ -86,7 +78,7 @@ async function getAllInstanceLstAsync() {
                 const pgCntnt = document.querySelector('div#page_content');
                 pgCntnt.innerHTML = '<h3 class="m-3">Supported IT Assets</h3>';
 
-                accordionFlush = document.createElement('div');
+                const accordionFlush = document.createElement('div');
                 ['accordion', 'accordion-flush'].forEach(classItm => accordionFlush.classList.add(classItm));
                 accordionFlush.id = "accordionFlush";
                 pgCntnt.appendChild(accordionFlush);
@@ -95,7 +87,7 @@ async function getAllInstanceLstAsync() {
                     classBy = 'sub_category';
                     classLst = sub_category_lst;
                     classLst.forEach((classValue, classKey, classMap) => {
-                        reLst(instance_lst, classBy, classKey, accordionFlush);
+                        reLst(accordionFlush, instance_lst, classBy, classKey);
                     });
                     baseMessagesAlert('grouped by Sub category', 'success');
                 }
@@ -110,19 +102,16 @@ async function getAllInstanceLstAsync() {
     }
 }
 
-if (document.querySelector('#dropdownItemPlaceholderForSupportedPlusInstanceList')) {
-    getAllInstanceLstAsync();
-}
-
 function lstFltr(lst, fltrKeyWord) {
+    const lstDeepCopy = new Map(JSON.parse(JSON.stringify([...lst])))
     // const lstObjAssigned = new Map([...lst]);
-    lst.forEach((lstValue, lstKey, lstMap) => {
+    lstDeepCopy.forEach((lstValue, lstKey, lstMap) => {
         // if ([...lstValue.values()].includes(fltrKeyWord)) {
         if (Object.values(lstValue).includes(fltrKeyWord)) {
             lstValue.is_list = false;
         }   
     })
-    return lst;
+    return lstDeepCopy;
 }
 
 function twoTiersdropdownMenuBldr(e, dropdownItmLst) {
@@ -203,7 +192,7 @@ function twoTiersdropdownMenuBldr(e, dropdownItmLst) {
     return clckEvntTrgts;
 }
 
-function reLst(lst, by, accordionTag, accordion) {
+function reLst(accordion, lst, by, byTg) {
 
     const table = document.createElement('table');
     ['table', 'table-striped', 'table-hover', 'fw-light'].forEach(classItem => table.classList.add(classItem));
@@ -219,7 +208,7 @@ function reLst(lst, by, accordionTag, accordion) {
     table.appendChild(document.createElement('tbody'));
     let num = 0, numOfAvailable = 0, numOfRepair = 0;
     lst.forEach((lstValue, lstKey, map) => {
-        if (lstValue[by] == accordionTag && lstValue.is_list) { // the keyword grouping by
+        if (lstValue[by] == byTg && lstValue.is_list) { // the keyword grouping by
             const tr = document.createElement('tr');
             ['instance', 'serial_number', 'inRepair', 'model_type', 'hostname', 'status', 'owner', 'branchSite', 'contract', ].forEach(td_txt => {
                 const td = document.createElement('td');
@@ -314,14 +303,14 @@ function reLst(lst, by, accordionTag, accordion) {
     accordionItem.classList.add('accordion-item');
     accordionItem.innerHTML = [
         `<h2 class="accordion-header">`,
-            `<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${accordionTag.replaceAll(' ', '_')}" aria-expanded="false" aria-controls="${accordionTag.replaceAll(' ', '_')}">`,
+            `<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${byTg.replaceAll(' ', '_')}" aria-expanded="false" aria-controls="${byTg.replaceAll(' ', '_')}">`,
                 `<small>`,
-                    `<span class="badge rounded-pill text-bg-light ms-3">${accordionTag.replaceAll('_', ' ')}</span>`,
+                    `<span class="badge rounded-pill text-bg-light ms-3">${byTg.replaceAll('_', ' ')}</span>`,
                     `<span class="badge rounded-pill text-bg-secondary ms-3">${num}</span>`,
                 `</small>`,
             `</button>`,
         `</h2>`,
-        `<div id="${accordionTag.replaceAll(' ', '_')}" class="accordion-collapse collapse" data-bs-parent="#${accordion.id}">`,
+        `<div id="${byTg.replaceAll(' ', '_')}" class="accordion-collapse collapse" data-bs-parent="#${accordion.id}">`,
             `<div class="accordion-body"></div>`,
         `</div>`,
     ].join('');
