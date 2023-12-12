@@ -6,22 +6,23 @@ import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesA
 
 if (document.querySelector('#dropdownItemPlaceholderForNonPayrollExpenseList')) {
     const date = new Date();
-    const budgetYear = date.getFullYear();
-    getNonPayrollExpenseLstAsync(budgetYear);
+    const budgetYr = date.getFullYear();
+    getNonPayrollExpenseLstAsync(budgetYr);
 }
 
 // let is_IT_staff;
-async function getNonPayrollExpenseLstAsync(budgetYear) {
-    let nonPayrollExpense_lst, budgetYear_lst, nonPayrollExpenseReforecasting_lst, currency_lst, isDirectCost_lst
+async function getNonPayrollExpenseLstAsync(budgetYr) {
+    let nonPayrollExpense_lst, budgetYr_lst, reforecasting_lst, allocation_lst, currency_lst, isDirectCost_lst
     try {
-        const getUri = window.location.origin + `/json_respone/nonPayrollExpense_getLst/?budgetYear=${budgetYear}`;
+        const getUri = window.location.origin + `/json_respone/nonPayrollExpense_getLst/?budgetYr=${budgetYr}`;
         const json = await getJsonResponseApiData(getUri);
         if (json) {
             nonPayrollExpense_lst = new Map(Object.entries(json[0]));
-            budgetYear_lst = new Map(Object.entries(json[1]));
-            nonPayrollExpenseReforecasting_lst = new Map(Object.entries(json[2]));
-            currency_lst = new Map(Object.entries(json[3]));
-            isDirectCost_lst = new Map(Object.entries(json[4]));
+            budgetYr_lst = new Map(Object.entries(json[1]));
+            reforecasting_lst = new Map(Object.entries(json[2]));
+            allocation_lst = new Map(Object.entries(json[3]));
+            currency_lst = new Map(Object.entries(json[4]));
+            isDirectCost_lst = new Map(Object.entries(json[5]));
 
             baseMessagesAlert("non Payroll Expense data is ready", 'success');
 
@@ -37,7 +38,7 @@ async function getNonPayrollExpenseLstAsync(budgetYear) {
 
             dropdownItemBtn.addEventListener('click', e => {
                 const pgCntnt = document.querySelector('div#page_content');
-                pgCntnt.innerHTML = '<h3 class="m-3">non Payroll Expenses</h3>';
+                pgCntnt.innerHTML = `<h3 class="m-3">non Payroll Expenses in ${budgetYr} </h3>`;
 
                 const accordionFlush = document.createElement('div');
                 ['accordion', 'accordion-flush'].forEach(classItm => accordionFlush.classList.add(classItm));
@@ -46,7 +47,16 @@ async function getNonPayrollExpenseLstAsync(budgetYear) {
 
                 const ths = ['', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC', ];
                 const tds = ['description', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', ];
-                reLst(accordionFlush, nonPayrollExpense_lst, ths, tds);
+                // reLst(accordionFlush, nonPayrollExpense_lst, ths, tds);
+
+                if (allocation_lst) {
+                    // classBy = 'allocation';
+                    // classLst = allocation_lst;
+                    allocation_lst.forEach((classValue, classKey, classMap) => {
+                        reLst(accordionFlush, nonPayrollExpense_lst, ths, tds, 'allocation', classKey);
+                    });
+                    baseMessagesAlert('grouped by Allocation', 'success');
+                }
             });
 
         } else {
@@ -60,7 +70,7 @@ async function getNonPayrollExpenseLstAsync(budgetYear) {
 
 function reLst(accordion, lst, ths, tds, by = '', byTg = '') {
     const table = document.createElement('table');
-    ['table', 'table-striped', 'table-hover', 'fw-light'].forEach(classItem => table.classList.add(classItem));
+    ['table', 'table-striped', 'table-hover', 'fw-light', 'sticky', 'sticky-x'].forEach(classItem => table.classList.add(classItem));
 
     table.appendChild(document.createElement('thead'));
     table.querySelector('thead').appendChild(document.createElement('tr'));
@@ -73,7 +83,7 @@ function reLst(accordion, lst, ths, tds, by = '', byTg = '') {
     table.appendChild(document.createElement('tbody'));
     let num = 0, numOfAvailable = 0, numOfRepair = 0;
     lst.forEach((lstValue, lstKey, map) => {
-        // if (lstValue[by] == byTg && lstValue.is_list) { // the keyword grouping by
+        if (lstValue[by] == byTg && lstValue.is_list) { // the keyword grouping by
             const tr = document.createElement('tr');
 
             tds.forEach(td_txt => {
@@ -156,14 +166,26 @@ function reLst(accordion, lst, ths, tds, by = '', byTg = '') {
                         break;
                     default:
                         td.id = `${td_txt}Instance${lstKey}`;
-                        td.innerHTML = `<small>${lstValue[td_txt]}</small>`;
+                        if (lstValue[td_txt] instanceof Object) {
+                            td.innerHTML = `<div><small>${lstValue[td_txt].budget}</small></div>`;
+                            td.appendChild(document.createElement('ul'));
+                            for (const [key, value] of Object.entries(lstValue[td_txt])) {
+                                if (key != 'budget') {
+                                    const li = document.createElement('li');
+                                    li.innerHTML += `<a class="text-decoration-none" href="${window.location.origin}/payment_request/${key}/paper_form/"><small>${lstValue.currency}${value}</small></a>`;
+                                    td.querySelector('ul').appendChild(li);
+                                }
+                            }
+                        } else {
+                            td.innerHTML = `<small>${lstValue[td_txt]}</small>`;
+                        }
                         break;
                 }
                 tr.appendChild(td);
             })
             table.querySelector('tbody').appendChild(tr);
             num++;
-        // }
+        }
     })
 
     const tableDiv = document.createElement('div');
@@ -181,7 +203,7 @@ function reLst(accordion, lst, ths, tds, by = '', byTg = '') {
                 `</small>`,
             `</button>`,
         `</h2>`,
-        `<div id="accordionNonPayrollExpense${byTg.replaceAll(' ', '_')}" class="accordion-collapse collapse" data-bs-parent="#${accordion.id}">`,
+        `<div id="accordionNonPayrollExpense${byTg.replaceAll(' ', '_')}" class="accordion-collapse collapse show" data-bs-parent="#${accordion.id}">`,
             `<div class="accordion-body"></div>`,
         `</div>`,
     ].join('');
@@ -190,6 +212,6 @@ function reLst(accordion, lst, ths, tds, by = '', byTg = '') {
     if (numOfAvailable != 0) {btnInnerHTMLSmallEl.innerHTML += [`<span class="badge rounded-pill text-bg-warning ms-3">${numOfAvailable}</span>`,].join('');}
     if (numOfRepair != 0) {btnInnerHTMLSmallEl.innerHTML += [`<span class="badge rounded-pill text-bg-danger ms-3">${numOfRepair}</span>`,].join('');}
 
-    accordionItem.querySelector('div.accordion-body').appendChild(table);
+    accordionItem.querySelector('div.accordion-body').appendChild(tableDiv);
     accordion.appendChild(accordionItem);
 }

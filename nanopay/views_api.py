@@ -1,5 +1,6 @@
 
 import json
+import calendar
 from decimal import Decimal
 
 from django.utils import timezone
@@ -15,7 +16,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
-from .models import Contract, LegalEntity, Prjct, NonPayrollExpense
+from .models import Contract, LegalEntity, Prjct, PaymentRequest, NonPayrollExpense
 from nanobase.models import UserProfile, ChangeHistory
 
 class DecimalEncoder(json.JSONEncoder):
@@ -25,62 +26,84 @@ class DecimalEncoder(json.JSONEncoder):
         return super(DecimalEncoder, self).default(obj)
 
 
+def decimal_to_month(decimal):
+    # month_number = int(decimal) % 12 + 1
+    month_number = 12 if int(decimal) % 12 == 0 else int(decimal) % 12
+    return calendar.month_abbr[month_number].lower()
+
+
 @login_required
 def jsonResponse_nonPayrollExpense_getLst(request):
     if request.method == 'GET':
-        budget_year_lst = list(set(NonPayrollExpense.objects.values_list('non_payroll_expense_year', flat=True).distinct()))
+        budgetYr_lst = list(set(NonPayrollExpense.objects.values_list('non_payroll_expense_year', flat=True).distinct()))
 
-        non_payroll_expense_reforecasting_lst = {}
+        allocation_lst = {}
+        reforecasting_lst = {}
         currency_lst = {}
         is_direct_cost_lst = {}
 
-        non_payroll_expenses_by_budget_year = NonPayrollExpense.objects.filter(non_payroll_expense_year=int(request.GET.get('budgetYear')))
+        # paymentRequest_by_budgetYr_lst = {}
 
-        nonPayrollExpense_by_budgetYear_lst = {}
+        nPEs_by_budgetYr = NonPayrollExpense.objects.filter(non_payroll_expense_year=int(request.GET.get('budgetYr')))
 
-        for non_payroll_expense in non_payroll_expenses_by_budget_year:
+        nPE_by_budgetYr_lst = {}
 
-            nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk] = {}
+        for nPE in nPEs_by_budgetYr:
 
-            for field in non_payroll_expense._meta.get_fields():
+            nPE_by_budgetYr_lst[nPE.pk] = {}
+
+            nPE_related_PRs = []
+            if PaymentRequest.objects.filter(non_payroll_expense=nPE.pk, requested_on__year=int(request.GET.get('budgetYr'))):
+                # nPE_by_budgetYr_lst[non_payroll_expense.pk][field.name] = list(set(PaymentRequest.objects.filter(non_payroll_expense=non_payroll_expense.pk, requested_on__year=int(request.GET.get('budgetYr'))).values_list('pk', flat=True).distinct()))
+                for payment_request in PaymentRequest.objects.filter(non_payroll_expense=nPE.pk, requested_on__year=int(request.GET.get('budgetYr'))):
+                    nPE_related_PRs.append(
+                        {
+                            decimal_to_month(payment_request.requested_on.month): {
+                                str(payment_request.pk): payment_request.amount,
+                                },
+                        }
+                    )
+            for field in nPE._meta.get_fields():
                 if field.name == 'non_payroll_expense_reforecasting':
-                    nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk]['is_list'] = True # 标志 是否 在 页面 呈现
-                    if non_payroll_expense.non_payroll_expense_reforecasting:
-                        nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = non_payroll_expense.get_non_payroll_expense_reforecasting_display()   # status_lst[instance.status] = instance.get_status_display()
-                        non_payroll_expense_reforecasting_lst[non_payroll_expense.get_non_payroll_expense_reforecasting_display()] = non_payroll_expense.non_payroll_expense_reforecasting
+                    nPE_by_budgetYr_lst[nPE.pk]['is_list'] = True # 标志 是否 在 页面 呈现
+                    if nPE.non_payroll_expense_reforecasting:
+                        nPE_by_budgetYr_lst[nPE.pk][field.name] = nPE.get_non_payroll_expense_reforecasting_display()   # status_lst[instance.status] = instance.get_status_display()
+                        reforecasting_lst[nPE.get_non_payroll_expense_reforecasting_display()] = nPE.non_payroll_expense_reforecasting
                     else:
-                        nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = ''
+                        nPE_by_budgetYr_lst[nPE.pk][field.name] = ''
                 elif field.name == 'currency':
-                    if non_payroll_expense.currency:
-                        nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = non_payroll_expense.get_currency_display()   # status_lst[instance.status] = instance.get_status_display()
-                        currency_lst[non_payroll_expense.get_currency_display()] = non_payroll_expense.currency
+                    if nPE.currency:
+                        nPE_by_budgetYr_lst[nPE.pk][field.name] = nPE.get_currency_display()   # status_lst[instance.status] = instance.get_status_display()
+                        currency_lst[nPE.get_currency_display()] = nPE.currency
                     else:
-                        nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = ''
+                        nPE_by_budgetYr_lst[nPE.pk][field.name] = ''
                 elif field.name == 'is_direct_cost':
-                    if non_payroll_expense.is_direct_cost:
-                        nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = non_payroll_expense.get_is_direct_cost_display()   # status_lst[instance.status] = instance.get_status_display()
-                        is_direct_cost_lst[non_payroll_expense.get_is_direct_cost_display()] = non_payroll_expense.is_direct_cost
+                    if nPE.is_direct_cost:
+                        nPE_by_budgetYr_lst[nPE.pk][field.name] = nPE.get_is_direct_cost_display()   # status_lst[instance.status] = instance.get_status_display()
+                        is_direct_cost_lst[nPE.get_is_direct_cost_display()] = nPE.is_direct_cost
                     else:
-                        nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = ''
-                elif field.name == 'paymentrequest':
-
-                    if non_payroll_expense.paymentrequest_set.all():
-                        for paymentRequest in non_payroll_expense.paymentrequest_set.all():
-                            nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = {
-                                str(paymentRequest.pk): paymentRequest.amount
-                                }
-                    else:
-                        nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = ''
-
-                elif field.name == 'created_by' or field.name == 'created_on':
+                        nPE_by_budgetYr_lst[nPE.pk][field.name] = ''
+                elif field.name == 'paymentrequest' or field.name == 'created_by' or field.name == 'created_on':
                     pass
                 else:
-                    non_payroll_expense_field = getattr(non_payroll_expense, field.name)
-                    nonPayrollExpense_by_budgetYear_lst[non_payroll_expense.pk][field.name] = non_payroll_expense_field if non_payroll_expense_field else ''
+                    if field.name == 'allocation':
+                        allocation_lst[nPE.allocation] = ''
 
+                    nPE_field = getattr(nPE, field.name)
+                    # if len(nPE_related_PRs) == 0:
+                    nPE_by_budgetYr_lst[nPE.pk][field.name] = nPE_field if nPE_field else ''
+                    # else:
+                    for pr in nPE_related_PRs:
+                        if field.name in pr:
+                            if not isinstance(nPE_by_budgetYr_lst[nPE.pk][field.name], dict):
+                                nPE_by_budgetYr_lst[nPE.pk][field.name] = {}
 
-        # response = [json.loads(serialize("json", non_payroll_expenses_by_budget_year)), json.dumps(budget_year_lst, cls=DecimalEncoder)]
-        response = [nonPayrollExpense_by_budgetYear_lst, json.dumps(budget_year_lst, cls=DecimalEncoder), non_payroll_expense_reforecasting_lst, currency_lst, is_direct_cost_lst, ]
+                            for key in pr[field.name].keys():
+                                nPE_by_budgetYr_lst[nPE.pk][field.name][key] = pr[field.name][key]
+                                nPE_by_budgetYr_lst[nPE.pk][field.name]['budget'] = nPE_field if nPE_field else ''
+
+        # response = [json.loads(serialize("json", nPEs_by_budgetYr)), json.dumps(budgetYr_lst, cls=DecimalEncoder)]
+        response = [nPE_by_budgetYr_lst, json.dumps(budgetYr_lst, cls=DecimalEncoder), reforecasting_lst, allocation_lst, currency_lst, is_direct_cost_lst, ]
 
         return JsonResponse(response, safe=False)
 
