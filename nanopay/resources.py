@@ -12,7 +12,7 @@ class NonPayrollExpenseResource(resources.ModelResource):
     class Meta:
         model = NonPayrollExpense
 
-        import_id_fields = ('description',) # 指定 primary key field
+        # import_id_fields = ('description',)   # 指定 primary key field
         skip_unchanged = True
         report_skipped = False
         # exclude = ('vendor', )

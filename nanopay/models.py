@@ -220,7 +220,8 @@ class NonPayrollExpense(models.Model):
     )
     currency = models.CharField(_("Currency"), choices=CURRENCY_TYPE, max_length=3, default='CNY')
     allocation = models.CharField(_("Allocation"), max_length=128)
-    description = models.TextField(_("Description"), unique=True)
+    description = models.TextField(_("Description"))
+    # description = models.TextField(_("Description"), unique=True)
 
     jan = models.DecimalField(_("Jan"), max_digits=8, decimal_places=2, default=0)
     feb = models.DecimalField(_("Feb"), max_digits=8, decimal_places=2, default=0)
