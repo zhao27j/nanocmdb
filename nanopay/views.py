@@ -214,6 +214,21 @@ class PaymentRequestListView(LoginRequiredMixin, generic.ListView):
         return context
 
 
+def get_reforecasting_num():
+    if 1 <= timezone.now().month <= 3:
+        reforecastings = ['Q0']
+    elif 4 <= timezone.now().month <= 6:
+        reforecastings = ['Q1', 'Q0']
+    elif 7 <= timezone.now().month <= 9:
+        reforecastings = ['Q2', 'Q1', 'Q0']
+    else:
+        reforecastings = ['Q3', 'Q2', 'Q1', 'Q0']
+
+    for reforecasting in reforecastings:
+        if NonPayrollExpense.objects.filter(non_payroll_expense_reforecasting=reforecasting):
+            return reforecasting
+
+
 @login_required
 def payment_request_new(request, pk):
     payment_term = get_object_or_404(PaymentTerm, pk=pk)
@@ -221,7 +236,8 @@ def payment_request_new(request, pk):
         messages.info(request, 'please associated IT Assets with the Contract [ ' + payment_term.contract.briefing + ' ]')
         # return redirect(request.path) # 重定向 至 当前 页面 (不合适)
         return redirect('nanopay:contract-detail', pk=payment_term.contract.pk)
-    non_payroll_expenses = NonPayrollExpense.objects.all()
+    # non_payroll_expenses = NonPayrollExpense.objects.all()
+    non_payroll_expenses = NonPayrollExpense.objects.filter(non_payroll_expense_year=timezone.now().year, non_payroll_expense_reforecasting=get_reforecasting_num())
     if request.method == 'POST':
         form = NewPaymentRequestForm(request.POST, request.FILES)
         if form.is_valid():
