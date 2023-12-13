@@ -214,7 +214,7 @@ class PaymentRequestListView(LoginRequiredMixin, generic.ListView):
         return context
 
 
-def get_reforecasting_num():
+def get_reforecasting():
     if 1 <= timezone.now().month <= 3:
         reforecastings = ['Q0']
     elif 4 <= timezone.now().month <= 6:
@@ -237,7 +237,7 @@ def payment_request_new(request, pk):
         # return redirect(request.path) # 重定向 至 当前 页面 (不合适)
         return redirect('nanopay:contract-detail', pk=payment_term.contract.pk)
     # non_payroll_expenses = NonPayrollExpense.objects.all()
-    non_payroll_expenses = NonPayrollExpense.objects.filter(non_payroll_expense_year=timezone.now().year, non_payroll_expense_reforecasting=get_reforecasting_num())
+    non_payroll_expenses = NonPayrollExpense.objects.filter(non_payroll_expense_year=timezone.now().year, non_payroll_expense_reforecasting=get_reforecasting())
     if request.method == 'POST':
         form = NewPaymentRequestForm(request.POST, request.FILES)
         if form.is_valid():

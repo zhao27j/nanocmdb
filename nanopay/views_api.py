@@ -32,6 +32,21 @@ def decimal_to_month(decimal):
     return calendar.month_abbr[month_number].lower()
 
 
+def get_reforecasting():
+    if 1 <= timezone.now().month <= 3:
+        reforecastings = ['Q0']
+    elif 4 <= timezone.now().month <= 6:
+        reforecastings = ['Q1', 'Q0']
+    elif 7 <= timezone.now().month <= 9:
+        reforecastings = ['Q2', 'Q1', 'Q0']
+    else:
+        reforecastings = ['Q3', 'Q2', 'Q1', 'Q0']
+
+    for reforecasting in reforecastings:
+        if NonPayrollExpense.objects.filter(non_payroll_expense_reforecasting=reforecasting):
+            return reforecasting
+
+
 @login_required
 def jsonResponse_nonPayrollExpense_getLst(request):
     if request.method == 'GET':
@@ -43,8 +58,9 @@ def jsonResponse_nonPayrollExpense_getLst(request):
         is_direct_cost_lst = {}
 
         # paymentRequest_by_budgetYr_lst = {}
-
-        nPEs_by_budgetYr = NonPayrollExpense.objects.filter(non_payroll_expense_year=int(request.GET.get('budgetYr')))
+        
+        reforecasting = get_reforecasting();
+        nPEs_by_budgetYr = NonPayrollExpense.objects.filter(non_payroll_expense_year=int(request.GET.get('budgetYr')), non_payroll_expense_reforecasting=reforecasting)
 
         nPE_by_budgetYr_lst = {}
 
@@ -103,7 +119,7 @@ def jsonResponse_nonPayrollExpense_getLst(request):
                                 nPE_by_budgetYr_lst[nPE.pk][field.name]['budget'] = nPE_field if nPE_field else ''
 
         # response = [json.loads(serialize("json", nPEs_by_budgetYr)), json.dumps(budgetYr_lst, cls=DecimalEncoder)]
-        response = [nPE_by_budgetYr_lst, json.dumps(budgetYr_lst, cls=DecimalEncoder), reforecasting_lst, allocation_lst, currency_lst, is_direct_cost_lst, ]
+        response = [reforecasting, nPE_by_budgetYr_lst, json.dumps(budgetYr_lst, cls=DecimalEncoder), reforecasting_lst, allocation_lst, currency_lst, is_direct_cost_lst, ]
 
         return JsonResponse(response, safe=False)
 

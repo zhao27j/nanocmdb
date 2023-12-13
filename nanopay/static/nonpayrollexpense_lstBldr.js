@@ -12,17 +12,18 @@ if (document.querySelector('#dropdownItemPlaceholderForNonPayrollExpenseList')) 
 
 // let is_IT_staff;
 async function getNonPayrollExpenseLstAsync(budgetYr) {
-    let nonPayrollExpense_lst, budgetYr_lst, reforecasting_lst, allocation_lst, currency_lst, isDirectCost_lst
+    let reforecasting, nonPayrollExpense_lst, budgetYr_lst, reforecasting_lst, allocation_lst, currency_lst, isDirectCost_lst
     try {
         const getUri = window.location.origin + `/json_respone/nonPayrollExpense_getLst/?budgetYr=${budgetYr}`;
         const json = await getJsonResponseApiData(getUri);
         if (json) {
-            nonPayrollExpense_lst = new Map(Object.entries(json[0]));
-            budgetYr_lst = new Map(Object.entries(json[1]));
-            reforecasting_lst = new Map(Object.entries(json[2]));
-            allocation_lst = new Map(Object.entries(json[3]));
-            currency_lst = new Map(Object.entries(json[4]));
-            isDirectCost_lst = new Map(Object.entries(json[5]));
+            reforecasting = json[0];
+            nonPayrollExpense_lst = new Map(Object.entries(json[1]));
+            budgetYr_lst = new Map(Object.entries(json[2]));
+            reforecasting_lst = new Map(Object.entries(json[3]));
+            allocation_lst = new Map(Object.entries(json[4]));
+            currency_lst = new Map(Object.entries(json[5]));
+            isDirectCost_lst = new Map(Object.entries(json[6]));
 
             baseMessagesAlert("non Payroll Expense data is ready", 'success');
 
@@ -38,7 +39,7 @@ async function getNonPayrollExpenseLstAsync(budgetYr) {
 
             dropdownItemBtn.addEventListener('click', e => {
                 const pgCntnt = document.querySelector('div#page_content');
-                pgCntnt.innerHTML = `<h3 class="m-3">non Payroll Expenses in ${budgetYr} </h3>`;
+                pgCntnt.innerHTML = `<h3 class="m-3">non Payroll Expenses in ${budgetYr} ${reforecasting}</h3>`;
 
                 const accordionFlush = document.createElement('div');
                 ['accordion', 'accordion-flush'].forEach(classItm => accordionFlush.classList.add(classItm));
