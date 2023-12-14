@@ -10,16 +10,15 @@ if (document.querySelector('#dropdownItemPlaceholderForNonPayrollExpenseList')) 
     getNonPayrollExpenseLstAsync(budgetYr);
 }
 
-// let is_IT_staff;
+let reforecasting, nonPayrollExpense_lst, budgetYr_lst, reforecasting_lst, allocation_lst, currency_lst, isDirectCost_lst
 async function getNonPayrollExpenseLstAsync(budgetYr) {
-    let reforecasting, nonPayrollExpense_lst, budgetYr_lst, reforecasting_lst, allocation_lst, currency_lst, isDirectCost_lst
     try {
         const getUri = window.location.origin + `/json_respone/nonPayrollExpense_getLst/?budgetYr=${budgetYr}`;
         const json = await getJsonResponseApiData(getUri);
         if (json) {
             reforecasting = json[0];
-            nonPayrollExpense_lst = new Map(Object.entries(json[1]));
-            budgetYr_lst = new Map(Object.entries(json[2]));
+            budgetYr_lst = json[1];
+            nonPayrollExpense_lst = new Map(Object.entries(json[2]));
             reforecasting_lst = new Map(Object.entries(json[3]));
             allocation_lst = new Map(Object.entries(json[4]));
             currency_lst = new Map(Object.entries(json[5]));
@@ -27,39 +26,20 @@ async function getNonPayrollExpenseLstAsync(budgetYr) {
 
             baseMessagesAlert("non Payroll Expense data is ready", 'success');
 
-            const dropdownItemBtn = document.createElement('button');
-            new Map([
-                ['class', 'dropdown-item'],
-                ['type', 'button'],
-            ]).forEach((attrValue, attrKey, attrMap) => {
-                dropdownItemBtn.setAttribute(attrKey, attrValue);
-                dropdownItemBtn.innerHTML = `<small>Payment Calendar</small>`;
-            });
-            document.querySelector('#dropdownItemPlaceholderForNonPayrollExpenseList').appendChild(dropdownItemBtn);
-
-            dropdownItemBtn.addEventListener('click', e => {
-                const pgCntnt = document.querySelector('div#page_content');
-                pgCntnt.innerHTML = `<h3 class="m-3">non Payroll Expenses in ${budgetYr} ${reforecasting}</h3>`;
-
-                const accordionFlush = document.createElement('div');
-                ['accordion', 'accordion-flush'].forEach(classItm => accordionFlush.classList.add(classItm));
-                accordionFlush.id = "accordionFlush";
-                pgCntnt.appendChild(accordionFlush);
-
-                const ths = ['', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC', ];
-                const tds = ['description', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', ];
-                // reLst(accordionFlush, nonPayrollExpense_lst, ths, tds);
-
-                if (allocation_lst) {
-                    // classBy = 'allocation';
-                    // classLst = allocation_lst;
-                    allocation_lst.forEach((classValue, classKey, classMap) => {
-                        reLst(accordionFlush, nonPayrollExpense_lst, ths, tds, 'allocation', classKey);
-                    });
-                    baseMessagesAlert('grouped by Allocation', 'success');
-                }
-            });
-
+            if (document.querySelector('#dropdownItemPlaceholderForNonPayrollExpenseList').hasChildNodes()) {
+                iniLst(budgetYr);
+            } else {
+                const topBarMenuNPEBtn = document.createElement('button');
+                new Map([
+                    ['class', 'dropdown-item'],
+                    ['type', 'button'],
+                ]).forEach((attrValue, attrKey, attrMap) => {
+                    topBarMenuNPEBtn.setAttribute(attrKey, attrValue);
+                    topBarMenuNPEBtn.innerHTML = `<small>Payment Calendar</small>`;
+                });
+                document.querySelector('#dropdownItemPlaceholderForNonPayrollExpenseList').appendChild(topBarMenuNPEBtn);
+                topBarMenuNPEBtn.addEventListener('click', e => iniLst(budgetYr));
+            }
         } else {
             baseMessagesAlert("non Payroll Expense data is NOT ready", 'danger');
         }
@@ -68,6 +48,57 @@ async function getNonPayrollExpenseLstAsync(budgetYr) {
     }
 }
 
+function iniLst(budgetYr) {
+    const pgCntnt = document.querySelector('div#page_content');
+    pgCntnt.innerHTML = [
+        `<span class="fs-3 m-3">`,
+            `non Payroll Expenses in `,
+            `<div class="btn-group" role="group" aria-label="Button group with nested dropdown">`,
+                `<div class="btn-group" role="group">`,
+                    `<button type="button" class="btn btn-link position-relative dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">`,
+                        `${budgetYr}`,
+                        `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">`,
+                            `${reforecasting}`,
+                        `</span>`,
+                    `</button>`,
+                    `<ul class="dropdown-menu" style=""></ul>`,
+                `</div>`,
+            `</div>`,
+        `</span>`,
+    ].join('');
+
+    const budgetYrdropdownMenuUl = pgCntnt.querySelector('ul.dropdown-menu');
+    budgetYr_lst.forEach((yr) => {
+        if (yr != budgetYr) {
+            budgetYrdropdownMenuUl.innerHTML += `<li><a class="dropdown-item" href="#">${yr}</a></li>`;
+            budgetYrdropdownMenuUl.querySelector('li:last-child').addEventListener('click', e => getNonPayrollExpenseLstAsync(yr));
+        }
+    });
+
+    const budgetYrDropdownToggle = pgCntnt.querySelector('button.btn.btn-link.position-relative.dropdown-toggle');
+    const budgetYrDropdownToggleInstance = bootstrap.Dropdown.getOrCreateInstance(budgetYrDropdownToggle);
+    budgetYrDropdownToggle.addEventListener('mouseover', e => {budgetYrDropdownToggleInstance.show();});
+    budgetYrDropdownToggle.parentElement.parentElement.addEventListener('mouseleave', e => {setTimeout(() => { budgetYrDropdownToggleInstance.hide();}, 300);})
+    // budgetYrdropdownMenuUl.addEventListener('mouseleave', e => {setTimeout(() => { budgetYrDropdownToggleInstance.hide();}, 300);})
+
+    const accordionFlush = document.createElement('div');
+    ['accordion', 'accordion-flush'].forEach(classItm => accordionFlush.classList.add(classItm));
+    accordionFlush.id = "accordionFlush";
+    pgCntnt.appendChild(accordionFlush);
+
+    const ths = ['', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC', ];
+    const tds = ['description', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', ];
+    // reLst(accordionFlush, nonPayrollExpense_lst, ths, tds);
+
+    if (allocation_lst) {
+        // classBy = 'allocation';
+        // classLst = allocation_lst;
+        allocation_lst.forEach((classValue, classKey, classMap) => {
+            reLst(accordionFlush, nonPayrollExpense_lst, ths, tds, 'allocation', classKey);
+        });
+        baseMessagesAlert('grouped by Allocation', 'success');
+    }
+}
 
 function reLst(accordion, lst, ths, tds, by = '', byTg = '') {
     const table = document.createElement('table');
@@ -175,6 +206,8 @@ function reLst(accordion, lst, ths, tds, by = '', byTg = '') {
                                     const li = document.createElement('li');
                                     li.innerHTML += `<a class="text-decoration-none" href="${window.location.origin}/payment_request/${key}/paper_form/"><small>${lstValue.currency}${value}</small></a>`;
                                     td.querySelector('ul').appendChild(li);
+
+                                    numOfAvailable++;
                                 }
                             }
                         } else {

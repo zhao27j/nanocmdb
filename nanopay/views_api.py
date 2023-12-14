@@ -50,7 +50,10 @@ def get_reforecasting():
 @login_required
 def jsonResponse_nonPayrollExpense_getLst(request):
     if request.method == 'GET':
-        budgetYr_lst = list(set(NonPayrollExpense.objects.values_list('non_payroll_expense_year', flat=True).distinct()))
+        # budgetYr_lst = list(set(NonPayrollExpense.objects.values_list('non_payroll_expense_year', flat=True).distinct()))
+        budgetYr_lst = []
+        for budgetYr in list(set(NonPayrollExpense.objects.values_list('non_payroll_expense_year', flat=True).distinct())):
+            budgetYr_lst.append(int(budgetYr))
 
         allocation_lst = {}
         reforecasting_lst = {}
@@ -119,7 +122,9 @@ def jsonResponse_nonPayrollExpense_getLst(request):
                                 nPE_by_budgetYr_lst[nPE.pk][field.name]['budget'] = nPE_field if nPE_field else ''
 
         # response = [json.loads(serialize("json", nPEs_by_budgetYr)), json.dumps(budgetYr_lst, cls=DecimalEncoder)]
-        response = [reforecasting, nPE_by_budgetYr_lst, json.dumps(budgetYr_lst, cls=DecimalEncoder), reforecasting_lst, allocation_lst, currency_lst, is_direct_cost_lst, ]
+        # response = [reforecasting, json.dumps(budgetYr_lst, cls=DecimalEncoder), nPE_by_budgetYr_lst, reforecasting_lst, allocation_lst, currency_lst, is_direct_cost_lst, ]
+        response = [reforecasting, budgetYr_lst, nPE_by_budgetYr_lst, reforecasting_lst, allocation_lst, currency_lst, is_direct_cost_lst, ]
+
 
         return JsonResponse(response, safe=False)
 
