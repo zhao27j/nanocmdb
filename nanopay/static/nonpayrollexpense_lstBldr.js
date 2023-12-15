@@ -86,8 +86,8 @@ function iniLst(budgetYr) {
     accordionFlush.id = "accordionFlush";
     pgCntnt.appendChild(accordionFlush);
 
-    const ths = ['', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC', ];
-    const tds = ['description', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', ];
+    const ths = ['', 'Description', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC', ];
+    const tds = ['nPEs', 'description', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', ];
     // reLst(accordionFlush, nonPayrollExpense_lst, ths, tds);
 
     if (allocation_lst) {
@@ -121,12 +121,12 @@ function reLst(accordion, lst, ths, tds, by = '', byTg = '') {
             tds.forEach(td_txt => {
                 const td = document.createElement('td');
                 switch (td_txt) {
-                    case 'instance':
+                    case 'nPEs':
                         const checkbox = document.createElement('input');
                         new Map([
                             ['type', 'checkbox'],
                             ['name', `${td_txt}`],
-                            ['id', `Instance${lstKey}`],
+                            ['id', `nPE${lstKey}`],
                             ['value', `${lstKey}`],
                         ]).forEach((attrValue, attrKey, attrMap) => {
                             checkbox.setAttribute(attrKey, attrValue);
@@ -197,7 +197,7 @@ function reLst(accordion, lst, ths, tds, by = '', byTg = '') {
                         }
                         break;
                     default:
-                        td.id = `${td_txt}Instance${lstKey}`;
+                        td.id = `${td_txt}nPEs${lstKey}`;
                         if (lstValue[td_txt] instanceof Object) {
                             td.innerHTML = `<div><small>${lstValue[td_txt].budget}</small></div>`;
                             td.appendChild(document.createElement('ul'));
