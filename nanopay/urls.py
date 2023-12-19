@@ -33,15 +33,19 @@ urlpatterns += {
     path('payment_term/<int:pk>/new/', views.payment_term_new, name='payment-term-new'),
 
     path('payment_request/<pk>/paper_form/', views.payment_request_paper_form, name='paper-form'),
-    path('payment_request/<pk>/approved/', views.payment_request_approved, name='payment-request-approved'),
+    path('payment_request/<pk>/approved/', views.payment_request_approve, name='payment-request-approved'),
     path('payment_request/<int:pk>/new/', views.payment_request_new, name='payment-request-new'),
-    path('payment_requests', views.PaymentRequestListView.as_view(), name='payment-request-list'),
+    path('payment_requests/', views.PaymentRequestListView.as_view(), name='payment-request-list'),
     # path('payment_requests/<pk>/detail/', views.PaymentRequestDetailView.as_view(), name='payment-request-detail'),
     path('payment_requests/<pk>/detail/invoice_scanned_copy/', views.payment_request_detail_invoice_scanned_copy, name='payment-request-detail-invoice-scanned-copy'),
 }
 
 # json api
 urlpatterns += {
+    path('payment_request/approve/', views_api.paymentReq_approve, name='payment-request-approve'),
+    path('payment_request/c/', views_api.paymentReq_c, name='payment-request-c'),
+    path('json_respone/paymentReq_getLst/', views_api.jsonResponse_paymentReq_getLst, name='jsonResponse-paymentReq-getLst'),
+
     path('json_respone/nonPayrollExpense_getLst/', views_api.jsonResponse_nonPayrollExpense_getLst, name='jsonResponse-nonPayrollExpense-getLst'),
 
     path('contract/mail_me_the_assets_list/', views_api.contract_mail_me_the_assets_list, name='contract-mail-me-the-assets-list'),

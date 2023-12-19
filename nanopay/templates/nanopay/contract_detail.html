@@ -3,6 +3,8 @@
 {% load static %}
 {% block page_content %}
 
+{% include "nanopay/modalForm_paymentReq_c.html" %}
+
 {% if form.non_field_errors %}
   {% for message in form.non_field_errors %}
   <div class="container-fluid">
@@ -194,6 +196,7 @@
                 <th><small>Scheduled</small></th>
                 <th><small>Amount</small></th>
                 <th><small>Applied on</small></th>
+                <th><small>Approved on</small></th>
               </tr>
               </thead>
               <tbody>
@@ -206,9 +209,15 @@
                 <td><small>¥{{ term.amount|floatformat:"2g" }}</small></td>
                 <td>
                   {% if term.applied_on %}
-                  <small>{{ term.applied_on }}</small>
+                  <small>{{ term.paymentrequest_set.last.requested_on }}</small>
                   {% else %}
-                  <a href="{% url 'nanopay:payment-request-new' term.pk %}" class="text-decoration-none">🏧</a>
+                  <!-- <a href="{% url 'nanopay:payment-request-new' term.pk %}" class="text-decoration-none">🏧</a> -->
+                  <button type="button" id="{{ term.pk }}" class="btn btn-link text-decoration-none" data-bs-toggle="modal" data-bs-target="#paymentReqModal"><small>🏧</small></button>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if term.paymentrequest_set.last.IT_reviewed_on %}
+                  <small>{{ term.paymentrequest_set.last.IT_reviewed_on }}</small>
                   {% endif %}
                 </td>
               </tr>

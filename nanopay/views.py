@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from io import BytesIO
 import datetime
 from typing import Any
@@ -144,7 +145,7 @@ def payment_request_paper_form(request, pk):
 
 
 @login_required
-def payment_request_approved(request, pk):
+def payment_request_approve(request, pk):
     payment_request = get_object_or_404(PaymentRequest, pk=pk)
     payment_request.status = 'A'
     payment_request.IT_reviewed_by = request.user
@@ -155,16 +156,16 @@ def payment_request_approved(request, pk):
     # payment_request.payment_term.contract.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'the Payment Request [ ' + str(payment_request.id) + ' ] was approved by ' + request.user.get_full_name())
     
     ChangeHistory.objects.create(
-                on=timezone.now(),
-                by=request.user,
-                db_table_name=payment_request.payment_term.contract._meta.db_table,
-                db_table_pk=payment_request.payment_term.contract.pk,
-                detail='the Payment Request [ ' + str(payment_request.id) + ' ] was approved'
-                )
+        on=timezone.now(),
+        by=request.user,
+        db_table_name=payment_request.payment_term.contract._meta.db_table,
+        db_table_pk=payment_request.payment_term.contract.pk,
+        detail='the Payment Request [ ' + str(payment_request.id) + ' ] was approved'
+        )
     
     messages.info(request, 'the Approval decision for the Payment Request [ ' + str(payment_request.id) + ' ] was sent')
 
-    message = get_template("nanopay/payment_request_approved_email.html").render({
+    message = get_template("nanopay/payment_request_approve_email.html").render({
         'protocol': 'http',
         'domain': '127.0.0.1:8000',
         'payment_request': payment_request,
@@ -207,7 +208,11 @@ class PaymentRequestListView(LoginRequiredMixin, generic.ListView):
     template_name = 'nanopay/payment_request_list.html'
     paginate_by = 10
 
-    def get_context_data(self, **kwargs):
+    def get_ordering(self) -> Sequence[str]:
+        # return super().get_ordering()
+        return ["-requested_on", ]
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         digital_copies = UploadedFile.objects.filter(db_table_name=self.object_list.first()._meta.db_table).order_by("-on")
         context["digital_copies"] = digital_copies

@@ -16,8 +16,220 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
-from .models import Contract, LegalEntity, Prjct, PaymentRequest, NonPayrollExpense
-from nanobase.models import UserProfile, ChangeHistory
+from django.shortcuts import get_object_or_404
+
+from .models import Contract, LegalEntity, Prjct, PaymentTerm, PaymentRequest, NonPayrollExpense
+from nanobase.models import UserProfile, ChangeHistory, UploadedFile
+
+
+
+@login_required
+def paymentReq_approve(request):
+    if request.method == 'POST':
+        if not request.user.groups.filter(name='IT Reviewer').exists():
+            messages.info(request, 'you are NOT authorized iT reviewer')
+            response = JsonResponse({
+                "alert_msg": 'you are NOT authorized iT reviewer',
+                "alert_type": 'danger',
+            })
+            return response
+        
+        try:
+            payment_request = PaymentRequest.objects.get(pk=request.POST.get('payment_request'))
+            payment_request.status = 'A'
+            payment_request.IT_reviewed_by = request.user
+            # payment_request.IT_reviewed_on = datetime.date.today()
+            payment_request.IT_reviewed_on = timezone.now()
+            payment_request.save()
+
+            # payment_request.payment_term.contract.activityhistory_set.create(description='[ ' + timezone.now().strftime("%Y-%m-%d %H:%M:%S") + ' ] ' + 'the Payment Request [ ' + str(payment_request.id) + ' ] was approved by ' + request.user.get_full_name())
+            
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=payment_request.payment_term.contract._meta.db_table,
+                db_table_pk=payment_request.payment_term.contract.pk,
+                detail='the Payment Request [ ' + str(payment_request.id) + ' ] was approved'
+            )
+            message = get_template("nanopay/payment_request_approve_email.html").render({
+                'protocol': 'http',
+                'domain': '127.0.0.1:8000',
+                'payment_request': payment_request,
+            })
+            mail = EmailMessage(
+                subject='ITS express - Please noticed - Payment Request approved by ' + payment_request.requested_by.get_full_name(),
+                body=message,
+                from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
+                to=[payment_request.requested_by.email],
+                cc=[request.user.email],
+                # reply_to=[EMAIL_ADMIN],
+                # connection=
+            )
+            mail.content_subtype = "html"
+            is_sent = mail.send()
+            if is_sent:
+                messages.info(request, 'the Approval decision for the Payment Request [ ' + str(payment_request.id) + ' ] was sent')
+                response = JsonResponse({
+                    "alert_msg": 'the Approval decision for the Payment Request [ ' + str(payment_request.id) + ' ] was sent',
+                    "alert_type": 'success',
+                })
+            else:
+                messages.info(request, 'the Approval decision for the Payment Request [ ' + str(payment_request.id) + ' ] was NOT sent dur to some errors')
+                response = JsonResponse({
+                    "alert_msg": 'the Approval decision for the Payment Request [ ' + str(payment_request.id) + ' ] was NOT sent dur to some errors',
+                    "alert_type": 'danger',
+                })
+        except PaymentRequest.DoesNotExist:
+            messages.info(request, 'the expected Payment Request [ ' + str(request.POST.get('paymentReqPk')) + ' ] was NOT found dur to some errors')
+            response = JsonResponse({
+                "alert_msg": 'the expected Payment Request [ ' + str(request.POST.get('paymentReqPk')) + ' ] was NOT found dur to some errors',
+                "alert_type": 'danger',
+            })
+
+        return response
+
+
+@login_required
+def paymentReq_c(request):
+    if request.method == 'POST':
+        chg_log = ''
+        try:
+            payment_request = PaymentRequest.objects.get(pk=request.POST.get('pk'))
+            created = False
+        except PaymentRequest.DoesNotExist:
+            payment_request = PaymentRequest.objects.create(
+                requested_by=request.user,
+            )
+            created = True
+
+        for k, v in request.POST.copy().items():
+            try:
+                PaymentRequest._meta.get_field(k)
+
+                if created:
+                    # chg_log = '1 x new Payment Request [ ' + payment_request.name + ' ] was added'
+                    chg_log = 'the notification for the Payment Request [ ' + str(payment_request.id) + ' ] was sent'
+                    
+                else:
+                    if getattr(payment_request, k):
+                        from_orig = getattr(payment_request, k)
+                        try:
+                            PaymentRequest._meta.get_field(k).related_fields
+                            from_orig = from_orig.name
+                        except AttributeError:
+                            pass
+                    else: 
+                        from_orig = '🈳'
+                    to_target = v if v != '' else '🈳'
+                    chg_log += 'The ' + k.capitalize() + ' was changed from [ ' + from_orig + ' ] to [ ' + to_target + ' ]; '
+
+                if k == 'payment_term':
+                    payment_request.payment_term = get_object_or_404(PaymentTerm, pk=v)
+                    payment_request.payment_term.applied_on = payment_request.requested_on
+                    payment_request.payment_term.save()
+                elif k == 'non_payroll_expense':
+                    payment_request.non_payroll_expense = get_object_or_404(
+                        NonPayrollExpense, 
+                        description=v,
+                        non_payroll_expense_year=request.POST.get('budgetYr'),
+                        non_payroll_expense_reforecasting=request.POST.get('reforecasting'),
+                        )
+                elif k == 'scanned_copy':
+                    pass
+                else:
+                    setattr(payment_request, k, v)
+
+                payment_request.save()
+                
+            except FieldDoesNotExist:
+                pass
+
+        scanned_copies = request.FILES.getlist('scanned_copy')
+        for scanned_copy in scanned_copies:
+            UploadedFile.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=payment_request._meta.db_table,
+                db_table_pk=payment_request.pk,
+                digital_copy=scanned_copy,
+            )
+        
+        ChangeHistory.objects.create(
+            on=timezone.now(),
+            by=request.user,
+            db_table_name=payment_request.payment_term.contract._meta.db_table,
+            db_table_pk=payment_request.payment_term.contract.pk,
+            detail='the Payment Request [ ' + str(payment_request.id) + ' ] was submitted'
+            )
+        
+        
+
+        iT_reviewer_emails = []
+        for reviewer in User.objects.filter(groups__name='IT Reviewer'):
+            iT_reviewer_emails.append(reviewer.email)
+
+        message = get_template("nanopay/payment_request_email.html").render({
+            'protocol': 'http',
+            'domain': '127.0.0.1:8000',
+            'payment_request': payment_request,
+        })
+        mail = EmailMessage(
+            subject='ITS express - Please approve - Payment Request submitted by ' + payment_request.requested_by.get_full_name(),
+            body=message,
+            from_email='nanoMessenger <do-not-reply@tishmanspeyer.com>',
+            to=iT_reviewer_emails,
+            cc=[request.user.email],
+            # reply_to=[EMAIL_ADMIN],
+            # connection=
+        )
+        mail.content_subtype = "html"
+        is_sent = mail.send()
+
+        if is_sent:
+            messages.success(request, 'the notification for the Payment Request [ ' + str(payment_request.id) + ' ] was sent')
+            response = JsonResponse({
+                "alert_msg": chg_log,
+                "alert_type": 'success',
+            })
+        else:
+            messages.info(request, 'the notification for the Payment Request [ ' + str(payment_request.id) + ' ] was NOT sent dur to some errors')
+            response = JsonResponse({
+                "alert_msg": False,
+                "alert_type": 'danger',
+            })
+        
+        return response
+
+
+@login_required
+def jsonResponse_paymentReq_getLst(request):
+    if request.method == 'GET':
+        details = {}
+        paymentTerm = PaymentTerm.objects.get(pk=request.GET.get('paymentTermPk'))
+        for field in paymentTerm._meta.get_fields():
+            if field.is_relation:
+                if field.name == 'contract':
+                    details[field.name] = paymentTerm.contract.briefing
+                    details['contract_remaining'] = paymentTerm.contract.get_time_remaining_in_percent()
+            else:
+                if field.name == 'plan':
+                    details[field.name] = paymentTerm.get_plan_display()
+                else:
+                    details[field.name] = getattr(paymentTerm, field.name)
+        
+        paymentTerm_last = PaymentTerm.objects.filter(contract=paymentTerm.contract).order_by("applied_on").last()
+        
+        details['nPE'] = paymentTerm_last.paymentrequest_set.first().non_payroll_expense.description if paymentTerm_last.paymentrequest_set.first() else ""
+
+        nPE_lst = {}
+        for nPE in NonPayrollExpense.objects.filter(non_payroll_expense_year=timezone.now().year, non_payroll_expense_reforecasting=get_reforecasting()):
+            # nPE_lst.append(nPE.description)
+            nPE_lst[nPE.description] = str(nPE.non_payroll_expense_year) + '---' + str(nPE.non_payroll_expense_reforecasting)
+        
+        response = [details, nPE_lst, ]
+
+        return JsonResponse(response, safe=False)
+
 
 class DecimalEncoder(json.JSONEncoder):
     def default(self, obj):

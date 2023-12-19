@@ -9,6 +9,15 @@
 
     line-height: 200%;
 }
+
+.invisible {
+    visibility: hidden;
+}
+
+.hidden {
+    display: none;
+}
+
 /*
 .accordion {
     accordion-button-active-color: FloralWhite;

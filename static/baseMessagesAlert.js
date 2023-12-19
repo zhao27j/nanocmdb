@@ -69,10 +69,9 @@ const baseMessagesAlert = (msg, type, toastAutoHide = true, hyperLink = {}) => {
         `</div>`,
     ].join('');
 
-    let toastBtn;
+    let toastBtn, toastBtns = [];
     if (!toastAutoHide) {
-        [1, 0].forEach(n => {
-
+        ['no', 'yes'].forEach(n => {
             toastBtn = document.createElement('button');
             new Map([
                 ['type', 'button'],
@@ -81,15 +80,13 @@ const baseMessagesAlert = (msg, type, toastAutoHide = true, hyperLink = {}) => {
                 toastBtn.setAttribute(key, value);
             });
             ['btn', 'btn-sm', 'm-2'].forEach(m => toastBtn.classList.add(m));
-            if (n) {
-                toastBtn.textContent = 'yes';
-                toastBtn.classList.add('btn-primary');
-            } else {
-                toastBtn.textContent = 'no';
-                toastBtn.classList.add('btn-secondary');
-            }
+            toastBtn.textContent = n;
+            // toastBtn.addEventListener('click', e => {return e.target.textContent})
+            n == 'yes' ? toastBtn.classList.add('btn-primary') : toastBtn.classList.add('btn-secondary');
             toastDivEl.querySelector('div.mt-2.pt-2.border-top').appendChild(toastBtn);
             toastDivEl.setAttribute('data-bs-autohide', 'false');
+            
+            toastBtns.push(toastBtn);
         })
     }
 
@@ -99,7 +96,7 @@ const baseMessagesAlert = (msg, type, toastAutoHide = true, hyperLink = {}) => {
 
     baseMsgsToastInstance.show();
 
-    return !toastAutoHide ? toastBtn : toastDivEl;
+    return !toastAutoHide ? toastBtns : toastDivEl;
 }
 
 
