@@ -1,5 +1,5 @@
-import { getJsonResponseApiData } from './getJsonResponseApiData.js';
-import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
+import { getJsonResponseApiData } from '../../static/getJsonResponseApiData.js';
+import { baseMessagesAlertPlaceholder, baseMessagesAlert } from '../../static/baseMessagesAlert.js';
 
 'use strict'
 
