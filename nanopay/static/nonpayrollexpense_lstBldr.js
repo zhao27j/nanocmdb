@@ -24,7 +24,7 @@ async function getNonPayrollExpenseLstAsync(budgetYr) {
             currency_lst = new Map(Object.entries(json[5]));
             isDirectCost_lst = new Map(Object.entries(json[6]));
 
-            baseMessagesAlert("non Payroll Expense data is ready", 'success');
+            // baseMessagesAlert("the data for non Payroll Expense is ready", 'success');
 
             if (document.querySelector('#dropdownItemPlaceholderForNonPayrollExpenseList').hasChildNodes()) {
                 iniLst(budgetYr);
@@ -41,7 +41,7 @@ async function getNonPayrollExpenseLstAsync(budgetYr) {
                 topBarMenuNPEBtn.addEventListener('click', e => iniLst(budgetYr));
             }
         } else {
-            baseMessagesAlert("non Payroll Expense data is NOT ready", 'danger');
+            baseMessagesAlert("the data for non Payroll Expense is NOT ready", 'danger');
         }
     } catch (error) {
         console.error('There was a problem with the async operation:', error);

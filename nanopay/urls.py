@@ -42,6 +42,9 @@ urlpatterns += {
 
 # json api
 urlpatterns += {
+    path('payment_term/c/', views_api.paymentTerm_c, name='payment-term-c'),
+    path('json_respone/paymentTerm_getLst/', views_api.jsonResponse_paymentTerm_getLst, name='jsonResponse-paymentTerm-getLst'),
+
     path('payment_request/approve/', views_api.paymentReq_approve, name='payment-request-approve'),
     path('payment_request/c/', views_api.paymentReq_c, name='payment-request-c'),
     path('json_respone/paymentReq_getLst/', views_api.jsonResponse_paymentReq_getLst, name='jsonResponse-paymentReq-getLst'),

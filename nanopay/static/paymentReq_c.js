@@ -1,27 +1,24 @@
 import { getJsonResponseApiData } from './getJsonResponseApiData.js';
 import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
+import { inputChk } from './inputChk.js';
 
 'use strict'
 
 const paymentReqModal = document.querySelector('#paymentReqModal');
 
-let paymentTermPk, paymentTermDetails, nPE_lst, inputChkResults;
+let pK, details, nPE_lst, inputChkResults;
 
 paymentReqModal.addEventListener('show.bs.modal', (e) => {
-    paymentTermPk = e.relatedTarget.id;
+    pK = e.relatedTarget.id;
     async function getDetailsAsync() {
         try {
-            const getUri = window.location.origin + `/json_respone/paymentReq_getLst/?paymentTermPk=${paymentTermPk}`;
+            const getUri = window.location.origin + `/json_respone/paymentReq_getLst/?pK=${pK}`;
             const json = await getJsonResponseApiData(getUri);
             if (json) {
-                // paymentTermDetails = new Map(Object.entries(json[0]));
-                paymentTermDetails = json[0];
-                // nPE_lst = new Map(Object.entries(json[1]));
+                details = json[0];
                 nPE_lst = json[1];
-
-                baseMessagesAlert("non Payroll Expense data is ready", 'success');
             } else {
-                baseMessagesAlert("non Payroll Expense data is NOT ready", 'danger');
+                baseMessagesAlert("the data for Payment Request is NOT ready", 'danger');
             }
         } catch (error) {
             console.error('There was a problem with the async operation:', error);
@@ -30,19 +27,24 @@ paymentReqModal.addEventListener('show.bs.modal', (e) => {
     getDetailsAsync();
 });
 
-const paymentReqModalLabel = paymentReqModal.querySelector('#paymentReqModalLabel');
+const modalLabel = paymentReqModal.querySelector('#modalLabel');
 const amount = paymentReqModal.querySelector('#amount');
 const nPE = paymentReqModal.querySelector('#non_payroll_expense');
 
 const scanned_copy = paymentReqModal.querySelector('#scanned_copy');
 
 function initModal(e) {
-    paymentReqModalLabel.textContent = 'new Payment Request';
+    modalLabel.textContent = 'new Payment Request';
+    
+    modalInputElAll.forEach(modalInputEl => {modalInputEl.disabled = false});
+    modalBtnNext.textContent = 'next';
+    modalBtnSubmit.classList.add('hidden');  // modalBtnSubmit.style.display = 'none';
     
     if (e.type == 'shown.bs.modal') {
-        amount.value = paymentTermDetails.amount;
-        nPE.value = paymentTermDetails.nPE;
+        amount.value = details.amount;
+        nPE.value = details.nPE;
         const nPEDatalist = paymentReqModal.querySelector('#nPEDatalist');
+        nPEDatalist.innerHTML = ''
         Object.keys(nPE_lst).forEach(key => {
             const dataListOpt = document.createElement('option');
             dataListOpt.textContent = key;
@@ -50,37 +52,43 @@ function initModal(e) {
         });
         scanned_copy.value = '';
         const progressBar = paymentReqModal.querySelector('.progress-bar');
-        if (paymentTermDetails.contract_remaining > 0) {
+        if (details.contract_remaining > 0) {
             progressBar.classList.add('bg-info');
         } else {
             progressBar.classList.add('bg-danger');
         }
-        progressBar.style.width = `${paymentTermDetails.contract_remaining}%`;
-        progressBar.textContent = `${paymentTermDetails.contract_remaining}%`;
-    } else {
-        modalInputElAll.forEach(modalInputEl => {modalInputEl.disabled = false});
-        e.target.textContent = 'next';
-        submitModalBtn.classList.add('hidden');  // submitModalBtn.style.display = 'none';
+        progressBar.style.width = `${details.contract_remaining}%`;
+        progressBar.textContent = `${details.contract_remaining}%`;
+
+        inputChkResults = {
+            'amount': amount.value ? true : false,
+            'non_payroll_expense': nPE.value ? true : false,
+            'scanned_copy': false,
+        };
     }
 
-    inputChkResults = {
-        'Amount': paymentTermDetails.amount ? true : false,
-        'non Payroll Expense': paymentTermDetails.nPE ? true : false,
-        'Scanned Copy': false,
-    };
+    
 }
 
 paymentReqModal.addEventListener('shown.bs.modal', e => {initModal(e)});
 
 const modalInputElAll = Array.from(paymentReqModal.querySelector('.modal-body').querySelectorAll('input'));
-const nextModalBtn = paymentReqModal.querySelector('#nextModalBtn');
-const submitModalBtn = paymentReqModal.querySelector('#submitModalBtn');
-modalInputElAll.forEach(m => m.addEventListener('blur', e => inputChk(e.target, nextModalBtn)));
-nextModalBtn.addEventListener('focus', e => {modalInputElAll.forEach(m => inputChk(m, nextModalBtn));});
-nextModalBtn.addEventListener('click', e => {
+const modalBtnNext = paymentReqModal.querySelector('#modalBtnNext');
+const modalBtnSubmit = paymentReqModal.querySelector('#modalBtnSubmit');
+modalInputElAll.forEach(m => m.addEventListener('blur', e => {
+    const optLst = e.target.list && e.target.id == 'non_payroll_expense' ? nPE_lst : null;
+    inputChkResults[e.target.id] = inputChk(e.target, optLst);
+    modalBtnNext.classList.toggle('disabled', !Object.values(inputChkResults).every((element, index, array) => {return element == true;}));
+}));
+modalBtnNext.addEventListener('focus', e => {modalInputElAll.forEach(m => {
+    const optLst = m.list && m.id == 'non_payroll_expense' ? nPE_lst : null;
+    inputChkResults[m.id] = inputChk(m, optLst);
+    modalBtnNext.classList.toggle('disabled', !Object.values(inputChkResults).every((element, index, array) => {return element == true;}));
+});});
+modalBtnNext.addEventListener('click', e => {
     if (e.target.textContent == 'next'){
         if (Object.values(inputChkResults).every((element, index, array) => {return element == true;})) {
-            paymentReqModalLabel.textContent = 'review & confirm';
+            modalLabel.textContent = 'review & confirm';
             modalInputElAll.forEach(modalInputEl => {
                 ['text-danger', 'border-bottom', 'border-danger', 'border-success'].forEach(m => modalInputEl.classList.remove(m));
                 modalInputEl.disabled = true;
@@ -88,59 +96,17 @@ nextModalBtn.addEventListener('click', e => {
                 // inputChkResults.get(`${modalInputEl.id}`) == modalInputTag ? modalInputEl.classList.add('border-success') : null;
             });
             e.target.textContent = 'back';
-            submitModalBtn.classList.remove('hidden');  // submitModalBtn.style.display = '';
+            modalBtnSubmit.classList.remove('hidden');  // modalBtnSubmit.style.display = '';
         }
     } else if (e.target.textContent == 'back') {initModal(e);}
 })
 
-function inputChk(inputEl, btn) {
-    let inputLbl, optLst, chkAlert, chkAlertType, inputChkResult = true
-
-    switch (inputEl.id) {
-        case 'amount':
-            inputLbl = 'Amount';
-            optLst = null;
-            break;
-        case 'non_payroll_expense':
-            inputLbl = 'non Payroll Expense';
-            optLst = nPE_lst;
-            break;
-        case 'scanned_copy':
-            inputLbl = 'Scanned Copy';
-            optLst = null;
-            break;
-        default:
-            optLst = null;
-            break;
-    }
-
-    if (inputEl.required && inputEl.value.trim() == '') {
-        chkAlert = `the given ${inputLbl} [ ${inputEl.value.trim()} ] is Empty`;
-        inputChkResult = false;
-    }
-
-    if (optLst && !(inputEl.value.trim() in optLst)) {
-        chkAlert = `the given ${inputLbl} [ ${inputEl.value.trim()} ] does NOT exist in the Option List`;
-        inputChkResult = false;
-    }
-
-    ['text-danger', 'border-bottom', 'border-danger'].forEach(t => inputEl.classList.toggle(t, !inputChkResult));
-    ['border-success'].forEach(t => inputEl.classList.toggle(t, inputChkResult));
-
-    inputChkResult ? inputEl.nextElementSibling.innerHTML = "" : inputEl.nextElementSibling.innerHTML = chkAlert;
-
-    inputChkResults[inputLbl] = inputChkResult;
-    btn.classList.toggle('disabled', !Object.values(inputChkResults).every((element, index, array) => {return element == true;}));
-    
-    return inputChkResult;
-}
-
-submitModalBtn.addEventListener('click', e => {
+modalBtnSubmit.addEventListener('click', e => {
     const postUpdUri = window.location.origin + '/payment_request/c/';
     const csrftoken = paymentReqModal.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
 
     const formData = new FormData();
-    formData.append('payment_term', paymentTermPk);
+    formData.append('payment_term', pK);
     
     modalInputElAll.forEach(m => {
         if (m.type == 'file') {

@@ -383,10 +383,11 @@ def payment_term_new(request, pk):
                       + ' in amount ' + str(new_payment_term.amount) + ' were added'
                 )
             
-            messages.info(request, 
-                          str(new_payment_term_recurring) + ' x ' + new_payment_term.get_plan_display()
-                            + ' Payment Terms for the Contract [ ' + contract.briefing + ' ] were added'
-                              )
+            messages.info(
+                request, 
+                str(new_payment_term_recurring) + ' x ' + new_payment_term.get_plan_display()
+                + ' Payment Terms for the Contract [ ' + contract.briefing + ' ] were added'
+            )
 
             return redirect('nanopay:contract-detail', pk=pk) # redirect to a new URL:
 

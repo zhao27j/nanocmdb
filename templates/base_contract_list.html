@@ -18,9 +18,9 @@
   {% for contract in contracts %}
   <tr>
     <td><input type="checkbox" name="contract" id="contract{{ forloop.counter }}" value="{{ contract.pk }}"/></td>
-    <td>
+    <td class="w-25">
       <a href="{% url 'nanopay:contract-detail' contract.pk %}" class="btn btn-link position-relative text-start text-decoration-none">
-        <small>{{ contract.briefing|truncatechars:32 }}</small>
+        <small>{{ contract.briefing|truncatechars:64 }}</small>
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary">
           {{ contract.assets.all.count }}
           <span class="visually-hidden">IT Assets associated with</span>

@@ -22,6 +22,76 @@ from .models import Contract, LegalEntity, Prjct, PaymentTerm, PaymentRequest, N
 from nanobase.models import UserProfile, ChangeHistory, UploadedFile
 
 
+@login_required
+def paymentTerm_c(request):
+    if request.method == 'POST':
+        contract = Contract.objects.get(pk=request.POST.get('contractPk'))
+        for pay_day in request.POST.get('pay_day').split(','):
+            if pay_day:
+                new_payment_term = PaymentTerm.objects.create(
+                    pay_day=pay_day,
+                    plan=request.POST.get('plan'),
+                    amount=request.POST.get('amount'),
+                    contract=contract,
+                )
+
+            ChangeHistory.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=contract._meta.db_table,
+                db_table_pk=contract.pk,
+                detail=str(request.POST.get('recurring')) + ' x ' + new_payment_term.get_plan_display()
+                    + ' Payment Term scheduled since ' + str(request.POST.get('pay_day').split(',')[0])
+                        + ' in amount ' + str(new_payment_term.amount) + ' were added'
+            )
+        alert_msg = request.POST.get('recurring') + ' x ' + new_payment_term.get_plan_display() + ' Payment Terms for the Contract [ ' + contract.briefing + ' ] were added'
+
+        messages.info(request, alert_msg)
+        response = JsonResponse({
+                "alert_msg": alert_msg,
+                "alert_type": 'success',
+            })
+        return response
+
+
+@login_required
+def jsonResponse_paymentTerm_getLst(request):
+    if request.method == 'GET':
+        details = {}
+        contract = Contract.objects.get(pk=request.GET.get('pK'))
+        if contract.paymentterm_set.all():
+            perment_term_last = contract.paymentterm_set.order_by('pay_day').last()
+            for field in perment_term_last._meta.get_fields():
+                
+                if not field.is_relation:
+                    if field.name == 'plan':
+                        details[field.name] = perment_term_last.get_plan_display()
+                    # elif isinstance(getattr(perment_term_last, field.name), Decimal):
+                        # details[field.name] = int(getattr(perment_term_last, field.name))
+                    else:
+                        details[field.name] = getattr(perment_term_last, field.name)
+        else:
+            details = {
+                "pay_day": timezone.now().date(),
+                "plan": "Custom",
+                "recurring": "1",
+                "amount": 0,
+            }
+
+        details['contract_remaining'] = contract.get_time_remaining_in_percent()
+
+        plan_lst = {
+            'Monthly': 'M',
+            'Quarterly': 'Q',
+            'Semi-anually': 'S',
+            'Anually': 'A',
+            'Custom': 'C',
+        }
+        
+        response = [details, plan_lst, ]
+
+        return JsonResponse(response, safe=False)
+
 
 @login_required
 def paymentReq_approve(request):
@@ -205,7 +275,7 @@ def paymentReq_c(request):
 def jsonResponse_paymentReq_getLst(request):
     if request.method == 'GET':
         details = {}
-        paymentTerm = PaymentTerm.objects.get(pk=request.GET.get('paymentTermPk'))
+        paymentTerm = PaymentTerm.objects.get(pk=request.GET.get('pK'))
         for field in paymentTerm._meta.get_fields():
             if field.is_relation:
                 if field.name == 'contract':

@@ -4,6 +4,7 @@
 {% block page_content %}
 
 {% include "nanopay/modalForm_paymentReq_c.html" %}
+{% include "nanopay/modalForm_paymentTerm_c.html" %}
 
 {% if form.non_field_errors %}
   {% for message in form.non_field_errors %}
@@ -185,7 +186,8 @@
         <ul class="list-group list-group-flush">
           <li class="list-group-item">
             <span class="lead">
-              <a href="{% url 'nanopay:payment-term-new' contract.pk %}" class="m-1 btn btn-outline-primary d-inline-flex align-items-center text-decoration-none">Add ...</a>
+              <!-- <a href="{% url 'nanopay:payment-term-new' contract.pk %}" class="m-1 btn btn-outline-primary d-inline-flex align-items-center text-decoration-none">Add ...</a> -->
+              <button id="{{ contract.pk }}" class="m-1 btn btn-outline-primary d-inline-flex align-items-center text-decoration-none" data-bs-toggle="modal" data-bs-target="#paymentTermModal">Add ...</button> 
             </span>
             <table class="table table-striped table-hover">
               <thead>
