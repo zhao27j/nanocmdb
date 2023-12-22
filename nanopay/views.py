@@ -448,8 +448,8 @@ def contract_new(request):
             messages.info(request, 'the base info of the new Contract [ ' + form.cleaned_data['briefing'] + ' ] was added')
 
 
-            # return redirect(new_contract.get_absolute_url()) # redirect to a new URL:
-            return redirect('nanopay:payment-term-new', pk=new_contract.pk)
+            return redirect(new_contract.get_absolute_url()) # redirect to the new URL:
+            # return redirect('nanopay:payment-term-new', pk=new_contract.pk)
 
     else: # if this is a GET (or any other method) create the default form.
         startup = datetime.date.today()

@@ -35,15 +35,16 @@ def paymentTerm_c(request):
                     contract=contract,
                 )
 
-            ChangeHistory.objects.create(
-                on=timezone.now(),
-                by=request.user,
-                db_table_name=contract._meta.db_table,
-                db_table_pk=contract.pk,
-                detail=str(request.POST.get('recurring')) + ' x ' + new_payment_term.get_plan_display()
-                    + ' Payment Term scheduled since ' + str(request.POST.get('pay_day').split(',')[0])
-                        + ' in amount ' + str(new_payment_term.amount) + ' were added'
-            )
+                ChangeHistory.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=contract._meta.db_table,
+                    db_table_pk=contract.pk,
+                    detail=str(new_payment_term.recurring) + ' x ' + new_payment_term.get_plan_display()
+                        + ' Payment Term scheduled @ ' + str(new_payment_term.pay_day)
+                            + ' in amount ' + str(new_payment_term.amount) + ' was added'
+                )
+                
         alert_msg = request.POST.get('recurring') + ' x ' + new_payment_term.get_plan_display() + ' Payment Terms for the Contract [ ' + contract.briefing + ' ] were added'
 
         messages.info(request, alert_msg)
