@@ -507,7 +507,7 @@ class ContractDetailView(LoginRequiredMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.object.paymentterm_set.all():
-            for payment_term in self.object.paymentterm_set.all():
+            for payment_term in self.object.paymentterm_set.all().order_by('-pay_day'):
                 # payment_term = self.object.paymentterm_set.all().first()
                 if payment_term.paymentrequest_set.all():
                     payment_request = payment_term.paymentrequest_set.all().first()
