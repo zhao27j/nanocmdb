@@ -1,37 +1,37 @@
+import { getJsonResponseApiData } from './getJsonResponseApiData.js';
 import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
 import {modalInputChk} from './modalInputChk.js';
 
 'use strict'
 
-// Assets Bulk Update
+// new Assets
 
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
 const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
 const newAssetsModal = document.querySelector('#newAssetsModal');
 
-let modalLbl, modalInputTag, getLstUri, postUpdUri, serialNumberOptLst, modelTypeOptLst, ownerOptLst, branchSiteOptLst, contractOptLst
+let serialNumberOptLst, modelTypeOptLst, ownerOptLst, branchSiteOptLst, contractOptLst
 
 newAssetsModal.addEventListener('show.bs.modal', () => {
-    modalLbl = '';
-    modalInputTag = 'new';
-    getLstUri = window.location.origin + '/json_response/new_lst/';
-    postUpdUri = window.location.origin + '/instance/new/';
-
-    fetch(getLstUri
-    ).then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw new Error(`HTTP error: ${response.status}`);
+    async function getDetailsAsync() {
+        try {
+            const getUri = window.location.origin + '/json_response/new_lst/';
+            const json = await getJsonResponseApiData(getUri);
+            if (json) {
+                serialNumberOptLst = json[0];
+                modelTypeOptLst = json[1];
+                ownerOptLst = json[2];
+                branchSiteOptLst = json[3];
+                contractOptLst = json[4];
+            } else {
+                baseMessagesAlert("the data for new Assets is NOT ready", 'danger');
+            }
+        } catch (error) {
+            console.error('There was a problem with the async operation:', error);
         }
-    }).then(json => {
-        serialNumberOptLst = json[0];
-        modelTypeOptLst = json[1];
-        ownerOptLst = json[2];
-        branchSiteOptLst = json[3];
-        contractOptLst = json[4];
-    }).catch(error => {console.error('Error:', error);})
+    }
+    getDetailsAsync();
 })
 
 const newSerialNumberModalInput = newAssetsModal.querySelector('#newSerialNumberModalInput');
@@ -180,7 +180,6 @@ function inputChk(e, inputLbl, optLst, btn) {
 const newAssetsModalNext = document.querySelector('#newAssetsModalNext');
 const newAssetsModalNextInstance = bootstrap.Modal.getOrCreateInstance('#newAssetsModalNext');
 // const newAssetsModalForm = newAssetsModal.querySelector('#newAssetsModalForm');
-const newAssetsModalNextTbl = newAssetsModalNext.querySelector('table');
 
 let newSerialNumberModalInputValue, isDefaultHostname;
 const formData = new FormData();
@@ -195,7 +194,8 @@ newAssetsModalNext.addEventListener('shown.bs.modal', () => {
     formData.append('branchSite', newBranchSiteModalInput.value.trim());
     formData.append('contract', newContractModalInput.value.trim());
 
-    newAssetsModalNextTbl.replaceChildren();        // newAssetsModalNextTbl.innerHTML = '';
+    const newAssetsModalNextTbl = newAssetsModalNext.querySelector('table');
+    newAssetsModalNextTbl.replaceChildren();    // newAssetsModalNextTbl.innerHTML = '';
 
     const newAssetsModalNextTblTh = document.createElement('tr');
     newAssetsModalNextTblTh.innerHTML = [
@@ -249,6 +249,7 @@ newAssetsModalNext.querySelector("input[type='checkbox']:checked").addEventListe
 
 newAssetsModalNext.querySelector('#newAssetsModalNextBtnSubmit').addEventListener('click', e => {
     // if (e.key = 'Enter') {
+        const postUpdUri = window.location.origin + '/instance/new/';
         const csrftoken = newAssetsModalNext.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
         fetch(postUpdUri, {
             method: 'POST',
