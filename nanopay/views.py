@@ -507,13 +507,14 @@ class ContractDetailView(LoginRequiredMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.object.paymentterm_set.all():
-            payment_term = self.object.paymentterm_set.all().first()
-            if payment_term.paymentrequest_set.all():
-                payment_request = payment_term.paymentrequest_set.all().first()
-                non_payroll_expense = payment_request.non_payroll_expense
-                context["non_payroll_expense"] = non_payroll_expense
-            else:
-                context["non_payroll_expense"] = '[yet associated]'
+            for payment_term in self.object.paymentterm_set.all():
+                # payment_term = self.object.paymentterm_set.all().first()
+                if payment_term.paymentrequest_set.all():
+                    payment_request = payment_term.paymentrequest_set.all().first()
+                    non_payroll_expense = payment_request.non_payroll_expense
+                    context["non_payroll_expense"] = non_payroll_expense
+                else:
+                    context["non_payroll_expense"] = '[yet associated]'
         else:
             context["non_payroll_expense"] = '[yet associated]'
         

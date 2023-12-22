@@ -170,11 +170,16 @@
                   </div>
                 </li>
                 <li class="list-group-item">
-                  <small><b>non Payroll Expense : </b>{{ non_payroll_expense.description }}</small>
+                  <div class="row">
+                    <div class="col-3"><small><b>non Payroll Expense : </b></small></div>
+                    <div class="col"><small>{{ non_payroll_expense.description }}</small></div>
+                  </div>
                 </li>
                 <li class="list-group-item">
-                  <small><b>sub Total for {{ non_payroll_expense.non_payroll_expense_year }} :</b></small>
-                  <small>￥{{ non_payroll_expense.get_non_payroll_expense_subtotal|floatformat:"2g" }}</small>
+                  <div class="row">
+                    <div class="col-3"><small><b>sub Total for {{ non_payroll_expense.non_payroll_expense_year }} [ {{ non_payroll_expense.non_payroll_expense_reforecasting}}]:</b></small></div>
+                    <div class="col"><small>￥{{ non_payroll_expense.get_non_payroll_expense_subtotal|floatformat:"2g" }}</small></div>
+                  </div>
                 </li>
               </ul>
             </div>
