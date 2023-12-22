@@ -108,17 +108,18 @@ def new(request):
             # new_instance.model_type = get_object_or_404(ModelType, name=request.POST.get('model_type').split("(")[0].strip())
             new_instance.model_type = get_object_or_404(ModelType, name=request.POST.get('model_type'))
             
-            if request.POST.get('isDefaultHostname'):
+            if request.POST.get('isDefaultHostname') != 'false':
                 new_instance.hostname == 'TS-' + new_instance.serial_number
 
             # new_instance.owner = get_object_or_404(User, username=request.POST.get('owner').strip(")").split("(")[-1].strip())
-            if len(serial_number_lst_posted) == 1:
-                new_instance.owner = get_object_or_404(User, username=request.POST.get('owner'))
-
+            
             if request.POST.get('owner') == '':
                 new_instance.status = 'AVAILABLE'
             else:
                 new_instance.status = 'inUSE'
+
+                if len(serial_number_lst_posted) == 1:
+                    new_instance.owner = get_object_or_404(User, username=request.POST.get('owner'))
             
             new_instance.branchSite = get_object_or_404(branchSite, name=request.POST.get('branchSite').strip())
 
