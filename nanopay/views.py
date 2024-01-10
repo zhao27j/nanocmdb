@@ -75,7 +75,8 @@ def payment_request_paper_form(request, pk):
     if contract_accumulated_payment_excluded_this_request == 0:
         contract_accumulated_payment_excluded_this_request = '-'
     else:
-        contract_accumulated_payment_excluded_this_request = currency_type + "{:,.2f}".format(contract_accumulated_payment_excluded_this_request)
+        # contract_accumulated_payment_excluded_this_request = currency_type + "{:,.2f}".format(contract_accumulated_payment_excluded_this_request)
+        contract_accumulated_payment_excluded_this_request = contract_accumulated_payment_excluded_this_request
     
     if accumulated_payment_excluded_this_request == 0:
         accumulated_payment_excluded_this_request = '-'
@@ -88,12 +89,15 @@ def payment_request_paper_form(request, pk):
         accumulated_payment_excluded_this_request = payment_request.non_payroll_expense.get_non_payroll_expense_subtotal_ytm(payment_request.payment_term.pay_day.month)
         remaining_budget_after_this_payment = payment_request.non_payroll_expense.get_non_payroll_expense_subtotal() - payment_request.amount - accumulated_payment_excluded_this_request
 
+    if not payment_request.payment_term.contract.endup:
+        contract_accumulated_payment_excluded_this_request = accumulated_payment_excluded_this_request
+
     context = {
         "payer": payment_request.payment_term.contract.get_party_a_display(), # Project name [项目公司名称]
         "date_of_request": payment_request.requested_on, # Date of Request [申请日期]
         "payment_due_date": '',
         "contract_amount": contract_amount, # Total Contract Amount (including All approved ASA amount)) [合同总金额(包含所有已批准变更金额)]
-        "contract_accumulated_payment_excluded_this_request": contract_accumulated_payment_excluded_this_request, # Prior Accu. Paid [前期累计付款]
+        "contract_accumulated_payment_excluded_this_request": currency_type + "{:,.2f}".format(contract_accumulated_payment_excluded_this_request), # Prior Accu. Paid [前期累计付款]
         "included_in_the_budget_yes": '✔️',
         "included_in_the_budget_no": '☐',
         "budget_dept_code_budget_originator": payment_request.non_payroll_expense.functional_department, # Request Department [请款部门]
@@ -513,10 +517,11 @@ class ContractDetailView(LoginRequiredMixin, generic.DetailView):
                     payment_request = payment_term.paymentrequest_set.all().first()
                     non_payroll_expense = payment_request.non_payroll_expense
                     context["non_payroll_expense"] = non_payroll_expense
+                    break
                 else:
-                    context["non_payroll_expense"] = '[yet associated]'
+                    context["non_payroll_expense"] = False
         else:
-            context["non_payroll_expense"] = '[yet associated]'
+            context["non_payroll_expense"] = False
         
         context["db_table_name"]=self.object._meta.db_table
         digital_copies = UploadedFile.objects.filter(db_table_name=self.object._meta.db_table, db_table_pk=self.object.pk).order_by("-on")

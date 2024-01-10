@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% load auth_extras %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'nanopay/style.css' %}">
+
 {% block page_content %}
 
 {% if form.non_field_errors %}
@@ -20,7 +24,7 @@
 <div class="table-responsive-lg">
   <table class="table table-hover">
     <thead class="table-light">
-      <tr><th></th><th>JAN</th><th>FEB</th><th>MAR</th><th>APR</th><th>MAY</th><th>JUN</th><th>JUL</th><th>AUG</th><th>SEP</th><th>OCT</th><th>NOV</th><th>DEC</th></tr>
+      <tr><th><small><small></th></small></small><th><small>JAN</th></small></small><th><small>FEB</th></small></small><th><small>MAR</th></small></small><th><small>APR</th></small></small><th><small>MAY</th></small></small><th><small>JUN</th></small></small><th><small>JUL</th></small></small><th><small>AUG</th></small></small><th><small>SEP</th></small></small><th><small>OCT</th></small></small><th><small>NOV</th></small></small><th><small>DEC</th></small></small></tr>
     </thead>
     <tbody>
       {% for itm in object_list %}
@@ -31,33 +35,33 @@
         <td><small>{{ itm.description }}</small></td>
         {% endif %}
         
-        <td>{{ itm.jan }}</td>
-        <td>{{ itm.feb }}</td>
-        <td>{{ itm.mar }}</td>
-        <td>{{ itm.apr }}</td>
-        <td>{{ itm.may }}</td>
-        <td>{{ itm.jun }}</td>
-        <td>{{ itm.jul }}</td>
-        <td>{{ itm.aug }}</td>
-        <td>{{ itm.sep }}</td>
-        <td>{{ itm.oct }}</td>
-        <td>{{ itm.nov }}</td>
-        <td>{{ itm.dec }}</td>
+        <td><small>{{ itm.jan }}</small></td>
+        <td><small>{{ itm.feb }}</small></td>
+        <td><small>{{ itm.mar }}</small></td>
+        <td><small>{{ itm.apr }}</small></td>
+        <td><small>{{ itm.may }}</small></td>
+        <td><small>{{ itm.jun }}</small></td>
+        <td><small>{{ itm.jul }}</small></td>
+        <td><small>{{ itm.aug }}</small></td>
+        <td><small>{{ itm.sep }}</small></td>
+        <td><small>{{ itm.oct }}</small></td>
+        <td><small>{{ itm.nov }}</small></td>
+        <td><small>{{ itm.dec }}</small></td>
       </tr>
       {% if itm.paymentrequest_set.all %}
       <tr>
-        <td>{{ itm.jan }}</td>
-        <td>{{ itm.feb }}</td>
-        <td>{{ itm.mar }}</td>
-        <td>{{ itm.apr }}</td>
-        <td>{{ itm.may }}</td>
-        <td>{{ itm.jun }}</td>
-        <td>{{ itm.jul }}</td>
-        <td>{{ itm.aug }}</td>
-        <td>{{ itm.sep }}</td>
-        <td>{{ itm.oct }}</td>
-        <td>{{ itm.nov }}</td>
-        <td>{{ itm.dec }}</td>
+        <td><small>{{ itm.jan }}</small></td>
+        <td><small>{{ itm.feb }}</small></td>
+        <td><small>{{ itm.mar }}</small></td>
+        <td><small>{{ itm.apr }}</small></td>
+        <td><small>{{ itm.may }}</small></td>
+        <td><small>{{ itm.jun }}</small></td>
+        <td><small>{{ itm.jul }}</small></td>
+        <td><small>{{ itm.aug }}</small></td>
+        <td><small>{{ itm.sep }}</small></td>
+        <td><small>{{ itm.oct }}</small></td>
+        <td><small>{{ itm.nov }}</small></td>
+        <td><small>{{ itm.dec }}</small></td>
       </tr>
       {% endif %}
       {% endfor %}
