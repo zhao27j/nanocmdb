@@ -39,8 +39,6 @@ class UserListView(LoginRequiredMixin, generic.ListView):
         return context
 
 
-
-
 class UserCreateView(LoginRequiredMixin, CreateView):
     model = User
     fields = ['username', 'first_name', 'last_name', 'email', ] # '__all__'

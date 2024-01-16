@@ -34,7 +34,6 @@
         {% else %}
         <td><small>{{ itm.description }}</small></td>
         {% endif %}
-        
         <td><small>{{ itm.jan }}</small></td>
         <td><small>{{ itm.feb }}</small></td>
         <td><small>{{ itm.mar }}</small></td>
@@ -67,10 +66,28 @@
       {% endfor %}
     </tbody>
   </table>
-  </div>
+</div>
 
 {% else %}
   <p class="lead">You're not the authorized IT staff</p>
 {% endif %}
+
+<script>
+  // JavaScript to handle scrolling and updating the position
+  document.addEventListener('DOMContentLoaded', function() {
+    var tableContainer = document.querySelector('.table-container');
+ 
+    tableContainer.addEventListener('scroll', function() {
+      var scrollTop = tableContainer.scrollTop;
+      var scrollLeft = tableContainer.scrollLeft;
+ 
+      var headerRow = document.querySelector('.sticky-header');
+      headerRow.style.transform = 'translateY(' + scrollTop + 'px)';
+ 
+      var firstColumn = document.querySelector('.sticky-column');
+      firstColumn.style.transform = 'translateX(' + scrollLeft + 'px)';
+    });
+  });
+</script>
 
 {% endblock page_content %}

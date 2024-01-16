@@ -34,8 +34,13 @@ class NonPayrollExpenseListView(LoginRequiredMixin, generic.ListView):
     # template_name = 'nonpayrollexpense_list.html'
     # paginate_by = 10
 
+    def get_queryset(self):
+        # nPE_reforecasting = get_reforecasting()
+        return super().get_queryset().filter(non_payroll_expense_year=timezone.now().year, non_payroll_expense_reforecasting=get_reforecasting())
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # context["non_payroll_expense_year"] = digital_copies
         return context
 
 
