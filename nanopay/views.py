@@ -80,8 +80,8 @@ def payment_request_paper_form(request, pk):
     if contract_accumulated_payment_excluded_this_request == 0:
         contract_accumulated_payment_excluded_this_request = '-'
     else:
-        # contract_accumulated_payment_excluded_this_request = currency_type + "{:,.2f}".format(contract_accumulated_payment_excluded_this_request)
-        contract_accumulated_payment_excluded_this_request = contract_accumulated_payment_excluded_this_request
+        contract_accumulated_payment_excluded_this_request = currency_type + "{:,.2f}".format(contract_accumulated_payment_excluded_this_request)
+        # contract_accumulated_payment_excluded_this_request = contract_accumulated_payment_excluded_this_request
     
     if accumulated_payment_excluded_this_request == 0:
         accumulated_payment_excluded_this_request = '-'
@@ -102,7 +102,8 @@ def payment_request_paper_form(request, pk):
         "date_of_request": payment_request.requested_on, # Date of Request [申请日期]
         "payment_due_date": '',
         "contract_amount": contract_amount, # Total Contract Amount (including All approved ASA amount)) [合同总金额(包含所有已批准变更金额)]
-        "contract_accumulated_payment_excluded_this_request": currency_type + "{:,.2f}".format(contract_accumulated_payment_excluded_this_request), # Prior Accu. Paid [前期累计付款]
+        # "contract_accumulated_payment_excluded_this_request": contract_accumulated_payment_excluded_this_request if type(contract_accumulated_payment_excluded_this_request) != int else currency_type + "{:,.2f}".format(contract_accumulated_payment_excluded_this_request), # Prior Accu. Paid [前期累计付款]
+        "contract_accumulated_payment_excluded_this_request": contract_accumulated_payment_excluded_this_request, # Prior Accu. Paid [前期累计付款]
         "included_in_the_budget_yes": '✔️',
         "included_in_the_budget_no": '☐',
         "budget_dept_code_budget_originator": payment_request.non_payroll_expense.functional_department, # Request Department [请款部门]

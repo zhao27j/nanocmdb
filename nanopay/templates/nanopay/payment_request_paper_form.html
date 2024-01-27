@@ -2917,7 +2917,9 @@ tags will be replaced.-->
   <td colspan=4 class=xl132600 width=272 style='border-right:.5pt solid black;
   width:204pt'>Date of request<br>
     申请日期</td>
-  <td colspan=5 class=xl137600 style='border-right:.5pt solid black'>{{ date_of_request }}</td>
+  <td colspan=5 class=xl137600 style='border-right:.5pt solid black'>
+	<input type="text" style="border:0; font-family:Arial, sans-serif; font-size:11.0pt" value="{{ date_of_request }}" disabled />
+  </td>
   <td class=xl83600>&nbsp;</td>
   <td colspan=3 class=xl132600 width=271 style='border-right:.5pt solid black;
   width:204pt'>Payment Due date<br>
@@ -2935,7 +2937,9 @@ tags will be replaced.-->
   <td colspan=4 class=xl132600 width=272 style='border-right:.5pt solid black;
   width:204pt'>Contract amount<br>
     合同金额</td>
-  <td colspan=5 class=xl79600 style='border-right:.5pt solid black'>{{ contract_amount }}</td>
+  <td colspan=5 class=xl79600 style='border-right:.5pt solid black'>
+	<input type="text" style="border:0; font-family:Arial, sans-serif; font-size:11.0pt" value="{{ contract_amount }}" disabled />
+  </td>
   <td class=xl83600>&nbsp;</td>
   <td colspan=3 class=xl132600 width=271 style='border-right:.5pt solid black;
   width:204pt'>Contract Accu. payment<span style='mso-spacerun:yes'>  
@@ -2977,8 +2981,9 @@ tags will be replaced.-->
   <td colspan=2 class=xl132600 width=258 style='border-right:.5pt solid black;
   width:193pt'>Budget dept code/Budget originator<br>
     预算部门编号/预算发起人</td>
-  <td colspan=4 class=xl78600 style='border-right:.5pt solid black;border-left:
-  none'>{{ budget_dept_code_budget_originator }}</td>
+  <td colspan=4 class=xl78600 style='border-right:.5pt solid black;border-left:none'>
+	<input type="text" style="border:0; font-family:Arial, sans-serif; font-size:11.0pt" value="{{ budget_dept_code_budget_originator }}" disabled />
+  </td>
   <td class=xl83600>&nbsp;</td>
   <td colspan=3 class=xl132600 width=271 style='border-right:.5pt solid black;
   width:204pt'>Budget Exp. Category (Major and Minor)<br>
@@ -3014,15 +3019,14 @@ tags will be replaced.-->
   <td height=67 class=xl77600 style='height:50.25pt'>&nbsp;</td>
   <td colspan=2 class=xl149600 width=137 style='width:103pt'>&nbsp;</td>
   <td class=xl90600>&nbsp;</td>
-  <td colspan=2 class=xl132600 width=258 style='width:193pt'>Total Budget
-  amount in GBS (Minor Category)<br>
-    GBS预算总额（明细类）</td>
-  <td colspan=4 class=xl78600 style='border-right:.5pt solid black'>{{ total_budget_amount_in_gbs_minor_category }}</td>
+  <td colspan=2 class=xl132600 width=258 style='width:193pt'>Total Budget amount in GBS (Minor Category)<br>GBS预算总额（明细类）</td>
+  <td colspan=4 class=xl78600 style='border-right:.5pt solid black'>
+	<input type="text" style="border:0; font-family:Arial, sans-serif; font-size:11.0pt" value="{{ total_budget_amount_in_gbs_minor_category }}" disabled />
+  </td>
   <td class=xl91600 width=10 style='width:8pt'>&nbsp;</td>
-  <td colspan=3 class=xl132600 width=271 style='border-right:.5pt solid black;
-  width:204pt'>Accu. payment<span style='mso-spacerun:yes'>   </span>(excl.
-  this request) <br>
-    累计付款 （不包含此次付款）</td>
+  <td colspan=3 class=xl132600 width=271 style='border-right:.5pt solid black; width:204pt'>
+	Accu. payment<span style='mso-spacerun:yes'>   </span>(excl. this request) <br>累计付款 （不包含此次付款）
+  </td>
   <td colspan=5 class=xl78600 style='border-right:.5pt solid black;border-left:none'>
 	<input type="text" style="border:0; font-family:Arial, sans-serif; font-size:11.0pt" value="{{ accumulated_payment_excluded_this_request }}" />
   </td>
@@ -3055,12 +3059,14 @@ tags will be replaced.-->
   <td class=xl92600 width=68 style='width:51pt'>&nbsp;</td>
   <td class=xl92600 width=69 style='width:52pt'>&nbsp;</td>
   <td class=xl92600 width=12 style='width:9pt'>&nbsp;</td>
-  <td colspan=2 class=xl132600 width=258 style='width:193pt'>Remaining Budget
-  (after this payment)<br>
-    剩余预算（支付此次付款之后）</td>
-  <td colspan=4 class=xl78600 style='border-right:.5pt solid black'>{{ remaining_budget_after_this_payment }}</td>
+  <td colspan=2 class=xl132600 width=258 style='width:193pt'>Remaining Budget (after this payment)<br>剩余预算（支付此次付款之后）</td>
+  <td colspan=4 class=xl78600 style='border-right:.5pt solid black'>
+	<input type="text" style="border:0; font-family:Arial, sans-serif; font-size:11.0pt" value="{{ remaining_budget_after_this_payment }}" disabled />
+  </td>
   <td class=xl91600 width=10 style='width:8pt'>&nbsp;</td>
-  <td colspan=3 class=xl132600 width=271 style='width:204pt'>JOB CODE: {{ job_code }}</td>
+  <td colspan=3 class=xl132600 width=271 style='width:204pt'>JOB CODE: 
+	<input type="text" style="border:0; font-family:Arial, sans-serif; font-size:11.0pt" value="{{ job_code }}" disabled />
+  </td>
   <td colspan=2 class=xl133600 width=184 style='width:138pt'>&nbsp;</td>
   <td class=xl94600>&nbsp;</td>
   <td class=xl94600>&nbsp;</td>
@@ -3258,11 +3264,8 @@ tags will be replaced.-->
  </tr>
  <tr class=xl68600 height=53 style='mso-height-source:userset;height:39.95pt'>
   <td height=53 class=xl77600 style='height:39.95pt'>&nbsp;</td>
-  <td colspan=2 class=xl132600 width=137 style='border-right:.5pt solid black;
-  width:103pt'>Payee<br>
-    收款人</td>
-  <td colspan=7 class=xl78600 style='border-right:.5pt solid black;border-left:
-  none'>{{ payee }}</td>
+  <td colspan=2 class=xl132600 width=137 style='border-right:.5pt solid black; width:103pt'>Payee<br>收款人</td>
+  <td colspan=7 class=xl78600 style='border-right:.5pt solid black;border-left:none'>{{ payee }}</td>
   <td class=xl83600>&nbsp;</td>
   <td class=xl78600>{{ transfer_petty_cash }}</td>
   <td class=xl104600 width=82 style='width:62pt'>Petty cash<br>
@@ -3284,11 +3287,11 @@ tags will be replaced.-->
  <tr class=xl68600 height=130 style='mso-height-source:userset;height:97.5pt'>
   <td height=130 class=xl77600 style='height:97.5pt'>&nbsp;</td>
   <td colspan=2 class=xl132600 width=137 style='border-right:.5pt solid black;
-  width:103pt'>Bank information<br>
-    银行信息</td>
-  <td colspan=17 class=xl156600 width=1113 style='border-right:1.0pt solid black;
-  border-left:none;width:837pt'>{{ bank_information_deposit }}<br>
-    {{ bank_information_deposit_account }}</td>
+  width:103pt'>Bank information<br>银行信息</td>
+  <td colspan=17 class=xl156600 width=1113 style='border-right:1.0pt solid black; border-left:none;width:837pt'>
+	{{ bank_information_deposit }}<br>
+    {{ bank_information_deposit_account }}
+  </td>
  </tr>
  <tr height=17 style='mso-height-source:userset;height:12.75pt'>
   <td height=17 class=xl74600 style='height:12.75pt'>&nbsp;</td>
