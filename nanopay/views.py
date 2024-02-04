@@ -53,6 +53,7 @@ def payment_request_paper_form(request, pk):
             vendor_address = legal_entity_b.reg_addr
             vendor_code = legal_entity_b.code
             vendor_telephone_number = legal_entity_b.reg_phone
+            vendor_contact_person = ""
             for contact_profile in legal_entity_b.userprofile_set.all():
                 vendor_contact_person = contact_profile.user.last_name + ', ' + contact_profile.user.first_name
 
