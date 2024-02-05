@@ -230,7 +230,8 @@ def disposal_request_approve(request):
 
         message = get_template("nanoassets/instance_disposal_request_email_approve.html").render({
             'protocol': 'http',
-            'domain': '127.0.0.1:8000',
+            # 'domain': '127.0.0.1:8000',
+            'domain': request.META['HTTP_HOST'],
             # 'instances': request.POST.getlist('instance'),
             'disposal_request': disposal_request,
         })
@@ -297,7 +298,8 @@ def disposal_request(request):
 
             message = get_template("nanoassets/instance_disposal_request_email.html").render({
                 'protocol': 'http',
-                'domain': '127.0.0.1:8000',
+                # 'domain': '127.0.0.1:8000',
+                'domain': request.META['HTTP_HOST'],
                 'new_req': new_req,
             })
             mail = EmailMessage(

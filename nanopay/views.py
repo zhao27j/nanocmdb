@@ -178,7 +178,8 @@ def payment_request_approve(request, pk):
 
     message = get_template("nanopay/payment_request_approve_email.html").render({
         'protocol': 'http',
-        'domain': '127.0.0.1:8000',
+        # 'domain': '127.0.0.1:8000',
+        'domain': request.META['HTTP_HOST'],
         'payment_request': payment_request,
     })
     mail = EmailMessage(
@@ -299,7 +300,8 @@ def payment_request_new(request, pk):
 
             message = get_template("nanopay/payment_request_new_email.html").render({
                 'protocol': 'http',
-                'domain': '127.0.0.1:8000',
+                # 'domain': '127.0.0.1:8000',
+                'domain': request.META['HTTP_HOST'],
                 'new_payment_request': new_payment_request,
             })
             mail = EmailMessage(

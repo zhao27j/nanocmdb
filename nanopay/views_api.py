@@ -124,7 +124,8 @@ def paymentReq_approve(request):
             )
             message = get_template("nanopay/payment_request_approve_email.html").render({
                 'protocol': 'http',
-                'domain': '127.0.0.1:8000',
+                # 'domain': '127.0.0.1:8000',
+                'domain': request.META['HTTP_HOST'],
                 'payment_request': payment_request,
             })
             mail = EmailMessage(
@@ -241,7 +242,8 @@ def paymentReq_c(request):
 
         message = get_template("nanopay/payment_request_email.html").render({
             'protocol': 'http',
-            'domain': '127.0.0.1:8000',
+            # 'domain': '127.0.0.1:8000',
+            'domain': request.META['HTTP_HOST'],
             'payment_request': payment_request,
         })
         mail = EmailMessage(
@@ -427,7 +429,8 @@ def contract_mail_me_the_assets_list(request):
         
         message = get_template("nanopay/contract_mail_me_the_assets_list.html").render({
                 'protocol': 'http',
-                'domain': '127.0.0.1:8000',
+                # 'domain': '127.0.0.1:8000',
+                'domain': request.META['HTTP_HOST'],
                 'contract': contract,
                 'instances': instances,
                 'by': request.user.get_full_name(),
