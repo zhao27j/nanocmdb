@@ -3,9 +3,18 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin, ImportExportMixin
 
 from .resources import InstanceResource
-from .models import Instance, ModelType, Manufacturer, branchSite, disposalRequest
+from .models import Instance, ModelType, Manufacturer, branchSite, disposalRequest, Config, configClass
 
 # Register your models here.
+
+@admin.register(Config)
+class ConfigAdmin(admin.ModelAdmin):
+    list_display = ['on', 'by', 'db_table_name', 'db_table_pk', 'configClass', 'order', 'configPara', ]
+
+
+@admin.register(configClass)
+class configClassAdmin(admin.ModelAdmin):
+    list_display = ['name', 'desc', ]
 
 
 @admin.register(branchSite)

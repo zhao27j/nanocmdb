@@ -527,7 +527,8 @@ def legal_entity(request):
                 pass
 
             if k == 'contact' and v != '':
-                contact = User.objects.get(username=request.POST.get('contact').split("-")[-1].split("@")[0].strip())
+                username = request.POST.get('contact').split("-")[-1].split("@")[0].strip() if 'tishmanspeyer.com' in request.POST.get('contact') else request.POST.get('contact').split("-")[-1].strip()
+                contact = User.objects.get(username=username)
                 if UserProfile.objects.filter(user=contact).exists():
                     contact.userprofile.legal_entity = legal_entity
                     contact.userprofile.save()

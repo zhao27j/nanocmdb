@@ -11,6 +11,29 @@ from smart_selects.db_fields import ChainedForeignKey
 
 # Create your models here.
 
+class Config(models.Model):
+    on = models.DateTimeField((_("on")), null=True, blank=True)
+    by = models.ForeignKey(User, verbose_name=(_("by")), on_delete=models.SET_NULL, null=True, blank=True)
+    db_table_name = models.CharField((_("")), max_length=32, null=True, blank=True)
+    db_table_pk = models.CharField((_("")), max_length=32, null=True, blank=True)
+
+    configClass = models.ForeignKey("nanoassets.configClass", verbose_name=_("Config Class"), on_delete=models.SET_NULL, null=True)
+    order = models.CharField(_("Order No."), max_length=50, default="1")
+    configPara = models.CharField(_("Parameter"), max_length=50)
+    comments = models.TextField(_("Comments"), null=True, blank=True)
+
+    def __str__(self):
+        return self.db_table_name
+
+
+class configClass(models.Model):
+    name = models.CharField(_("Class Name"), max_length=50)
+    desc = models.CharField(_("Class Description"), max_length=50, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
 class branchSite(models.Model):
     name = models.CharField(_("Site / Branch Office Name"), max_length=64, null=True)
     # project = models.ForeignKey("nanoassets.Model", verbose_name=(_("Affiliated with a project")), on_delete=models.SET_NULL, blank=True, null=True)

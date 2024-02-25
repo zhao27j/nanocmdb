@@ -35,6 +35,8 @@ urlpatterns += [
 # Assets Instance - JSON api
 
 urlpatterns += [
+    path('config/cud/', views_api.config_cud, name='config-cud'),
+    path('json_response/config_getLst/', views_api.jsonResponse_config_getLst, name='jsonResponse-config-getLst'),
 
     path('json_response/instance_lst/', views_api.jsonResponse_instance_lst, name='jsonResponse-instance-lst'),
 

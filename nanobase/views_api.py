@@ -73,8 +73,8 @@ def user_crud(request):
         if user_inst.count() > 1:
             chg_log = 'Interrupted - multiple user accounts of ' + request.POST.get('email') + ' were found'
             response = JsonResponse({
-            "alert_msg": chg_log,
-            "alert_type": 'warning',
+                "alert_msg": chg_log,
+                "alert_type": 'warning',
             })
             return response
         elif user_inst.count() == 1:

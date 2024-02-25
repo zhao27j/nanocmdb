@@ -2,6 +2,7 @@
 
 from django.http import JsonResponse
 
+from django.core.exceptions import FieldDoesNotExist
 from django.core.serializers import serialize
 from django.core.mail import EmailMessage
 # from django.core.exceptions import FieldDoesNotExist
@@ -16,9 +17,105 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 
-from .models import ModelType, Instance, branchSite, disposalRequest
+from .models import ModelType, Instance, branchSite, disposalRequest, configClass, Config
 from nanopay.models import Contract
-from nanobase.models import ChangeHistory, SubCategory
+from nanobase.models import ChangeHistory, SubCategory, UploadedFile
+
+@login_required
+def config_cud(request):
+    if request.method == 'POST':
+        chg_log = ''
+        if request.POST.get('crud') == 'cc':
+            instance = Instance.objects.get(pk=request.POST.get('pk'))
+            instanceConfig = Config.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=instance._meta.db_table,
+                db_table_pk=instance.pk,
+            )
+            chg_log = '1 x new Config [ ' + request.POST.get('configClass') + ' ' + request.POST.get('order') + ' ] was added'
+        elif request.POST.get('crud') == 'uc' or request.POST.get('crud') == 'dc':
+            instanceConfig = Config.objects.get(pk=request.POST.get('pk'))
+            instance = Instance.objects.get(pk=instanceConfig.db_table_pk)
+        else:
+            pass
+
+        for k, v in request.POST.copy().items():
+            try:
+                Config._meta.get_field(k)
+                
+                if request.POST.get('crud') == 'uc':
+                    if getattr(instanceConfig, k):
+                        from_orig = getattr(instanceConfig, k)
+                        try:
+                            Config._meta.get_field(k).related_fields
+                            from_orig = from_orig.name
+                        except AttributeError:
+                            pass
+                    else: 
+                        from_orig = '🈳'
+                    
+                    to_target = v if v != '' else '🈳'
+                    
+                    if from_orig != to_target:
+                        chg_log += 'The ' + k.capitalize() + ' was changed from [ ' + from_orig + ' ] to [ ' + to_target + ' ]; '
+
+                if k == 'scanned_copy':
+                    chg_log += "this POST item is scanned_copy"
+                elif k == 'configClass':
+                    instanceConfig.configClass = get_object_or_404(configClass, name=v)
+                else:
+                    setattr(instanceConfig, k, v)
+
+                instanceConfig.save()
+                
+            except FieldDoesNotExist:
+                pass
+
+        scanned_copies = request.FILES.getlist('scanned_copy')
+        for scanned_copy in scanned_copies:
+            UploadedFile.objects.create(
+                on=timezone.now(),
+                by=request.user,
+                db_table_name=instanceConfig._meta.db_table,
+                db_table_pk=instanceConfig.pk,
+                digital_copy=scanned_copy,
+            )
+        
+        ChangeHistory.objects.create(
+            on=timezone.now(),
+            by=request.user,
+            db_table_name=instance._meta.db_table,
+            db_table_pk=instance.pk,
+            detail=chg_log,
+            )
+
+        response = JsonResponse({
+                "alert_msg": chg_log,
+                "alert_type": 'success',
+            })
+        return response
+
+
+@login_required
+def jsonResponse_config_getLst(request):
+    if request.method == 'GET':
+        configClass_lst = {}
+        for config_class in configClass.objects.all():
+            configClass_lst[config_class.name] = config_class.desc
+        
+        details = {}
+        if request.GET.get('pK'):
+            instanceConfg = Config.objects.get(pk=request.GET.get('pK'))
+            details['configClass'] = instanceConfg.configClass.name
+            details['order'] = instanceConfg.order
+            details['configPara'] = instanceConfg.configPara
+            details['comments'] = instanceConfg.comments
+
+            # response.append(details)
+
+        response = [configClass_lst, details, ]
+        return JsonResponse(response, safe=False)
 
 
 @login_required
