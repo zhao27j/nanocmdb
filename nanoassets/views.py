@@ -180,7 +180,7 @@ class InstanceDetailView(LoginRequiredMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        configs = Config.objects.filter(db_table_name=self.object._meta.db_table, db_table_pk=self.object.pk).order_by("on")
+        configs = Config.objects.filter(db_table_name=self.object._meta.db_table, db_table_pk=self.object.pk).order_by("-on")
         context["configs"] = configs
 
         changes = ChangeHistory.objects.filter(db_table_name=self.object._meta.db_table, db_table_pk=self.object.pk).order_by("-on")

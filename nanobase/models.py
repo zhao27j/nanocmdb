@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from django.contrib.auth.models import User
 
+from nanoassets.models import Instance, Config
 from nanopay.models import Contract, PaymentRequest
 
 # Create your models here.
@@ -66,6 +67,12 @@ def digital_copy_upload_to(instance, filename):
         payment_request = PaymentRequest.objects.get(pk=instance.db_table_pk)
         file_name = str(payment_request.id) + '_invoice uploaded by_' + payment_request.requested_by.username + '_' + file_name_base  + file_name_ext
         file_path = 'uploads/payment_request/' + str(timezone.now().year)
+
+    elif 'config' in instance.db_table_name:
+        config = Config.objects.get(pk=instance.db_table_pk)
+        instance = Instance.objects.get(pk=config.db_table_pk)
+        file_name = 'config_' + str(config.id) + '_' + config.configClass.name + '_' + config.order + '_uploaded by_' + config.by.username + '_' + file_name_base  + file_name_ext
+        file_path = 'uploads/config/' + str(instance.model_type.sub_category.name) + '/' + str(instance.model_type.name) + '/' + str(config.db_table_pk)
         
     full_file_name = os.path.join(file_path, file_name)
 

@@ -6,7 +6,7 @@ import { inputChk } from './inputChk.js';
 
 const configCUDModal = document.querySelector('#configCUDModal');
 
-let pK, crud, modalLabelContent, details, configClass_lst, inputChkResults;
+let pK, crud, modalLabelContent, configClass_lst, details, digital_copies, inputChkResults;
 
 configCUDModal.addEventListener('show.bs.modal', (e) => {
     let getUri;
@@ -36,6 +36,7 @@ configCUDModal.addEventListener('show.bs.modal', (e) => {
             if (json) {
                 configClass_lst = json[0];
                 details = json[1];
+                digital_copies = json[2];
             } else {
                 baseMessagesAlert("the data for Config is NOT ready", 'danger');
             }
@@ -53,10 +54,15 @@ const configPara = configCUDModal.querySelector('#configPara');
 const comments = configCUDModal.querySelector('#comments');
 const scanned_copy = configCUDModal.querySelector('#scanned_copy');
 
-function initModal(e) {
+function modalIni(e) {
     modalLabel.textContent = modalLabelContent;
     
-    modalInputElAll.forEach(modalInputEl => {modalInputEl.disabled = false});
+    modalInputElAll.forEach(modalInputEl => {
+        modalInputEl.disabled = false;
+        ['text-danger', 'border-bottom', 'border-danger', 'border-success'].forEach(m => modalInputEl.classList.remove(m));
+        modalInputEl.nextElementSibling.textContent = '';
+        // inputChkResults.get(`${modalInputEl.id}`) == modalInputTag ? modalInputEl.classList.add('border-success') : null;
+    });
     modalBtnNext.textContent = 'next';
     modalBtnSubmit.classList.add('hidden');  // modalBtnSubmit.style.display = 'none';
     
@@ -81,12 +87,24 @@ function initModal(e) {
             // 'configPara': configPara.value ? true : false,
             // 'scanned_copy': false,
         };
+
+        const digitalCopiesUlEl = configCUDModal.querySelector('ul');
+        digitalCopiesUlEl.textContent = "";
+        if (crud != 'cc') {
+            configClass.disabled = true;
+            Object.entries(digital_copies).forEach((value, key, map) => {
+                const digitalCopiesLiEl = document.createElement('li');
+                digitalCopiesLiEl.textContent = value;
+                digitalCopiesUlEl.appendChild(digitalCopiesLiEl);
+            })
+        }
     }
 }
 
-configCUDModal.addEventListener('shown.bs.modal', e => {initModal(e)});
+configCUDModal.addEventListener('shown.bs.modal', e => {modalIni(e)});
 
-const modalInputElAll = Array.from(configCUDModal.querySelector('.modal-body').querySelectorAll('input'));
+const inputElAll = Array.from(configCUDModal.querySelector('.modal-body').querySelectorAll('input'));
+const modalInputElAll = inputElAll.concat(Array.from(configCUDModal.querySelector('.modal-body').querySelectorAll('textarea')))
 const modalBtnNext = configCUDModal.querySelector('#modalBtnNext');
 const modalBtnSubmit = configCUDModal.querySelector('#modalBtnSubmit');
 
@@ -121,7 +139,7 @@ modalBtnNext.addEventListener('click', e => {
             e.target.textContent = 'back';
             modalBtnSubmit.classList.remove('hidden');  // modalBtnSubmit.style.display = '';
         // }
-    } else if (e.target.textContent == 'back') {initModal(e);}
+    } else if (e.target.textContent == 'back') {modalIni(e);}
 })
 
 modalBtnSubmit.addEventListener('click', e => {

@@ -58,10 +58,10 @@ def config_cud(request):
                     to_target = v if v != '' else '🈳'
                     
                     if from_orig != to_target:
-                        chg_log += 'The ' + k.capitalize() + ' was changed from [ ' + from_orig + ' ] to [ ' + to_target + ' ]; '
+                        chg_log += 'The ' + k.capitalize() + ' of ' + instanceConfig.configClass.name + ' ' + instanceConfig.order + ' was changed from [ ' + from_orig + ' ] to [ ' + to_target + ' ]; '
 
                 if k == 'scanned_copy':
-                    chg_log += "this POST item is scanned_copy"
+                    chg_log += "this POST item is A scanned_copy"
                 elif k == 'configClass':
                     instanceConfig.configClass = get_object_or_404(configClass, name=v)
                 else:
@@ -105,6 +105,7 @@ def jsonResponse_config_getLst(request):
             configClass_lst[config_class.name] = config_class.desc
         
         details = {}
+        digital_copies = {}
         if request.GET.get('pK'):
             instanceConfg = Config.objects.get(pk=request.GET.get('pK'))
             details['configClass'] = instanceConfg.configClass.name
@@ -112,9 +113,12 @@ def jsonResponse_config_getLst(request):
             details['configPara'] = instanceConfg.configPara
             details['comments'] = instanceConfg.comments
 
+            for digital_copy in UploadedFile.objects.filter(db_table_name=instanceConfg._meta.db_table, db_table_pk=instanceConfg.pk).order_by("-on"):
+                digital_copies[digital_copy.pk] = digital_copy.get_digital_copy_base_file_name()
+
             # response.append(details)
 
-        response = [configClass_lst, details, ]
+        response = [configClass_lst, details, digital_copies, ]
         return JsonResponse(response, safe=False)
 
 
