@@ -170,7 +170,7 @@
                 </li>
 
                 <li class="list-group-item">
-                  {% if user|has_group:"IT China" %}
+                  {% if user|has_group:"IT China" and configs %}
                   {% include "nanoassets/instance_config_list.html" with configs=configs %}
                   {% endif %}
                   <em>...</em>
