@@ -486,12 +486,14 @@ class ContractListView(LoginRequiredMixin, generic.ListView):
     model = Contract
     # paginate_by = 10
 
-    
     def get_queryset(self):
+        contracts = super().get_queryset()
+        for contract in contracts:
+            if contract.endup and contract.endup < datetime.date.today():
+                contract.type = 'E'
+                contract.save()
 
-        contract_list_queryset = super().get_queryset()
-
-        return super().get_queryset()
+        return contracts
 
     """
     def get_context_data(self, **kwargs):

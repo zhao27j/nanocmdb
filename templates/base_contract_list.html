@@ -43,7 +43,15 @@
     </td>
     <td><small>{{ contract.get_prjct }}</small></td>
     <td><small>{{ contract.get_type_display }}</small></td>
-    <td><small>¥{{ contract.get_total_amount.amount__sum|floatformat:"2g" }}</small></td>
+    <td>
+      <small>
+        {% if contract.get_total_amount.amount__sum %}
+        ¥{{ contract.get_total_amount.amount__sum|floatformat:"2g" }}
+        {% else %}
+        [ NA ]
+        {% endif %}
+      </small>
+    </td>
     <td>
       {% if contract.get_duration_in_month == 'NA' %}
       <small>[ {{ contract.get_duration_in_month }} ]</small>

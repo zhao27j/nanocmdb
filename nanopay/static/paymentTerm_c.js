@@ -88,9 +88,11 @@ modalInputElAll.forEach(m => m.addEventListener('blur', e => {
     inputChkResults[e.target.id] = inputChk(e.target, optLst);
     modalBtnNext.classList.toggle('disabled', !Object.values(inputChkResults).every((element, index, array) => {return element == true;}));
 
-    recurring.disabled = e.target.id == 'plan' && e.target.value == 'Custom' ? true : false;
-    recurring.value = e.target.id == 'plan' && e.target.value == 'Custom' ? 1 : recurring.value;
+    // recurring.disabled = e.target.id == 'plan' && e.target.value == 'Custom' ? true : false;
+    // recurring.value = e.target.id == 'plan' && e.target.value == 'Custom' ? 1 : recurring.value;
 
+    recurring.disabled = plan.value == 'Custom' ? true : false;
+    recurring.value = plan.value == 'Custom' ? 1 : recurring.value;
 }));
 
 modalBtnNext.addEventListener('focus', e => {modalInputElAll.forEach(m => {

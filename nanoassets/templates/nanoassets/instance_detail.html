@@ -120,6 +120,17 @@
                   <small>{% if instance.owner %}{{ instance.owner.get_full_name }}{% else %}🈳{% endif %}</small>
                   {% endif %}
                 </li>
+                <li class="list-group-item" id="hostnameInstance{{ instance.pk }}">
+                  <b>Hostname :</b>
+                  {% if user|has_group:"IT China" %}
+                  <!-- Button trigger modal : Hostname -->
+                  <button type="button" class="btn btn-link text-decoration-none" data-bs-toggle="modal" data-bs-target="#hostnameUpdModal">
+                    <small>{{ instance.hostname }}</small>
+                  </button>
+                  {% else %}
+                  <small>{{ instance.hostname }}</small>
+                  {% endif %}
+                </li>
                 <li class="list-group-item"><em>...</em></li>
               </ul>
             </div>
@@ -157,18 +168,6 @@
                   {% endif %}
                 </li>
                 <li class="list-group-item"><b>Serial # :</b> <small id="serial_number">{{ instance.serial_number }}</small></li>
-                <li class="list-group-item" id="hostnameInstance{{ instance.pk }}">
-                  <b>Hostname :</b>
-                  {% if user|has_group:"IT China" %}
-                  <!-- Button trigger modal : Hostname -->
-                  <button type="button" class="btn btn-link text-decoration-none" data-bs-toggle="modal" data-bs-target="#hostnameUpdModal">
-                    <small>{{ instance.hostname }}</small>
-                  </button>
-                  {% else %}
-                  <small>{{ instance.hostname }}</small>
-                  {% endif %}
-                </li>
-
                 <li class="list-group-item">
                   {% if user|has_group:"IT China" and configs %}
                   {% include "nanoassets/instance_config_list.html" with configs=configs %}

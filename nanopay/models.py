@@ -127,7 +127,10 @@ class Contract(models.Model):
             total_days = (self.endup - self.startup).days
             if total_days != 0:
                 total_days_passed = (datetime.date.today() - self.startup).days
-                return round((total_days_passed / total_days) * 100, 2)
+                if self.endup >= datetime.date.today():
+                    return round((total_days_passed / total_days) * 100, 2)
+                else:
+                    return -round((total_days_passed / total_days) * 100, 2)
         else:
             return 'pay-as-you-go'
 
