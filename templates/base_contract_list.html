@@ -2,17 +2,17 @@
 
 <table class="table table-striped table-hover">
   <thead>
-  <tr>
-    <th></th>
-    <th><small>Briefing</small></th>
-    <th><small>Party A</small></th>
-    <th><small>Party B</small></th>
-    <th><small>Project</small></th>
-    <th><small>Type</small></th>
-    <th><small>Amount</small></th>
-    <th><small>Duration</small></th>
-    <th><small>Remaining</small></th>
-  </tr>
+    <tr>
+      <th></th>
+      <th><small>Briefing</small></th>
+      <th><small>Party A</small></th>
+      <th><small>Party B</small></th>
+      <th><small>Project</small></th>
+      <th><small>Type</small></th>
+      <th><small>Amount</small></th>
+      <th><small>Duration</small></th>
+      <th><small>Remaining</small></th>
+    </tr>
   </thead>
   <tbody>
   {% for contract in contracts %}
@@ -38,7 +38,13 @@
     </td>
     <td>
       {% for party_b in contract.party_b_list.all %}
-        <a href="{{ party_b.get_absolute_url }}" class="text-decoration-none"><small>{{ contract.get_party_b_display }}</small></a>
+        <a href="{{ party_b.get_absolute_url }}" class="btn btn-link position-relative text-start text-decoration-none">
+          <small>{{ contract.get_party_b_display }}</small>
+          <span class="badge rounded-pill bg-primary">
+            {{ contract.paymentterm_set.all.count }}
+            <span class="visually-hidden">Payment Terms</span>
+          </span>
+        </a>
       {% endfor %}
     </td>
     <td><small>{{ contract.get_prjct }}</small></td>

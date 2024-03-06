@@ -10,7 +10,7 @@ document.addEventListener('change', e => {
         const userName = e.target.closest('tr').querySelector('td:nth-child(2)').querySelector('small').textContent;
         const userEmail = e.target.closest('tr').querySelector('td:nth-child(3)').querySelector('small').textContent;
         
-        const msg = e.target.checked ? `deactivate the user account for [ ${userName} ] ?` : `activate the user account for [ ${userName} ] ?` ;
+        const msg = e.target.checked ? `activate the user account for [ ${userName} ] ?` : `deactivate the user account for [ ${userName} ] ?` ;
         
         const alertBtns = baseMessagesAlert(msg, 'warning', false);
         alertBtns.forEach(btn => btn.addEventListener('click', btnClickEvent => {

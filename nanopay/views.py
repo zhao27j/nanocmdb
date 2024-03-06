@@ -484,7 +484,7 @@ def contract_new(request):
 
 class ContractListView(LoginRequiredMixin, generic.ListView):
     model = Contract
-    # paginate_by = 10
+    paginate_by = 15
 
     def get_queryset(self):
         contracts = super().get_queryset()
