@@ -1,4 +1,5 @@
 # import json
+import os
 
 from django.http import JsonResponse
 
@@ -17,70 +18,92 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 
+# from nanobase.views import get_digital_copy_delete
+
 from .models import ModelType, Instance, branchSite, disposalRequest, configClass, Config
 from nanopay.models import Contract
 from nanobase.models import ChangeHistory, SubCategory, UploadedFile
+
+# --- config ---
 
 @login_required
 def config_cud(request):
     if request.method == 'POST':
         chg_log = ''
-        if request.POST.get('crud') == 'cc':
-            instance = Instance.objects.get(pk=request.POST.get('pk'))
-            instanceConfig = Config.objects.create(
-                on=timezone.now(),
-                by=request.user,
-                db_table_name=instance._meta.db_table,
-                db_table_pk=instance.pk,
-            )
-            chg_log = '1 x new Config [ ' + request.POST.get('configClass') + ' ' + request.POST.get('order') + ' ] was added'
-        elif request.POST.get('crud') == 'uc' or request.POST.get('crud') == 'dc':
+        if request.POST.get('crud') == 'dc':
             instanceConfig = Config.objects.get(pk=request.POST.get('pk'))
             instance = Instance.objects.get(pk=instanceConfig.db_table_pk)
+
+            chg_log = '1 x Config [ ' + instanceConfig.configClass.name + ' <' + instanceConfig.order + '> ' + instanceConfig.configPara + ' ]'
+
+            if UploadedFile.objects.filter(db_table_name=instanceConfig._meta.db_table, db_table_pk=instanceConfig.pk):
+                chg_log += ' with the digital copy '
+                for uploadedFile in UploadedFile.objects.filter(db_table_name=instanceConfig._meta.db_table, db_table_pk=instanceConfig.pk):
+                    uploadedFile_path = uploadedFile.digital_copy.name
+                    chg_log += uploadedFile_path + ', '
+                    if os.path.exists(uploadedFile_path):
+                        os.remove(uploadedFile_path)
+                        
+                        number_of_objects_deleted, dictionary_with_the_number_of_deletions_per_object_type = uploadedFile.delete()
+            instanceConfig.delete()
+            chg_log += ' was removed'
         else:
-            pass
-
-        for k, v in request.POST.copy().items():
-            try:
-                Config._meta.get_field(k)
-                
-                if request.POST.get('crud') == 'uc':
-                    if getattr(instanceConfig, k):
-                        from_orig = getattr(instanceConfig, k)
-                        try:
-                            Config._meta.get_field(k).related_fields
-                            from_orig = from_orig.name
-                        except AttributeError:
-                            pass
-                    else: 
-                        from_orig = '🈳'
-                    
-                    to_target = v if v != '' else '🈳'
-                    
-                    if from_orig != to_target:
-                        chg_log += 'The ' + k.capitalize() + ' of ' + instanceConfig.configClass.name + ' ' + instanceConfig.order + ' was changed from [ ' + from_orig + ' ] to [ ' + to_target + ' ]; '
-
-                if k == 'scanned_copy':
-                    chg_log += "this POST item is A scanned_copy"
-                elif k == 'configClass':
-                    instanceConfig.configClass = get_object_or_404(configClass, name=v)
-                else:
-                    setattr(instanceConfig, k, v)
-
-                instanceConfig.save()
-                
-            except FieldDoesNotExist:
+            if request.POST.get('crud') == 'cc':
+                instance = Instance.objects.get(pk=request.POST.get('pk'))
+                instanceConfig = Config.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=instance._meta.db_table,
+                    db_table_pk=instance.pk,
+                )
+                chg_log = '1 x new Config [ ' + request.POST.get('configClass') + ' <' + request.POST.get('order') + '> ' + request.POST.get('configPara') + ' ] was added'
+            elif request.POST.get('crud') == 'uc':
+                instanceConfig = Config.objects.get(pk=request.POST.get('pk'))
+                instance = Instance.objects.get(pk=instanceConfig.db_table_pk)
+            else:
                 pass
 
-        scanned_copies = request.FILES.getlist('scanned_copy')
-        for scanned_copy in scanned_copies:
-            UploadedFile.objects.create(
-                on=timezone.now(),
-                by=request.user,
-                db_table_name=instanceConfig._meta.db_table,
-                db_table_pk=instanceConfig.pk,
-                digital_copy=scanned_copy,
-            )
+            for k, v in request.POST.copy().items():
+                try:
+                    Config._meta.get_field(k)
+                    
+                    if request.POST.get('crud') == 'uc':
+                        if getattr(instanceConfig, k):
+                            from_orig = getattr(instanceConfig, k)
+                            try:
+                                Config._meta.get_field(k).related_fields
+                                from_orig = from_orig.name
+                            except AttributeError:
+                                pass
+                        else: 
+                            from_orig = '🈳'
+                        
+                        to_target = v if v != '' else '🈳'
+                        
+                        if from_orig != to_target:
+                            chg_log += 'The ' + k.capitalize() + ' of ' + instanceConfig.configClass.name + ' <' + instanceConfig.order + '> was changed from [ ' + from_orig + ' ] to [ ' + to_target + ' ]; '
+
+                    if k == 'scanned_copy':
+                        chg_log += "this POST item is A scanned_copy"
+                    elif k == 'configClass':
+                        instanceConfig.configClass = get_object_or_404(configClass, name=v)
+                    else:
+                        setattr(instanceConfig, k, v)
+
+                    instanceConfig.save()
+                    
+                except FieldDoesNotExist:
+                    pass
+
+            scanned_copies = request.FILES.getlist('scanned_copy')
+            for scanned_copy in scanned_copies:
+                UploadedFile.objects.create(
+                    on=timezone.now(),
+                    by=request.user,
+                    db_table_name=instanceConfig._meta.db_table,
+                    db_table_pk=instanceConfig.pk,
+                    digital_copy=scanned_copy,
+                )
         
         ChangeHistory.objects.create(
             on=timezone.now(),
@@ -90,10 +113,7 @@ def config_cud(request):
             detail=chg_log,
             )
 
-        response = JsonResponse({
-                "alert_msg": chg_log,
-                "alert_type": 'success',
-            })
+        response = JsonResponse({"alert_msg": chg_log, "alert_type": 'success',})
         return response
 
 

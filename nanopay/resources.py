@@ -9,6 +9,9 @@ class NonPayrollExpenseResource(resources.ModelResource):
 
     created_by = fields.Field(attribute='created_by', column_name='created_by', widget=ForeignKeyWidget(User, field='username'),)
     
+    def before_import_row(self, row, row_number=None, **kwargs):
+        pass
+
     class Meta:
         model = NonPayrollExpense
 
