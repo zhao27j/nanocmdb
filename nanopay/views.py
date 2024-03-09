@@ -218,7 +218,7 @@ def payment_request_detail_invoice_scanned_copy(request, pk):
 class PaymentRequestListView(LoginRequiredMixin, generic.ListView):
     model = PaymentRequest
     template_name = 'nanopay/payment_request_list.html'
-    paginate_by = 10
+    paginate_by = 15
 
     def get_ordering(self) -> Sequence[str]:
         # return super().get_ordering()
