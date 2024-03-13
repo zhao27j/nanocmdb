@@ -28,6 +28,8 @@ from .forms import UserProfileUpdateForm, UserCreateForm
 
 class UserListView(LoginRequiredMixin, generic.ListView):
     model = User
+    # template_name = ''
+    # paginate_by = 15
 
     # def get_queryset(self):
         # return super().get_queryset().filter(branchSite__onSiteTech=self.request.user)  # 跨多表查询

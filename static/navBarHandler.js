@@ -1,5 +1,13 @@
 'use strict'
 
+document.addEventListener('keyup', e => {
+    //if (!e.isComposing && e.ctrlKey && e.key.toLocaleLowerCase() == 'k') {
+    if (e.ctrlKey && e.key.toLocaleLowerCase() == 'k') {
+        const searchInputEl = document.querySelector("input[type='search']")
+        searchInputEl.focus();
+        searchInputEl.value = '';
+    }
+})
 
 document.querySelectorAll("a.nav-link.dropdown-toggle[role='button'][data-bs-toggle='dropdown']").forEach(e => {
 

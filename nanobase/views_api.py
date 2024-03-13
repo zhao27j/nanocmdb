@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 
 from .models import UserProfile, UserDept, ChangeHistory
+from nanoassets.models import Instance
 from nanopay.models import LegalEntity
 
 
@@ -45,6 +46,8 @@ def jsonResponse_users_getLst(request):
             user_lst['get_full_name'] = user.get_full_name()
             user_lst['email'] = user.email
             user_lst['is_active'] = user.is_active
+
+            user_lst['number_of_owned_assets'] = user.instance_set.all().count()
 
             user_lst['is_ext'] =  True if user.username != 'admin' and not 'tishmanspeyer.com' in user.email.lower() else False
 
@@ -194,6 +197,10 @@ def jsonResponse_user_getLst(request):
 
             user_selected['is_active'] = userSelected.is_active
 
+            owned_assets_lst = {}
+            for instance in userSelected.instance_set.all():
+                owned_assets_lst[instance.pk] = instance.model_type.name
+
             try:
                 userSelected.userprofile
             except User.userprofile.RelatedObjectDoesNotExist:
@@ -239,5 +246,5 @@ def jsonResponse_user_getLst(request):
         """
             # legal_entity = serializers.serialize("json", LegalEntity.objects.filter(pk=request.GET.get('legalEntityPk')))
 
-        response = [dept_lst, legal_entity_lst, user_email_lst, legal_entity_selected, user_selected, ]
+        response = [dept_lst, legal_entity_lst, user_email_lst, legal_entity_selected, user_selected, owned_assets_lst, ]
         return JsonResponse(response, safe=False)

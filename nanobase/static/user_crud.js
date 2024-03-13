@@ -21,7 +21,7 @@ document.addEventListener('dblclick', e => {
 const crudUserModalInputElAll = Array.from(crudUserModal.querySelector('.modal-body').querySelectorAll('input'));
 crudUserModalInputElAll.push(crudUserModal.querySelector('.modal-body').querySelector('textarea'));
 
-let modalInputTag, isLESelected, isUserSelected, defaultEmailDomain = '@tishmanspeyer.com', deptOptLst, LEOptLst, emailOptLst, LESelected, userSelected;
+let modalInputTag, isLESelected, isUserSelected, defaultEmailDomain = '@tishmanspeyer.com', deptOptLst, LEOptLst, emailOptLst, LESelected, userSelected, ownedAssetsLst;
 const inputChkResults = new Map();
 
 crudUserModal.addEventListener('show.bs.modal', e => {
@@ -61,6 +61,7 @@ crudUserModal.addEventListener('show.bs.modal', e => {
             emailOptLst = json[2];
             LESelected = json[3];
             userSelected = json[4];
+            ownedAssetsLst = json[5];
         }).catch(error => {console.error('Error:', error);});
 });
 
@@ -118,6 +119,18 @@ function crudUserModalInitial() {
             }
         }
     });
+
+    const crudUserModalTbody = crudUserModal.querySelector('tbody');
+    crudUserModalTbody.innerHTML = '';
+    if (ownedAssetsLst) {
+        Object.entries(ownedAssetsLst).forEach(([key, value]) => {
+            const tableTr = document.createElement('tr');
+            tableTr.innerHTML = [
+                `<td>${key}</td><td>${value}</td>`,
+            ];
+            crudUserModalTbody.appendChild(tableTr);
+        });
+    };
 
     switch (modalInputTag) {
         case 'lock_or_unlock':

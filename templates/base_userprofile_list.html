@@ -17,6 +17,7 @@
     <tr>
       <td>
         {#<input type="checkbox" name="userprofile" id="term{{ forloop.counter }}" value="{{ userprofile.user.pk }}"/>#}
+        <small>
         <div class="form-check form-switch">
           {% if userprofile.user.is_active %}
           <input class="form-check-input" type="checkbox" role="switch" name="userprofile" id="" value="{{ userprofile.user.pk }}" checked/>
@@ -25,10 +26,15 @@
           {% endif %}
           <label class="form-check-label" for=""></label>
         </div>
+        </small>
       </td>
       <td>
-        <small>{{ userprofile.user.last_name }}, {{ userprofile.user.first_name }}</small>
-        
+        <small>{{ userprofile.user.last_name }}, {{ userprofile.user.first_name }}
+          <span class="badge rounded-pill bg-secondary">
+            {{ userprofile.user.instance_set.all.count }}
+            <span class="visually-hidden">the # of Assets Instance owned</span>
+          </span>
+        </small>
       <!--
         <a href="{% url 'nanobase:user-profile-update' userprofile.pk %}" class="text-decoration-none"></a>
         <button type="button" class="btn btn-link text-decoration-none" data-bs-toggle="modal" data-bs-target="#crudUserModal" name="">

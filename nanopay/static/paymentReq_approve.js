@@ -5,10 +5,15 @@ import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesA
 
 document.addEventListener('click', e => {
     if (e.target.textContent == 'Approve') {
+
+        e.target.closest('button').disabled = true;
+        // e.target.disabled = true;
+        
         const payment_request_pk = e.target.id;
         const csrftoken = e.target.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
         
         const alertBtns = baseMessagesAlert('proceed ?', 'warning', false);
+
         alertBtns.forEach(btn => btn.addEventListener('click', btnClickEvent => {
             if (btnClickEvent.target.textContent == 'yes') {
                 const postUpdUri = window.location.origin + '/payment_request/approve/';
@@ -30,9 +35,16 @@ document.addEventListener('click', e => {
                 }).then(json => {
                     baseMessagesAlert(json.alert_msg, json.alert_type);
                     baseMessagesAlertPlaceholder.addEventListener('hidden.bs.toast', () => {
-                        location.reload();
+                        if (json.alert_type == 'success') {
+                            e.target.closest('td').innerHTML = json.approver;
+                        } else {
+                            e.target.closest('button').disabled = false;
+                        }
+                        // location.reload();
                     });
                 }).catch(error => {error ? console.error('Error:', error) : null;});
+            } else {
+                e.target.closest('button').disabled = false;
             }
         }))
     }

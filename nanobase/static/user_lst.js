@@ -56,10 +56,12 @@ function fltr(isExt) {
                 const tbodyTrTdEl = document.createElement('td');
                 if (m == '') {
                     tbodyTrTdEl.innerHTML = [
-                        `<div class="form-check form-switch">`,
-                            `<input class="form-check-input" type="checkbox" role="switch" name="userprofile" id="" value="${key}" />`,
-                            `<label class="form-check-label" for=""></label>`,
-                        `</div>`,
+                        `<samll>`,
+                            `<div class="form-check form-switch">`,
+                                `<input class="form-check-input" type="checkbox" role="switch" name="userprofile" id="" value="${key}" />`,
+                                `<label class="form-check-label" for=""></label>`,
+                            `</div>`,
+                        `</samll>`,
                     ].join('');
                     const tbodyTrInputChk = tbodyTrTdEl.querySelector('input[type=checkbox][role=switch]');
                     /*
@@ -79,9 +81,34 @@ function fltr(isExt) {
                     // <td><input type="checkbox" name="user" id="user{{ forloop.counter }}" value="{{ user.pk }}"/></td>
                 } else {
                     // tbodyTrTdEl.textContent = value[`${m}`];
-                    tbodyTrTdEl.innerHTML = value[m] == null || value[m] == '' ? '🈳' : `<small>${value[m]}</small>`;
-                    /*
-                    if (m == 'name') {
+                    // http://127.0.0.1:8000/instance_search_results/?q=li%2C+jeremy
+
+                    tbodyTrTdEl.innerHTML = value[m] == null || value[m] == '' ? '🈳' : `<small>${value[m]} </small>`;
+                    
+                    if (!isExt && m == 'name') {
+                        const badgeRoundedPillHrefEl = document.createElement('a')
+                        new Map([
+                            // ['href', `${window.location.origin}/instance_search_results/?q=${value[m].replaceAll(', ', '%2C+')}`],
+                            ['href', `${window.location.origin}/instance_search_results/?q=${value[m]}`],
+                            ['class', 'text-decoration-none'],
+                        ]).forEach((attrValue, attrKey, attrMap) => {
+                            badgeRoundedPillHrefEl.setAttribute(attrKey, attrValue);
+                        })
+                        const badgeRoundedPillSpanEl = document.createElement('span');
+                        ['badge', 'rounded-pill'].forEach(m => badgeRoundedPillSpanEl.classList.add(m));
+                        badgeRoundedPillSpanEl.classList.add(value['number_of_owned_assets'] == 1 ? 'bg-secondary' : 'bg-danger');
+                        badgeRoundedPillSpanEl.textContent = value['number_of_owned_assets'];
+
+                        badgeRoundedPillHrefEl.appendChild(badgeRoundedPillSpanEl);
+                        tbodyTrTdEl.appendChild(badgeRoundedPillHrefEl);
+                        /*
+                        tbodyTrTdEl.innerHTML += [
+                            `<span class="badge rounded-pill bg-secondary">`,
+                                // `${value['number_of_owned_assets']}`,
+                                `<span class="visually-hidden">the # of Assets Instance owned</span>`,
+                            `</span>`,
+                        ];
+                        
                         const deactivateBtn = document.createElement('button');
                         ['btn', 'btn-link', 'text-decoration-none'].forEach(m => deactivateBtn.classList.add(m));
                         new Map([
@@ -105,8 +132,8 @@ function fltr(isExt) {
                             ].join('')
                         }
                         tbodyTrTdEl.appendChild(deactivateBtn);
+                        */
                     }
-                    */
                 }
                 tbodyTrEl.appendChild(tbodyTrTdEl);
             })

@@ -144,6 +144,7 @@ def paymentReq_approve(request):
                 response = JsonResponse({
                     "alert_msg": 'the Approval decision for the Payment Request [ ' + str(payment_request.id) + ' ] was sent',
                     "alert_type": 'success',
+                    "approver": request.user.get_full_name(),
                 })
             else:
                 messages.info(request, 'the Approval decision for the Payment Request [ ' + str(payment_request.id) + ' ] was NOT sent dur to some errors')
