@@ -19,7 +19,7 @@ document.addEventListener('change', e => {
                 const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
 
                 const formData = new FormData();
-                formData.append('email', userEmail);
+                formData.append('email', userEmail.trim());
                 formData.append('lock_or_unlock', true);
 
                 fetch(postUpdUri, {

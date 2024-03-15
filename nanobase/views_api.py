@@ -48,6 +48,8 @@ def jsonResponse_users_getLst(request):
             user_lst['is_active'] = user.is_active
 
             user_lst['number_of_owned_assets'] = user.instance_set.all().count()
+            user_lst['number_of_owned_assets_pc'] = user.instance_set.filter(model_type__sub_category__name__icontains='computer').count()  # 跨多表查询
+            user_lst['number_of_owned_assets_other'] = user.instance_set.exclude(model_type__sub_category__name__icontains='computer').count()    # 跨多表查询
 
             user_lst['is_ext'] =  True if user.username != 'admin' and not 'tishmanspeyer.com' in user.email.lower() else False
 

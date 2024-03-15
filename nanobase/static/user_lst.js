@@ -83,7 +83,7 @@ function fltr(isExt) {
                     // tbodyTrTdEl.textContent = value[`${m}`];
                     // http://127.0.0.1:8000/instance_search_results/?q=li%2C+jeremy
 
-                    tbodyTrTdEl.innerHTML = value[m] == null || value[m] == '' ? '🈳' : `<small>${value[m]} </small>`;
+                    tbodyTrTdEl.innerHTML = value[m] == null || value[m] == '' ? '🈳' : `<small>${value[m]}</small>`;
                     
                     if (!isExt && m == 'name') {
                         const badgeRoundedPillHrefEl = document.createElement('a')
@@ -93,13 +93,25 @@ function fltr(isExt) {
                             ['class', 'text-decoration-none'],
                         ]).forEach((attrValue, attrKey, attrMap) => {
                             badgeRoundedPillHrefEl.setAttribute(attrKey, attrValue);
-                        })
-                        const badgeRoundedPillSpanEl = document.createElement('span');
-                        ['badge', 'rounded-pill'].forEach(m => badgeRoundedPillSpanEl.classList.add(m));
-                        badgeRoundedPillSpanEl.classList.add(value['number_of_owned_assets'] == 1 ? 'bg-secondary' : 'bg-danger');
-                        badgeRoundedPillSpanEl.textContent = value['number_of_owned_assets'];
+                        });
+                        [value['number_of_owned_assets_pc'], value['number_of_owned_assets_other']].forEach((number_of_owned_assets, index, array) => {
+                            const badgeRoundedPillSpanEl = document.createElement('span');
+                            new Map([
+                                ['class', 'badge rounded-pill ms-1'],
+                                ['data-bs-toggle', 'tooltip'],
+                                ['data-bs-placement', 'top'],
+                                ['data-bs-custom-class', 'custom-tooltip'],
+                                ['data-bs-html', 'true'],
+                                ['data-bs-title', `${index == 0 ? 'PC' : 'Others'}`],
+                            ]).forEach((attrValue, attrKey, attrMap) => {
+                                badgeRoundedPillSpanEl.setAttribute(attrKey, attrValue);   // tier1Btn.innerHTML = `<small>Supported +</small>`;
+                            });
+                            // ['badge', 'rounded-pill', 'ms-1', ].forEach(m => badgeRoundedPillSpanEl.classList.add(m));
+                            badgeRoundedPillSpanEl.classList.add(number_of_owned_assets == 1 ? 'bg-secondary' : 'bg-danger');
+                            badgeRoundedPillSpanEl.textContent = number_of_owned_assets;
 
-                        badgeRoundedPillHrefEl.appendChild(badgeRoundedPillSpanEl);
+                            badgeRoundedPillHrefEl.appendChild(badgeRoundedPillSpanEl);
+                        })
                         tbodyTrTdEl.appendChild(badgeRoundedPillHrefEl);
                         /*
                         tbodyTrTdEl.innerHTML += [
@@ -140,5 +152,9 @@ function fltr(isExt) {
             userProfileTbody.appendChild(tbodyTrEl);
         }
     });
+    
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
     return msg;
 }
