@@ -4,9 +4,6 @@ import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesA
 'use strict'
 
 const userLstSwitch = document.querySelector('#userLstSwitch');
-userLstSwitch.disabled = true;
-
-getUserLstAsync(userLstSwitch);
 
 async function getUserLstAsync(trgr) {
     const getUri = window.location.origin + '/json_response/users_getLst/';
@@ -16,10 +13,10 @@ async function getUserLstAsync(trgr) {
             const usersLst = new Map(Object.entries(json[0]));
             // num_of = new Map(Object.entries(json[1]));
 
+            baseMessagesAlert(fltr(usersLst, trgr.checked, [true, false, ]), 'success');
             trgr.disabled = false;
-            trgr.addEventListener('change', e => {baseMessagesAlert(fltr(usersLst, e.target.checked, [true, false, ]), 'success');});
+            trgr.parentElement.querySelector('div.spinner-border').remove();
             
-            // baseMessagesAlert('the data for User List is ready', 'success');
         } else {
             baseMessagesAlert("the data for User List is NOT ready", 'danger');
         }
@@ -27,6 +24,27 @@ async function getUserLstAsync(trgr) {
         console.error('There was a problem with the async operation:', error);
     }
 }
+
+userLstSwitch.addEventListener('change', e => {
+    userLstSwitch.disabled = true;
+    
+    const spinnerEl = document.createElement('div');
+    
+    new Map([
+        ['class', 'spinner-border spinner-border-sm text-secondary'],
+        ['role', 'status'],
+    ]).forEach((attrValue, attrKey, attrMap) => {
+        spinnerEl.setAttribute(attrKey, attrValue);
+    });
+
+    spinnerEl.innerHTML = [
+        `<span class="visually-hidden">Loading...</span>`,
+    ].join('');
+
+    userLstSwitch.parentNode.insertBefore(spinnerEl, userLstSwitch);
+
+    getUserLstAsync(userLstSwitch);
+});
 
 /*
 fetch(getLstUri
