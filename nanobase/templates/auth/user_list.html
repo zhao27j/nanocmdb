@@ -21,7 +21,12 @@
 
 {% if user|has_group:"IT China" %}
 
-<h3>all Users
+<h3>
+  <em>all Users</em>
+  <span class="badge rounded-pill bg-secondary fs-6">
+    {{ userprofiles.count }}
+    <span class="visually-hidden fs-6">all Users</span>
+  </span>
   <!--
   <button type="button" id="legalEntitiesBtnByType" class="btn btn-outline-secondary btn-sm" style="display: inline-block">by Type</button>
   <button type="button" id="legalEntitiesBtnByPrjct" class="btn btn-outline-secondary btn-sm" style="display: inline-block">by Project</button>
@@ -32,7 +37,7 @@
   </div>
 </h3>
 
-<div class="accordion accordion-flush" id="">
+<div class="accordion accordion-flush" id="accordionUserLst">
   {% include 'base_userprofile_list.html' with userprofiles=userprofiles %}
 </div>
 

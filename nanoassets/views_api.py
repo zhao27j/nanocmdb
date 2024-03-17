@@ -142,6 +142,8 @@ def jsonResponse_config_getLst(request):
         return JsonResponse(response, safe=False)
 
 
+# --- instance list ---
+
 @login_required
 def jsonResponse_instance_lst(request):
     if request.method == 'GET':

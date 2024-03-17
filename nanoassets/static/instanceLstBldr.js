@@ -93,7 +93,7 @@ async function getAllInstanceLstAsync() {
                 }
             });
 
-            baseMessagesAlert('the data for supported + is ready', 'success');
+            // baseMessagesAlert('the data for supported + is ready', 'success');
         } else {
             baseMessagesAlert("the data for supported + is NOT ready", 'danger');
         }

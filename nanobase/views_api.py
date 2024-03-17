@@ -35,8 +35,17 @@ def jsonResponse_requester_permissions(request):
 @login_required
 def jsonResponse_users_getLst(request):
     if request.method == 'GET':
+        """
+        num_of_user = {}
+        num_of_user['all'] = User.objects.exclude(username__icontains='admin').count()
+        num_of_user['all_active'] = User.objects.exclude(username__icontains='admin').filter(is_active=True).count()
+        num_of_user['ext'] = User.objects.exclude(username__icontains='admin').exclude(email__icontains='tishmanspeyer.com').count()
+        num_of_user['ext_active'] = User.objects.exclude(username__icontains='admin').exclude(email__icontains='tishmanspeyer.com').filter(is_active=True).count()
+        num_of_user['int'] = User.objects.exclude(username__icontains='admin').filter(email__icontains="tishmanspeyer.com").count()
+        num_of_user['int_active'] = User.objects.exclude(username__icontains='admin').filter(email__icontains="tishmanspeyer.com").filter(is_active=True).count()
+        """
 
-        response = {}
+        users_lst = {}
         for user in User.objects.exclude(username__icontains='admin'):
             user_lst = {}
             user_lst['username'] = user.username
@@ -61,9 +70,11 @@ def jsonResponse_users_getLst(request):
             user_lst['legal_entity'] = user.userprofile.legal_entity.name if user.userprofile.legal_entity else ''
             user_lst['postal_addr'] = user.userprofile.postal_addr
 
-            # response.append(json.loads(serialize("json", user_lst)))
-            # response.append(user_lst)
-            response[user.pk] = user_lst
+            # users_lst.append(json.loads(serialize("json", user_lst)))
+            # users_lst.append(user_lst)
+            users_lst[user.pk] = user_lst
+
+        response = [users_lst, ]
 
     return JsonResponse(response, safe=False)
 
