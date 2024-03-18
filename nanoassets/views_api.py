@@ -147,7 +147,7 @@ def jsonResponse_config_getLst(request):
 @login_required
 def jsonResponse_instance_lst(request):
     if request.method == 'GET':
-        instances = Instance.objects.filter(branchSite__onSiteTech=request.user)  # 跨多表查询
+        instances = Instance.objects.exclude(status__icontains="buyBACK").filter(branchSite__onSiteTech=request.user)  # 跨多表查询
 
         instance_lst = {}
         # owner_lst = {}

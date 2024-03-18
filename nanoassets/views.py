@@ -162,7 +162,7 @@ class InstanceByTechListView(LoginRequiredMixin, generic.ListView):
         return context
 
     def get_queryset(self):
-        return super().get_queryset().filter(branchSite__onSiteTech=self.request.user)  # 跨多表查询
+        return super().get_queryset().exclude(status__icontains="buyBACK").filter(branchSite__onSiteTech=self.request.user)  # 跨多表查询
 
 
 class InstanceByUserListView(LoginRequiredMixin, generic.ListView):

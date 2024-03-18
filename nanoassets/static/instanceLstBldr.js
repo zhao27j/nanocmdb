@@ -3,10 +3,26 @@ import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesA
 
 'use strict'
 
+if (document.querySelector('#dropdownItemPlaceholderForSupportedPlusInstanceList')) {
+    const dropdownItemBtn = document.createElement('button');
+    new Map([
+        ['class', 'dropdown-item'],
+        ['type', 'button'],
+        ['disabled', 'true'],
+    ]).forEach((attrValue, attrKey, attrMap) => {
+        dropdownItemBtn.setAttribute(attrKey, attrValue);
+    });
+    dropdownItemBtn.innerHTML = [
+        `<span role="status"><small>Supported + </small></span>`,
+        `<span class="spinner-border spinner-border-sm text-secondary" aria-hidden="true"></span>`,
+    ].join('');
 
-if (document.querySelector('#dropdownItemPlaceholderForSupportedPlusInstanceList')) {getAllInstanceLstAsync();}
+    document.querySelector('#dropdownItemPlaceholderForSupportedPlusInstanceList').appendChild(dropdownItemBtn);
 
-async function getAllInstanceLstAsync() {
+    getAllInstanceLstAsync(dropdownItemBtn);
+}
+
+async function getAllInstanceLstAsync(dropdownItemBtn) {
     let instance_lst, owner_lst, status_lst, model_type_lst, sub_category_lst, manufacturer_lst, branchSite_lst, contract_lst;
     let classLst, classBy;
 
@@ -22,15 +38,8 @@ async function getAllInstanceLstAsync() {
             branchSite_lst = new Map(Object.entries(json[5]));
             contract_lst = new Map(Object.entries(json[6]));
 
-            const dropdownItemBtn = document.createElement('button');
-            new Map([
-                ['class', 'dropdown-item'],
-                ['type', 'button'],
-            ]).forEach((attrValue, attrKey, attrMap) => {
-                dropdownItemBtn.setAttribute(attrKey, attrValue);
-                dropdownItemBtn.innerHTML = `<small>Supported +</small>`;
-            });
-            document.querySelector('#dropdownItemPlaceholderForSupportedPlusInstanceList').appendChild(dropdownItemBtn);
+            dropdownItemBtn.disabled = false;
+            dropdownItemBtn.querySelector('span.spinner-border').remove();
 
             const grpBy = new Map([
                 ['status', status_lst],
