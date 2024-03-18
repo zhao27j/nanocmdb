@@ -200,6 +200,7 @@ def user_crud(request):
 def jsonResponse_user_getLst(request):
     if request.method == 'GET':
         user_selected = {}
+        owned_assets_lst = {}
         if request.GET.get('userPk'):
             userSelected = User.objects.get(pk=request.GET.get('userPk'))
 
@@ -210,7 +211,6 @@ def jsonResponse_user_getLst(request):
 
             user_selected['is_active'] = userSelected.is_active
 
-            owned_assets_lst = {}
             for instance in userSelected.instance_set.all():
                 owned_assets_lst[instance.pk] = instance.model_type.name
 

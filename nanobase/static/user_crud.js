@@ -97,6 +97,10 @@ function crudUserModalInitial() {
 
         inputChkResults.set(modalInputEl.id, false);
         if (modalInputTag == 'new') {
+            if (['legal_entity', 'title', 'dept', 'cellphone', 'work_phone', 'postal_addr', ].some((element, index, array) => {return element == modalInputEl.id})) {
+                // modalInputEl.disabled = true;
+                inputChkResults.set(modalInputEl.id, 'Opt');
+            }
             if (isLESelected && modalInputEl.id == 'legal_entity') {
                 modalInputEl.value = LESelected.name;
                 modalInputEl.disabled = true;
@@ -153,13 +157,15 @@ function crudUserModalInitial() {
     return null;
 }
 
-crudUserModal.addEventListener('shown.bs.modal', e => {crudUserModalInitial();})
+crudUserModal.addEventListener('shown.bs.modal', e => {crudUserModalInitial();}) // Initiate the Modal when showing
 
 crudUserModalInputElAll.forEach(m => m.addEventListener('blur', e => inputChk(e.target, crudUserModalBtnSubmit)));
-crudUserModalBtnSubmit.addEventListener('focus', e => {crudUserModalInputElAll.forEach(m => inputChk(m, crudUserModalBtnSubmit));});
+// crudUserModalBtnSubmit.addEventListener('focus', e => {crudUserModalInputElAll.forEach(m => inputChk(m, crudUserModalBtnSubmit));});
 
 crudUserModalBtnSubmit.addEventListener('click', e => {
-    if (e.target.textContent == 'submit') {
+    crudUserModalInputElAll.forEach(m => inputChk(m, crudUserModalBtnSubmit));
+
+    if (!e.target.disabled && e.target.textContent == 'submit') {
         if (Array.from(inputChkResults.values()).every((element, index, array) => {return element != false;}) && !Array.from(inputChkResults.values()).every((element, index, array) => {return element == 'noChg';})) {
             crudUserModal.querySelector("h1.modal-title").textContent = 'review & confirm';
             crudUserModalInputElAll.forEach(modalInputEl => {

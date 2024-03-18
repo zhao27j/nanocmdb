@@ -134,13 +134,14 @@ modalBtnNext.addEventListener('focus', e => {modalInputElAll.forEach(inputEl => 
     modalBtnNext.classList.toggle('disabled', crud != 'dc' && (if_some_required_input_is_false || if_all_required_input_is_noChg));
 });});
 */
-modalBtnNext.addEventListener('click', e => {modalInputElAll.forEach(inputEl => { // Input validation when Next button gets focus 在Next按钮获得焦点时进行输入验证
-    const optLst = inputEl.list && inputEl.id == 'configClass' ? configClass_lst : null;
-    inputChkResults[inputEl.id] = inputChk(inputEl, optLst, details[inputEl.id] ? details[inputEl.id] : '');
-    if_some_required_input_is_false = Object.values(inputChkResults).some((element, index, array) => {return element == false;});
-    if_all_required_input_is_noChg = Object.values(inputChkResults).every((element, index, array) => {return element == 'noChg';});
-    // const if_all_required_input_is_noChg =  (inputChkResults.configClass == 'noChg' && inputChkResults.configPara == 'noChg') ? true : false;
-    modalBtnNext.classList.toggle('disabled', crud != 'dc' && (if_some_required_input_is_false || if_all_required_input_is_noChg));
+modalBtnNext.addEventListener('click', e => {
+    modalInputElAll.forEach(inputEl => { // Input validation when Next button gets focus 在Next按钮获得焦点时进行输入验证
+        const optLst = inputEl.list && inputEl.id == 'configClass' ? configClass_lst : null;
+        inputChkResults[inputEl.id] = inputChk(inputEl, optLst, details[inputEl.id] ? details[inputEl.id] : '');
+        if_some_required_input_is_false = Object.values(inputChkResults).some((element, index, array) => {return element == false;});
+        if_all_required_input_is_noChg = Object.values(inputChkResults).every((element, index, array) => {return element == 'noChg';});
+        // const if_all_required_input_is_noChg =  (inputChkResults.configClass == 'noChg' && inputChkResults.configPara == 'noChg') ? true : false;
+        modalBtnNext.classList.toggle('disabled', crud != 'dc' && (if_some_required_input_is_false || if_all_required_input_is_noChg));
     });
 
     if (e.target.textContent == 'next'){
