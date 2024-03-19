@@ -484,7 +484,7 @@ def jsonResponse_legalEntities_getLst(request):
 
 
 @login_required
-def legal_entity(request):
+def legalEntity_cu(request):
     if request.method == 'POST':
         # legal_entity, created = LegalEntity.objects.get_or_create(name=request.POST.get('name'))
         chg_log = ''
@@ -528,7 +528,7 @@ def legal_entity(request):
                 pass
 
             if k == 'contact' and v != '':
-                username = request.POST.get('contact').split("-")[-1].split("@")[0].strip() if 'tishmanspeyer.com' in request.POST.get('contact') else request.POST.get('contact').split("-")[-1].strip()
+                username = request.POST.get('contact').split(":")[-1].split("@")[0].strip() if 'tishmanspeyer.com' in request.POST.get('contact') else request.POST.get('contact').split(":")[-1].strip()
                 contact = User.objects.get(username=username)
                 if UserProfile.objects.filter(user=contact).exists():
                     contact.userprofile.legal_entity = legal_entity
@@ -543,8 +543,6 @@ def legal_entity(request):
                         user_profile.save()
                 except UserProfile.DoesNotExist:
                     pass
-
-                
 
         ChangeHistory.objects.create(
             on=timezone.now(),
@@ -585,9 +583,9 @@ def jsonResponse_legalEntity_getLst(request):
             if  external_contact.username != 'admin' and not 'tishmanspeyer.com' in external_contact.email.lower():
                 if hasattr(external_contact, "userprofile"):
                     if not external_contact.userprofile.legal_entity:
-                        external_contact_lst['%s - %s' % (external_contact.get_full_name(), external_contact.email)] = external_contact.pk
+                        external_contact_lst['%s : %s' % (external_contact.get_full_name(), external_contact.email)] = external_contact.pk
                 else:
-                    external_contact_lst['%s - %s' % (external_contact.get_full_name(), external_contact.email)] = external_contact.pk
+                    external_contact_lst['%s : %s' % (external_contact.get_full_name(), external_contact.email)] = external_contact.pk
 
         legal_entity = {}
         if request.GET.get('legalEntityPk'):

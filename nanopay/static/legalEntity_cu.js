@@ -19,7 +19,7 @@ const legalEntityModalInst = bootstrap.Modal.getOrCreateInstance(legalEntityModa
 const legalEntitiesTbl = document.querySelector("#legalEntitiesAccordion");
 
 document.addEventListener('dblclick', e => {
-    if (legalEntitiesTbl) {
+    if (legalEntitiesTbl && e.target.closest("tr")) {
         legalEntitiesTblTrDblClckd = e.target.closest("tr");
         if (legalEntitiesTblTrDblClckd.querySelector("input[type='checkbox']")) {
             legalEntityPk = legalEntitiesTblTrDblClckd.querySelector("input[type='checkbox']").value;
@@ -42,7 +42,7 @@ legalEntityModal.addEventListener('show.bs.modal', (e) => {
         getLstUri += `?legalEntityPk=${legalEntityPk}`;
     }
 
-    postUpdUri = window.location.origin + '/legal_entity/';
+    postUpdUri = window.location.origin + '/legal_entity/cu/';
 
     fetch(getLstUri
     ).then(response => {

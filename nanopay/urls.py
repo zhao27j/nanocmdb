@@ -54,7 +54,7 @@ urlpatterns += {
     path('contract/mail_me_the_assets_list/', views_api.contract_mail_me_the_assets_list, name='contract-mail-me-the-assets-list'),
 
     path('json_response/legalEntity_getLst/', views_api.jsonResponse_legalEntity_getLst, name='jsonResponse-legalEntity-getLst'),
-    path('legal_entity/', views_api.legal_entity, name='legal-entity'),
+    path('legal_entity/cu/', views_api.legalEntity_cu, name='legal-entity-cu'),
 
     path('json_response/legalEntities_getLst/', views_api.jsonResponse_legalEntities_getLst, name='jsonResponse-legalEntities-getLst'),
 }

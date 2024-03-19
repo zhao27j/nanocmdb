@@ -222,6 +222,7 @@ newAssetsModalNext.addEventListener('shown.bs.modal', () => {
 })
 
 newAssetsModalNext.querySelector("input[type='checkbox']:checked").addEventListener('change', e => {
+    const newAssetsModalNextTbl = newAssetsModalNext.querySelector('table');
     let i = 0, newAssetsModalNextTblTr = newAssetsModalNextTbl.querySelector('tr');
     while(newAssetsModalNextTblTr.nextElementSibling) {
         newAssetsModalNextTblTr = newAssetsModalNextTblTr.nextElementSibling;

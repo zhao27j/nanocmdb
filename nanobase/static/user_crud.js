@@ -9,7 +9,7 @@ let selectedUserProfileTrEl, userPk;
 
 const userProfileTbl = document.querySelector("#userProfileTbl");
 document.addEventListener('dblclick', e => {
-    if (userProfileTbl) {
+    if (userProfileTbl && e.target.closest('tr')) {
         selectedUserProfileTrEl = e.target.closest('tr');
         if (selectedUserProfileTrEl.querySelector("input[type='checkbox']")) {
             userPk = selectedUserProfileTrEl.querySelector("input[type='checkbox']").value;
