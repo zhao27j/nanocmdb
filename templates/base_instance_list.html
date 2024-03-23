@@ -79,7 +79,7 @@
       <td id="branchSiteInstance{{ instance.pk }}"><small>{{ instance.branchSite }}</small></td>
       {% if user|has_group:"IT China" and request.user.is_staff %}
       <td id="contractInstance{{ instance.pk }}">
-        &nbsp;
+        <!-- &nbsp; -->
         {% if instance.contract_set.first %}
           <!-- {% for contract in instance.contract_set.all %}
             {% if contract.type in 'MNR' %}
@@ -92,8 +92,21 @@
             </a>
             {% endif %}
           {% endfor %} -->
-          <a href="{% url 'nanopay:contract-detail' instance.contract_set.first.pk %}" class="text-decoration-none">
-            <small>{{ instance.contract_set.first.get_type_display }}</small>
+          <a href="{% url 'nanopay:contract-detail' instance.contract_set.first.pk %}" class="text-decoration-none"
+              data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
+              data-bs-title="<small>{{ instance.contract_set.first.get_type_display }}</small>"
+          >
+            {% if instance.contract_set.first.get_time_remaining_in_percent == 'pay-as-you-go' %}
+            <small>[ {{ instance.contract_set.first.get_time_remaining_in_percent }} ]</small>
+            {% elif instance.contract_set.first.get_time_remaining_in_percent > 0 %}
+            <div class="progress" role="progressbar" aria-label="Info example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-bar bg-info" style="width: {{ instance.contract_set.first.get_time_remaining_in_percent }}%">{{ instance.contract_set.first.get_time_remaining_in_percent }}%</div>
+            </div>
+            {% elif instance.contract_set.first.get_time_remaining_in_percent <= 0 %}
+            <div class="progress" role="progressbar" aria-label="Info example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-bar bg-danger" style="width: {{ instance.contract_set.first.get_time_remaining_in_percent }}%">{{ instance.contract_set.first.get_time_remaining_in_percent }}%</div>
+            </div>
+            {% endif %}
           </a>
         {% else %}
         <small>🈳</small>

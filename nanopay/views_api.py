@@ -296,7 +296,9 @@ def jsonResponse_paymentReq_getLst(request):
         details['nPE'] = paymentTerm_last.paymentrequest_set.first().non_payroll_expense.description if paymentTerm_last.paymentrequest_set.first() else ""
 
         nPE_lst = {}
-        for nPE in NonPayrollExpense.objects.filter(non_payroll_expense_year=timezone.now().year, non_payroll_expense_reforecasting=get_reforecasting()):
+        # get nPE list based on the payDay of paymentTerm 根据 paymentTerm 的 payDay 获取 nPE 清单
+        for nPE in NonPayrollExpense.objects.filter(non_payroll_expense_year=paymentTerm.pay_day.year, non_payroll_expense_reforecasting=get_reforecasting(paymentTerm.pay_day.year)):
+        # for nPE in NonPayrollExpense.objects.filter(non_payroll_expense_year=timezone.now().year, non_payroll_expense_reforecasting=get_reforecasting(timezone.now().year)):
             # nPE_lst.append(nPE.description)
             nPE_lst[nPE.description] = str(nPE.non_payroll_expense_year) + '---' + str(nPE.non_payroll_expense_reforecasting)
         
@@ -318,7 +320,8 @@ def decimal_to_month(decimal):
     return calendar.month_abbr[month_number].lower()
 
 
-def get_reforecasting(nPE_yr):
+# get Qx reForecasting based on the current month and given year (default the current year) 根据当前 月份 确定所提供 年份 (默认是当前 年份) 的 reForecasting Qx值
+def get_reforecasting(nPE_yr = timezone.now().year):
     if 1 <= timezone.now().month <= 3:
         reforecastings = ['Q0']
     elif 4 <= timezone.now().month <= 6:

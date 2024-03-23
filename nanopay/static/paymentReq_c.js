@@ -50,6 +50,9 @@ function initModal(e) {
             dataListOpt.textContent = key;
             nPEDatalist.appendChild(dataListOpt);
         });
+        const budgetYr = new Date(details.pay_day); // get the Year of the Pay Day set in the Payment Term as the Budget Year 从 Payment Term 的 Pay Day 字段 获取 年份 作为 预算年
+        // const budgetYr = new Date(); // get the Year from the current date as the Budget Year 从 当前 日期 获取 年份 作为 预算年
+        nPEDatalist.parentElement.querySelector('label em').innerText = ` of current budget year ${budgetYr.getFullYear()}`;
         scanned_copy.value = '';
         const progressBar = paymentReqModal.querySelector('.progress-bar');
         if (details.contract_remaining > 0) {
