@@ -209,7 +209,7 @@ function inputChk(inputEl, btn) {
         inputEl.value = inputEl.value.trim();
 
         if (inputEl.closest('.row').querySelector('label').textContent == 'email') {
-            inputEl.value = inputEl.value.trim().replaceAll(/[`~!#$%^&*()+=\[\]\\{}|;':",/<>? ·~！#￥%……&*（）——+=【】、{}|；‘：“，。、《》？]/g,'');
+            inputEl.value = inputEl.value.trim().replaceAll(/[`~!#$%^&*()+=\[\]\\{}|;':",/<>? ·~！#￥%……&*（）——+=【】、{}|；‘：“，。、《》？]/g,''); // regExp 正则表达式
 
             inputEl.value != '' && !inputEl.value.includes('@') ? inputEl.value += defaultEmailDomain : null;
             
@@ -223,8 +223,10 @@ function inputChk(inputEl, btn) {
                 inputChkResults.set('legal_entity', modalInputTag);
                 // inputEl.closest('.modal-body').querySelector('#legal_entity').value = '';
             }
+        } else if (inputEl.closest('.row').querySelector('label').textContent.includes('phone')) {
+            inputEl.value = inputEl.value.trim().replaceAll(/[`~!@$%^&*=\[\]\\{}|;:",./<>?·~！@#￥%……&*（）——=【】、{}|；‘：“，。、《》？]/g,''); // regExp 正则表达式
         } else {
-            inputEl.value = inputEl.value.trim().replaceAll(/[`~!@#$%^&*()+=\[\]\\{}|;:",./<>?·~！@#￥%……&*（）——+=【】、{}|；‘：“，。、《》？]/g,'');
+            inputEl.value = inputEl.value.trim().replaceAll(/[`~!@#$%^&*()+=\[\]\\{}|;:",./<>?·~！@#￥%……&*（）——+=【】、{}|；‘：“，。、《》？]/g,''); // regExp 正则表达式
         }
 
         if (inputChkResult && inputEl.required && inputEl.value == '') {
@@ -259,14 +261,14 @@ function inputChk(inputEl, btn) {
             case 'dept':
                 break;
             case 'cellphone':
-                if (inputChkResult && inputEl.value.length > 11) {
-                    inputChkAlert = `the given Mobile Phone # [ ${inputEl.value} ] is > 11 characters`;
+                if (inputChkResult && inputEl.value.length > 32) {
+                    inputChkAlert = `the given Mobile Phone # [ ${inputEl.value} ] is > 32 characters`;
                     inputChkResult = false;
                 }
                 break;
             case 'work_phone':
-                if (inputChkResult && inputEl.value.length > 8) {
-                    inputChkAlert = `the given Work Phone # [ ${inputEl.value} ] is > 8 characters`;
+                if (inputChkResult && inputEl.value.length > 32) {
+                    inputChkAlert = `the given Work Phone # [ ${inputEl.value} ] is > 32 characters`;
                     inputChkResult = false;
                 }
                 break;
@@ -341,7 +343,7 @@ crudUserModalBtnOk.addEventListener('click', e => {
     }).then(json => {
         baseMessagesAlert(json.alert_msg, json.alert_type);
         baseMessagesAlertPlaceholder.addEventListener('hidden.bs.toast', () => {
-            location.reload();
+            // location.reload();
         });
         /*
         const thLst = new Map();
