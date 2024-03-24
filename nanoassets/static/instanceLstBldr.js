@@ -3,9 +3,6 @@ import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesA
 
 'use strict'
 
-const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-
 if (document.querySelector('#dropdownItemPlaceholderForSupportedPlusInstanceList')) {
     const dropdownItemBtn = document.createElement('button');
     new Map([
@@ -349,4 +346,7 @@ function reLst(accordion, lst, by, byTg) {
 
     accordionItem.querySelector('div.accordion-body').appendChild(table);
     accordion.appendChild(accordionItem);
+
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 }

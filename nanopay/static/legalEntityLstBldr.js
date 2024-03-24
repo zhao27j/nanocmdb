@@ -1,34 +1,43 @@
+import { getJsonResponseApiData } from './getJsonResponseApiData.js';
 import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesAlert.js';
 
 'use strict'
 
 let legalEntities, legalEntityTypes, legalEntityPrjcts, legalEntitiesCntcts;
 
-const getLstUri = window.location.origin + '/json_response/legalEntities_getLst/';
+async function getLegalEntityAsync(grpByTrgr) {
+    const getUri = window.location.origin + '/json_response/legalEntities_getLst/';
+    try {
+        const json = await getJsonResponseApiData(getUri);
+        if (json) {
+            const usersLst = new Map(Object.entries(json[0]));
+            // num_of = new Map(Object.entries(json[1]));
+            legalEntities = json[0];
+            legalEntityTypes = new Map(Object.entries(json[1]));
+            legalEntityPrjcts = new Map(Object.entries(json[2]));
+            legalEntityPrjcts.set("None", null);
+            legalEntitiesCntcts = new Map(Object.entries(json[3]));
 
-fetch(getLstUri
-    ).then(response => {
-        if (response.ok) {
-            return response.json();
+            const legalEntitiesAccordion = document.querySelector("#legalEntitiesAccordion");
+
+            if (grpByTrgr == 'prjct') {
+                baseMessagesAlert(reGrp(legalEntitiesAccordion, 'prjct', ['name', 'type', 'code']), 'success')
+            } else {
+                baseMessagesAlert(reGrp(legalEntitiesAccordion, 'type', ['name', 'prjct', 'code']), 'success')
+            }
+            // trgr.disabled = false;
+            // trgr.parentElement.querySelector('div.spinner-border').remove();
+            
         } else {
-            throw new Error(`HTTP error: ${response.status}`);
+            baseMessagesAlert("the data for Legal Entity List is NOT ready", 'danger');
         }
-    }).then(json => {
-        legalEntities = json[0];
-        legalEntityTypes = new Map(Object.entries(json[1]));
-        legalEntityPrjcts = new Map(Object.entries(json[2]));
-        legalEntityPrjcts.set("None", null);
-        legalEntitiesCntcts = new Map(Object.entries(json[3]));
-    }).catch(error => {console.error('Error:', error);})
+    } catch (error) {
+        console.error('There was a problem with the async operation:', error);
+    }
+}
 
-const legalEntitiesBtnByPrjct = document.querySelector("#legalEntitiesBtnByPrjct");
-const legalEntitiesBtnByType = document.querySelector("#legalEntitiesBtnByType");
-
-const legalEntitiesAccordion = document.querySelector("#legalEntitiesAccordion");
-
-legalEntitiesBtnByPrjct.addEventListener('click', e => baseMessagesAlert(reGrp(legalEntitiesAccordion, 'prjct', ['name', 'type', 'code']), 'success'));
-
-legalEntitiesBtnByType.addEventListener('click', e => baseMessagesAlert(reGrp(legalEntitiesAccordion, 'type', ['name', 'prjct', 'code']), 'success'));
+document.querySelector("#legalEntitiesBtnByPrjct").addEventListener('click', e => getLegalEntityAsync('prjct'));
+document.querySelector("#legalEntitiesBtnByType").addEventListener('click', e => getLegalEntityAsync('type'));
 
 function reGrp(accordionEl, grpByTag, cols) {
     // if (grpByTag == 'Type') {tableTh = 'Project';} else if (grpByTag == 'Project') {tableTh = 'Type';}
