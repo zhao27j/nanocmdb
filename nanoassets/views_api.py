@@ -177,8 +177,15 @@ def jsonResponse_instance_lst(request):
                 elif field.name == 'contract':
                     # instance_lst[instance.pk]['contract'] = {instance.contract_set.first().pk: instance.contract_set.first().get_type_display()} if instance.contract_set.all() else {}
                     if instance.contract_set.all():
+                        instance_lst[instance.pk]['contract'] = {}
                         # instance_lst[instance.pk]['contract'] = instance.contract_set.first().get_type_display()
-                        instance_lst[instance.pk]['contract'] = {instance.contract_set.first().pk: instance.contract_set.first().get_type_display()}
+                        # instance_lst[instance.pk]['contract'] = {instance.contract_set.first().pk: instance.contract_set.first().get_type_display()}
+
+                        # instance_lst[instance.pk]['contract']['pk'] = instance.contract_set.first().pk
+                        instance_lst[instance.pk]['contract']['get_type_display'] = instance.contract_set.first().get_type_display()
+                        instance_lst[instance.pk]['contract']['get_time_remaining_in_percent'] = instance.contract_set.first().get_time_remaining_in_percent()
+                        instance_lst[instance.pk]['contract']['get_absolute_url'] = instance.contract_set.first().get_absolute_url()
+                        
                         contract_lst[instance.contract_set.first().briefing] = instance.contract_set.first().pk
                     else:
                         # instance_lst[instance.pk]['contract'] = ''

@@ -493,6 +493,11 @@ class ContractListView(LoginRequiredMixin, generic.ListView):
                 contract.type = 'E'
                 contract.save()
 
+            # add Value to the Result of get_queryset / 在 get_queryset 中 添加 值
+            if contract.paymentterm_set.all():
+                contract.paymentTerm_all = contract.paymentterm_set.all().count()
+                contract.paymentTerm_applied = contract.paymentterm_set.filter(applied_on__isnull=False).count()
+
         return contracts
 
     """
@@ -522,6 +527,8 @@ class ContractDetailView(LoginRequiredMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.object.paymentterm_set.all():
+            context["paymentTerm_all"] = self.object.paymentterm_set.all().count()
+            context["paymentTerm_applied"] = self.object.paymentterm_set.filter(applied_on__isnull=False).count()
             for payment_term in self.object.paymentterm_set.all().order_by('-pay_day'):
                 # payment_term = self.object.paymentterm_set.all().first()
                 if payment_term.paymentrequest_set.all():

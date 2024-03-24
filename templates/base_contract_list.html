@@ -44,8 +44,8 @@
           <small>
             {{ contract.get_party_b_display }}
             <span class="badge rounded-pill bg-primary">
-              {{ contract.paymentterm_set.all.count }}
-              <span class="visually-hidden">Payment Terms</span>
+              {{ contract.paymentTerm_applied }} / {{ contract.paymentterm_set.all.count }}
+              <span class="visually-hidden"># of paymentTerm</span>
             </span>
           </small>
         </a>

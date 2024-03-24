@@ -3,6 +3,9 @@ import { baseMessagesAlertPlaceholder, baseMessagesAlert } from './baseMessagesA
 
 'use strict'
 
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
 if (document.querySelector('#dropdownItemPlaceholderForSupportedPlusInstanceList')) {
     const dropdownItemBtn = document.createElement('button');
     new Map([
@@ -283,17 +286,33 @@ function reLst(accordion, lst, by, byTg) {
                         if (lstValue[td_txt] == '') {
                             td.innerHTML = `<small>${lstValue[td_txt]}</small>`;
                         } else if (typeof lstValue[td_txt] === 'object') {
+                            const contractHREF = document.createElement('a');
+                            new Map([
+                                // ['href', `${window.location.origin}/${td_txt}/${k}/detail/`],
+                                ['href', `${window.location.origin}${lstValue[td_txt]['get_absolute_url']}`],
+                                ['class', 'text-decoration-none'],
+                                ['data-bs-toggle', 'tooltip'],
+                                ['data-bs-placement', 'top'],
+                                ['data-bs-html', 'true'],
+                                ['data-bs-title', `<small>${lstValue[td_txt]['get_type_display']}</small>`],
+                            ]).forEach((attrValue, attrKey, attrMap) => {
+                                contractHREF.setAttribute(attrKey, attrValue);
+                            })
+                            if (lstValue[td_txt]['get_time_remaining_in_percent'] == 'pay-as-you-go') {
+                                contractHREF.innerHTML = `<small>pay-as-you-go</small>`
+                            } else {
+                                contractHREF.innerHTML = [
+                                    `<div class="progress" role="progressbar" aria-label="Info example" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">`,
+                                        `<div class="progress-bar bg-info" style="width: ${lstValue[td_txt]['get_time_remaining_in_percent']}%">${lstValue[td_txt]['get_time_remaining_in_percent']}%</div>`,
+                                    `</div>`,
+                                ].join('');
+                            }
+                            td.appendChild(contractHREF);
+
+                            lstValue[td_txt]['get_time_remaining_in_percent'] <= 0 ? contractHREF.querySelector('div.progress div.progress-bar').classList.replace('bg-info', 'bg-danger') : null;
+
                             for (var k in lstValue[td_txt]) {
-                            // Object.keys(lstValue[td_txt]).forEach(k => {
-                                const contractHREF = document.createElement('a');
-                                new Map([
-                                    ['href', `${window.location.origin}/${td_txt}/${k}/detail/`],
-                                    ['class', 'text-decoration-none'],
-                                ]).forEach((attrValue, attrKey, attrMap) => {
-                                    contractHREF.setAttribute(attrKey, attrValue);
-                                })
-                                contractHREF.innerHTML = `<small>${lstValue[td_txt][k]}</small>`
-                                td.appendChild(contractHREF);
+                            // Object.keys(lstValue[td_txt]).forEach(k => {    
                             }
                         }
                         break;

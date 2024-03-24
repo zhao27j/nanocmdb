@@ -59,6 +59,10 @@
       <li class="nav-item" role="presentation">
         <button class="nav-link position-relative" id="payment-term-tab" data-bs-toggle="tab" data-bs-target="#payment-term-tab-pane" type="button" role="tab" aria-controls="payment-term-tab-pane" aria-selected="false">
           Payment Term
+          <span class="badge rounded-pill bg-primary">
+            {{ paymentTerm_applied }} / {{ paymentTerm_all }}
+            <span class="visually-hidden"># of paymentTerm</span>
+          </span>
         </button>
       </li>
       <li class="nav-item" role="presentation">
