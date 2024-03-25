@@ -81,8 +81,7 @@ def payment_request_paper_form(request, pk):
     if contract_accumulated_payment_excluded_this_request == 0:
         contract_accumulated_payment_excluded_this_request = '-'
     else:
-        contract_accumulated_payment_excluded_this_request = currency_type + "{:,.2f}".format(contract_accumulated_payment_excluded_this_request)
-        # contract_accumulated_payment_excluded_this_request = contract_accumulated_payment_excluded_this_request
+        contract_accumulated_payment_excluded_this_request = contract_accumulated_payment_excluded_this_request
     
     if accumulated_payment_excluded_this_request == 0:
         accumulated_payment_excluded_this_request = '-'
@@ -92,8 +91,8 @@ def payment_request_paper_form(request, pk):
         remaining_budget_after_this_payment = payment_request.non_payroll_expense.get_non_payroll_expense_subtotal() - payment_request.amount - accumulated_payment_excluded_this_request
 
     if accumulated_payment_excluded_this_request_count < payment_request.payment_term.pay_day.month:
-        accumulated_payment_excluded_this_request = payment_request.non_payroll_expense.get_non_payroll_expense_subtotal_ytm(payment_request.payment_term.pay_day.month)
-        remaining_budget_after_this_payment = payment_request.non_payroll_expense.get_non_payroll_expense_subtotal() - payment_request.amount - accumulated_payment_excluded_this_request
+        # accumulated_payment_excluded_this_request = payment_request.non_payroll_expense.get_non_payroll_expense_subtotal_ytm(payment_request.payment_term.pay_day.month)
+        remaining_budget_after_this_payment = payment_request.non_payroll_expense.get_non_payroll_expense_subtotal() - payment_request.amount # - accumulated_payment_excluded_this_request
 
     if not payment_request.payment_term.contract.endup:
         contract_accumulated_payment_excluded_this_request = accumulated_payment_excluded_this_request
@@ -102,15 +101,16 @@ def payment_request_paper_form(request, pk):
         "payer": payment_request.payment_term.contract.get_party_a_display(), # Project name [项目公司名称]
         "date_of_request": payment_request.requested_on, # Date of Request [申请日期]
         "payment_due_date": '',
-        "contract_amount": contract_amount, # Total Contract Amount (including All approved ASA amount)) [合同总金额(包含所有已批准变更金额)]
-        # "contract_accumulated_payment_excluded_this_request": contract_accumulated_payment_excluded_this_request if type(contract_accumulated_payment_excluded_this_request) != int else currency_type + "{:,.2f}".format(contract_accumulated_payment_excluded_this_request), # Prior Accu. Paid [前期累计付款]
-        "contract_accumulated_payment_excluded_this_request": contract_accumulated_payment_excluded_this_request, # Prior Accu. Paid [前期累计付款]
+        # "contract_amount": contract_amount, # Total Contract Amount (including All approved ASA amount)) [合同总金额(包含所有已批准变更金额)]
+        "contract_amount": currency_type + "{:,.2f}".format(payment_request.amount), # Total Contract Amount (including All approved ASA amount)) [合同总金额(包含所有已批准变更金额)]
+        "contract_accumulated_payment_excluded_this_request": contract_accumulated_payment_excluded_this_request if type(contract_accumulated_payment_excluded_this_request) == str else currency_type + "{:,.2f}".format(contract_accumulated_payment_excluded_this_request), # Prior Accu. Paid [前期累计付款]
+        #"contract_accumulated_payment_excluded_this_request": currency_type + "{:,.2f}".format(contract_accumulated_payment_excluded_this_request), # Prior Accu. Paid [前期累计付款]
         "included_in_the_budget_yes": '✔️',
         "included_in_the_budget_no": '☐',
         "budget_dept_code_budget_originator": payment_request.non_payroll_expense.functional_department, # Request Department [请款部门]
         "budget_expense_category_major_and_minor": payment_request.non_payroll_expense.global_gl_account,
         "total_budget_amount_in_gbs_minor_category": currency_type + "{:,.2f}".format(payment_request.non_payroll_expense.get_non_payroll_expense_subtotal()), # Total Budget [预算]
-        "accumulated_payment_excluded_this_request": currency_type + "{:,.2f}".format(accumulated_payment_excluded_this_request), # Remaining Budget Before this payment [付款前可用预算]
+        "accumulated_payment_excluded_this_request": accumulated_payment_excluded_this_request if type(accumulated_payment_excluded_this_request) == str else currency_type + "{:,.2f}".format(accumulated_payment_excluded_this_request), # Remaining Budget Before this payment [付款前可用预算]
         "remaining_budget_after_this_payment": currency_type + "{:,.2f}".format(remaining_budget_after_this_payment), # Remaining Budget After this payment
         "job_code": payment_request.non_payroll_expense.global_expense_tracking_id,
         

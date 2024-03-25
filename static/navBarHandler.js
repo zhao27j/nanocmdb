@@ -16,7 +16,7 @@ document.querySelectorAll("button.nav-link.dropdown-toggle[role='button'][data-b
     });
     el.nextElementSibling.addEventListener('mouseleave', e =>{setTimeout(() => { dropdownInstance.hide();}, 100);});
 
-    el.parentElement.addEventListener('mouseleave', e => {setTimeout(() => {dropdownInstance.hide();}, 100);});
+    el.parentElement.addEventListener('mouseleave', e => {setTimeout(() => {dropdownInstance.hide();}, 150);});
 })
 
 // <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">PR Mgmt</a>
