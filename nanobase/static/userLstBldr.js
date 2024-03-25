@@ -46,21 +46,6 @@ userLstSwitch.addEventListener('change', e => {
     getUserLstAsync(userLstSwitch);
 });
 
-/*
-fetch(getLstUri
-    ).then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw new Error(`HTTP error: ${response.status}`);
-        }
-    }).then(json => {
-        // users = new Map(Object.entries(json[0]));
-        users = new Map(Object.entries(json[0]));
-        num_of = new Map(Object.entries(json[1]));
-    }).catch(error => {console.error('Error:', error);})
-*/
-
 function fltr(users, isExt, isActive) {
     const accordionEl = document.querySelector('#accordionUserLst');
     accordionEl.innerHTML = '';
@@ -76,7 +61,7 @@ function fltr(users, isExt, isActive) {
 
         let thLst = ['', 'name', 'email', 'title', 'dept'];
 
-        if (isExt) {['legal_entity', 'cellphone'].forEach(m => thLst.push(m));}
+        if (isExt) {['legal_entity', 'cellphone'].forEach(m => thLst.push(m));} else {thLst.push('branch_site');}
 
         const thTrEl = document.createElement('tr');
         ['text-capitalize', 'fs-6'].forEach(m => thTrEl.classList.add(m));
@@ -130,7 +115,11 @@ function fltr(users, isExt, isActive) {
                                 badgeRoundedPillHrefEl.setAttribute(attrKey, attrValue);
                             });
                             // [value['number_of_owned_assets_pc'], value['number_of_owned_assets_other']].forEach((number_of_owned_assets, index, array) => {
-                            const number_of_owned_assets = value['number_of_owned_assets']
+                            
+                            const number_of_owned_assets = value['number_of_owned_assets'];
+                            const number_of_owned_assets_pc = value['number_of_owned_assets_pc'];
+                            const number_of_owned_assets_other = value['number_of_owned_assets_other'];
+
                             const badgeRoundedPillSpanEl = document.createElement('span');
                             new Map([
                                 ['class', 'badge rounded-pill ms-1'],
@@ -138,8 +127,8 @@ function fltr(users, isExt, isActive) {
                                 ['data-bs-placement', 'top'],
                                 ['data-bs-custom-class', 'custom-tooltip'],
                                 ['data-bs-html', 'true'],
-                                // ['data-bs-title', `${index == 0 ? 'PC' : 'Others'}`],
-                                ['data-bs-title', 'assigned IT Assets'],
+                                ['data-bs-title', `${number_of_owned_assets > 1 ? number_of_owned_assets_pc + ' x PC, ' + number_of_owned_assets_other + ' x others' : '# of IT Assets assigned'}`],
+                                // ['data-bs-title', 'assigned IT Assets'],
                             ]).forEach((attrValue, attrKey, attrMap) => {
                                 badgeRoundedPillSpanEl.setAttribute(attrKey, attrValue);
                             });

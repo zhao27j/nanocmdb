@@ -60,6 +60,12 @@ def jsonResponse_users_getLst(request):
             user_lst['number_of_owned_assets_pc'] = user.instance_set.filter(model_type__sub_category__name__icontains='computer').count()  # 跨多表查询
             user_lst['number_of_owned_assets_other'] = user.instance_set.exclude(model_type__sub_category__name__icontains='computer').count()    # 跨多表查询
 
+            user_lst['branch_site'] = user.instance_set.all().first().branchSite.name if user.instance_set.all().first() and user.instance_set.all().first().branchSite else ''
+            # try:
+                # user_lst['branch_site'] = user.instance_set.all().first().branchSite.name
+            # except:
+                # pass
+
             user_lst['is_ext'] =  True if user.username != 'admin' and not 'tishmanspeyer.com' in user.email.lower() else False
 
             obj, created = UserProfile.objects.get_or_create(user=user)
