@@ -9,12 +9,9 @@ import {modalInputChk} from './modalInputChk.js';
 
 const bulkUpdModal = document.querySelector('#bulkUpdModal');
 const bulkUpdModalInstance = bootstrap.Modal.getOrCreateInstance('#bulkUpdModal');
-const bulkUpdModalForm = document.querySelector('#bulkUpdModalForm');
-const csrftoken = bulkUpdModal.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
-const bulkUpdModalInput = document.querySelector('#bulkUpdModalInput');
-const bulkUpdModalDatalist = document.querySelector('#bulkUpdModalDatalist');
-const bulkUpdModalBtn = document.querySelector('#bulkUpdModalBtn');
-
+// const bulkUpdModalForm = document.querySelector('#bulkUpdModalForm');
+const bulkUpdModalInput = bulkUpdModal.querySelector('#bulkUpdModalInput');
+const bulkUpdModalBtn = bulkUpdModal.querySelector('#bulkUpdModalBtn');
 
 let is_IT_staff;
 async function getRequesterPermissionsAsync() {
@@ -33,14 +30,14 @@ async function getRequesterPermissionsAsync() {
 }
 getRequesterPermissionsAsync();
 
-let dblClickedEl = null, dblClickedElInnerHTML, dblClickedInstancePk;
-let modalLbl, modalInputTag, getLstUri, optLst, chkLst, postUpdUri, instanceSelected, instanceSelectedPk;
+let dblClickedEl = null, dblClickedElInnerHTML, dblClickedInstancePk, dblClickedInstanceCase;
+let modalLbl, modalInputTag, getLstUri, optLst, chkLst, postUpdUri, instanceSelectedEl, instanceSelectedPk;
 document.addEventListener('dblclick', e => { // listerning all Double Click events on the Document
     dblClickedEl = e.target.closest("[id*='Instance']");
     if (dblClickedEl) {
         dblClickedElInnerHTML = dblClickedEl.querySelector('small').innerHTML === '🈳' ? '' : dblClickedEl.querySelector('small').innerHTML;
         dblClickedInstancePk = dblClickedEl.id.split('Instance')[1];
-        const dblClickedInstanceCase = dblClickedEl.id.split('Instance')[0];
+        dblClickedInstanceCase = dblClickedEl.id.split('Instance')[0];
         switch (dblClickedInstanceCase) {
             case 'status':
                 modalLbl = 'Apply for disposal ...';
@@ -73,11 +70,15 @@ document.addEventListener('dblclick', e => { // listerning all Double Click even
             case 'hostname':
                 break;
             case 'owner':
-                modalLbl = 'Re-assign to ...';
-                modalInputTag = 'owner';
-                getLstUri = window.location.origin + '/json_response/owner_lst/';
-                postUpdUri = window.location.origin + '/instance/owner_re_assigning_to/';
-                bulkUpdModalInstance.show();
+                if (!dblClickedEl.closest('tr').querySelector("[id*='status']").innerHTML.includes('recycle')) {
+                    modalLbl = 'Re-assign to ...';
+                    modalInputTag = 'owner';
+                    getLstUri = window.location.origin + '/json_response/owner_lst/';
+                    postUpdUri = window.location.origin + '/instance/owner_re_assigning_to/';
+                    bulkUpdModalInstance.show();
+                } else {
+                    baseMessagesAlert(`selected IT Assets is in process for Disposal`, 'warning');
+                }
                 break;
             case 'branchSite':
                 modalLbl = 'Transfer to ...';
@@ -93,7 +94,6 @@ document.addEventListener('dblclick', e => { // listerning all Double Click even
                 postUpdUri = window.location.origin + '/instance/contract_associating_with/';
                 bulkUpdModalInstance.show();
                 break;
-
         }
     }
 /*
@@ -121,7 +121,6 @@ document.addEventListener('dblclick', e => { // listerning all Double Click even
 });
 
 bulkUpdModal.addEventListener('show.bs.modal', (e) => {
-
     if (e.relatedTarget) {
         dblClickedEl = undefined;
         if (e.relatedTarget.innerHTML.includes('Associate with')) {
@@ -152,13 +151,13 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
 */
     instanceSelectedPk = [];
     if (dblClickedEl) {
-        instanceSelected = [];
-        instanceSelected.push(dblClickedEl);
+        instanceSelectedEl = [];
+        instanceSelectedEl.push(dblClickedEl);
         instanceSelectedPk.push(dblClickedEl.id.split('Instance')[1]);
     } else {
-        instanceSelected = document.querySelectorAll("td > input[type='checkbox']:checked");
-        if (instanceSelected.length > 0) {
-            instanceSelected.forEach( i => {instanceSelectedPk.push(i.value);})
+        instanceSelectedEl = document.querySelectorAll("td > input[type='checkbox']:checked");
+        if (instanceSelectedEl.length > 0) {
+            instanceSelectedEl.forEach(i => {instanceSelectedPk.push(i.value);})
         }
     }
 
@@ -167,7 +166,9 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
 
     if (instanceSelectedPk.length > 0) {
         getLstUri += `?instanceSelectedPk=${instanceSelectedPk}`;
+        getOptAndChkLstAsync(getLstUri);
 
+        /*
         fetch(getLstUri
             ).then(response => {
                 if (response.ok) {
@@ -179,15 +180,32 @@ bulkUpdModal.addEventListener('show.bs.modal', (e) => {
                 optLst = json[0];
                 chkLst = json[1];
             }).catch(error => {console.error('Error:', error);})
+        */
     }
 })
+
+async function getOptAndChkLstAsync(getLstUri) {
+    try {
+        const json = await getJsonResponseApiData(getLstUri);
+        if (json) {
+            optLst = json[0];
+            chkLst = json[1];
+            // baseMessagesAlert("the data for Bulk Update is ready", 'info');
+        } else {
+            baseMessagesAlert("the data for Bulk Update is NOT ready", 'danger');
+        }
+    } catch (error) {
+        console.error('There was a problem with the async operation:', error);
+    }
+}
 
 bulkUpdModal.addEventListener('shown.bs.modal', () => {
     if (!is_IT_staff) {
         baseMessagesAlert("you're NOT authorized IT staff", 'danger');
         bulkUpdModalInstance.hide();
-    } else if (instanceSelected.length > 0) {
-        if ( bulkUpdModalDatalist.querySelectorAll('option').length > 0 ) {
+    } else if (instanceSelectedEl.length > 0) {
+        const bulkUpdModalDatalist = bulkUpdModal.querySelector('#bulkUpdModalDatalist');
+        if (bulkUpdModalDatalist.querySelectorAll('option').length > 0 ) {
             while (bulkUpdModalDatalist.querySelector('option')) {
                 bulkUpdModalDatalist.removeChild(bulkUpdModalDatalist.querySelector('option'))
             }
@@ -199,6 +217,7 @@ bulkUpdModal.addEventListener('shown.bs.modal', () => {
         })
         bulkUpdModalInput.focus();
         bulkUpdModalInput.value = '';
+        bulkUpdModalInput.nextElementSibling.innerHTML = '';
         bulkUpdModalBtn.classList.add('disabled');
     } else {
         baseMessagesAlert(`no IT Assets is selected`, 'warning');
@@ -206,17 +225,38 @@ bulkUpdModal.addEventListener('shown.bs.modal', () => {
     }
 }, {});
 
-bulkUpdModalForm.addEventListener('submit', (e) => { // listening Form Submission event
+// bulkUpdModalForm.addEventListener('submit', (e) => { // listening Form Submission event
+bulkUpdModalBtn.addEventListener('click', (e) => { // listening onClick event on Submit btn
     const modalInputChkResult = modalInputChk(e, optLst, chkLst, bulkUpdModal, modalInputTag);
     if (modalInputChkResult) {
         e.preventDefault();
         bulkUpdModalInputCtrl.abort(); // remove listener from modal Input element after validation
         bulkUpdModalInstance.hide();
 
+        instanceSelectedEl.forEach(i => {
+            const instanceBulkUpdEl = document.querySelector(`#${modalInputTag}Instance${i.id.split('Instance')[1]}`);
+            const spinnerEl = document.createElement('div');
+        
+            new Map([
+                ['class', 'spinner-border spinner-border-sm text-secondary'],
+                ['role', 'status'],
+            ]).forEach((attrValue, attrKey, attrMap) => {
+                spinnerEl.setAttribute(attrKey, attrValue);
+            });
+
+            spinnerEl.innerHTML = [
+                `<span class="visually-hidden">Loading...</span>`,
+            ].join('');
+
+            instanceBulkUpdEl.closest('td').insertBefore(spinnerEl, instanceBulkUpdEl.closest('td').firstChild);
+        })
+
         const bulkUpdModalInputValue = bulkUpdModalInput.value.trim();
         const formData = new FormData();
         formData.append('bulkUpdModalInputValue', bulkUpdModalInputValue);
         formData.append('instanceSelectedPk', instanceSelectedPk);
+
+        const csrftoken = bulkUpdModal.querySelector('[name=csrfmiddlewaretoken]').value; // get csrftoken
 
         fetch(postUpdUri, {
             method: 'POST',
@@ -226,33 +266,34 @@ bulkUpdModalForm.addEventListener('submit', (e) => { // listening Form Submissio
         }).then(response => {
             response.json();
         }).then(result => {
-
-            instanceSelected.forEach( i => {
+            let msgAlert;
+            instanceSelectedEl.forEach(i => {
                 if (modalInputTag == 'owner') {
                     if (bulkUpdModalInputValue == '') {
-                        const msgAlert = `the IT Assets [ ${instanceSelectedPk.join(', ')} ] was Returned from [ ${dblClickedElInnerHTML} ]`;
-                        document.querySelector(`#statusInstance${i.id.split('Instance')[1]}`).innerHTML = 'Available';
+                        msgAlert = `the IT Assets [ ${instanceSelectedPk.join(', ')} ] was Returned from [ ${dblClickedElInnerHTML} ]`;
+                        document.querySelector(`#statusInstance${i.id.split('Instance')[1]}`).innerHTML = '<small>Available</small>';
                     } else {
-                        const msgAlert = `the IT Assets [ ${instanceSelectedPk.join(', ')} ] was Re-assigned to [ ${bulkUpdModalInputValue} ] from [ ${dblClickedElInnerHTML == '' ? "🈳" : dblClickedElInnerHTML} ]`;
-                        document.querySelector(`#statusInstance${i.id.split('Instance')[1]}`).innerHTML = 'in Use';
+                        msgAlert = `the IT Assets [ ${instanceSelectedPk.join(', ')} ] was Re-assigned to [ ${bulkUpdModalInputValue} ] from [ ${dblClickedElInnerHTML == '' ? "🈳" : dblClickedElInnerHTML} ]`;
+                        document.querySelector(`#statusInstance${i.id.split('Instance')[1]}`).innerHTML = '<small>in Use</small>';
                     }
                 }
                 else if (modalInputTag == 'contract') {
-                    const msgAlert = `the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] were Associated with [ ${bulkUpdModalInputValue} ]`;
+                    msgAlert = `the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] were Associated with [ ${bulkUpdModalInputValue} ]`;
                 }
                 else if (modalInputTag == 'branchSite') {
-                    const msgAlert = `the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] were Transfered to [ ${bulkUpdModalInputValue} ]`;
+                    msgAlert = `the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] were Transfered to [ ${bulkUpdModalInputValue} ]`;
                 }
                 else if (modalInputTag == 'subCategory') {
-                    const msgAlert = `the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] was re-subCategorized to [ ${bulkUpdModalInputValue} ]`;
+                    msgAlert = `the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] was re-subCategorized to [ ${bulkUpdModalInputValue} ]`;
                 }
                 else if (modalInputTag == 'model_type') {
-                    const msgAlert = `the Model / Type of the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] was Changed to [ ${bulkUpdModalInputValue} ]`;
+                    msgAlert = `the Model / Type of the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] was Changed to [ ${bulkUpdModalInputValue} ]`;
                 }
                 else if (modalInputTag == 'status') {
-                    const msgAlert = `${bulkUpdModalInputValue} request for the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] was sent`;
+                    msgAlert = `${bulkUpdModalInputValue} request for the selected IT Assets [ ${instanceSelectedPk.join(', ')} ] was sent`;
                 }
                 const instanceBulkUpdEl = document.querySelector(`#${modalInputTag}Instance${i.id.split('Instance')[1]}`);
+                instanceBulkUpdEl.closest('td').querySelector('div.spinner-border').remove();
                 const instanceBulkUpdElHyperLink = instanceBulkUpdEl.querySelector('a');
                 if (instanceBulkUpdElHyperLink) {
                     instanceBulkUpdElHyperLink.href = window.location.origin + optLst[bulkUpdModalInputValue];
@@ -277,5 +318,5 @@ bulkUpdModalForm.addEventListener('submit', (e) => { // listening Form Submissio
 });
 
 const bulkUpdModalInputCtrl = new AbortController();
-// bulkUpdModalInput.addEventListener('change', (e) => {modalInputChk(e, optLst, chkLst, bulkUpdModal, modalInputTag);}, { signal: bulkUpdModalInputCtrl.signal });
-bulkUpdModalBtn.addEventListener('focus', (e) => {modalInputChk(e, optLst, chkLst, bulkUpdModal, modalInputTag);}, { signal: bulkUpdModalInputCtrl.signal });
+bulkUpdModalInput.addEventListener('blur', (e) => {modalInputChk(e, optLst, chkLst, bulkUpdModal, modalInputTag);}, { signal: bulkUpdModalInputCtrl.signal });
+// bulkUpdModalBtn.addEventListener('focus', (e) => {modalInputChk(e, optLst, chkLst, bulkUpdModal, modalInputTag);}, { signal: bulkUpdModalInputCtrl.signal });

@@ -48,7 +48,7 @@ export function modalInputChk(e, optLst, chkLst, modalEl, modalInputTag) {
         modalEl.querySelector("button[type='submit']").classList.add('disabled');
         modalInput.setCustomValidity(chkAlert);
         modalInput.value = '';
-        modalInput.focus();
+        // modalInput.focus();
         e.preventDefault();
         e.stopPropagation();
         return false;

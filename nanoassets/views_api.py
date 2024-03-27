@@ -457,16 +457,24 @@ def jsonResponse_disposal_lst(request):
         selected_instances_pk = tuple(request.GET.get('instanceSelectedPk').split(','))
         for index, pk in enumerate(selected_instances_pk):
             selected_instance = Instance.objects.get(pk=pk)
+            status = selected_instance.status
             if selected_instance.disposal_request:
                 chk_lst[selected_instance.pk] = 'disposalRequested'
             else:
                 chk_lst[selected_instance.pk] = selected_instance.status
 
         opt_lst = {}
-        opt_lst['Scraping'] = 'SCRAPPED'
-        opt_lst['Reusing'] = 'reUSE'
-        opt_lst['Buying back'] = 'buyBACK'
-
+        if status == 'AVAILABLE':
+            opt_lst['Scraping'] = 'SCRAPPED'
+        elif status == 'SCRAPPED':
+            opt_lst['Reusing'] = 'reUSE'
+            opt_lst['Buying back'] = 'buyBACK'
+        """
+        else:
+            opt_lst['Scraping'] = 'SCRAPPED'
+            opt_lst['Reusing'] = 'reUSE'
+            opt_lst['Buying back'] = 'buyBACK'
+        """
         response = [opt_lst, chk_lst]
         return JsonResponse(response, safe=False)
 
