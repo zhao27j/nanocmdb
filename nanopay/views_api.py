@@ -318,7 +318,7 @@ def decimal_to_month(decimal):
     return calendar.month_abbr[month_number].lower()
 
 
-def get_reforecasting():
+def get_reforecasting(nPE_yr):
     if 1 <= timezone.now().month <= 3:
         reforecastings = ['Q0']
     elif 4 <= timezone.now().month <= 6:
@@ -329,7 +329,7 @@ def get_reforecasting():
         reforecastings = ['Q3', 'Q2', 'Q1', 'Q0']
 
     for reforecasting in reforecastings:
-        if NonPayrollExpense.objects.filter(non_payroll_expense_reforecasting=reforecasting):
+        if NonPayrollExpense.objects.filter(non_payroll_expense_year=nPE_yr, non_payroll_expense_reforecasting=reforecasting):
             return reforecasting
 
 
@@ -348,7 +348,7 @@ def jsonResponse_nonPayrollExpense_getLst(request):
 
         # paymentRequest_by_budgetYr_lst = {}
         
-        reforecasting = get_reforecasting();
+        reforecasting = get_reforecasting(int(request.GET.get('budgetYr')));
         nPEs_by_budgetYr = NonPayrollExpense.objects.filter(non_payroll_expense_year=int(request.GET.get('budgetYr')), non_payroll_expense_reforecasting=reforecasting)
 
         nPE_by_budgetYr_lst = {}

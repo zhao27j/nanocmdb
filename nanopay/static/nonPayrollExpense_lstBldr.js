@@ -5,13 +5,34 @@ import { baseMessagesAlertPlaceholder, baseMessagesAlert } from '../../static/ba
 
 
 if (document.querySelector('#dropdownItemPlaceholderForNonPayrollExpenseList')) {
-    const date = new Date();
-    const budgetYr = date.getFullYear();
-    getNonPayrollExpenseLstAsync(budgetYr);
+
+    // if (document.querySelector('#dropdownItemPlaceholderForNonPayrollExpenseList').hasChildNodes()) {
+    //     iniLst(budgetYr);
+    // } else {
+        const topBarMenuNPEBtn = document.createElement('button');
+        new Map([
+            ['class', 'dropdown-item'],
+            ['type', 'button'],
+            ['disabled', 'true'],
+        ]).forEach((attrValue, attrKey, attrMap) => {
+            topBarMenuNPEBtn.setAttribute(attrKey, attrValue);
+        });
+        topBarMenuNPEBtn.innerHTML = [
+            `<span role="status"><small>Payment Calendar </small></span>`,
+            `<span class="spinner-border spinner-border-sm text-secondary" aria-hidden="true"></span>`,
+        ].join('');
+
+        document.querySelector('#dropdownItemPlaceholderForNonPayrollExpenseList').appendChild(topBarMenuNPEBtn);
+        topBarMenuNPEBtn.addEventListener('click', e => iniLst(budgetYr));
+
+        const date = new Date();
+        const budgetYr = date.getFullYear();
+        getNonPayrollExpenseLstAsync(budgetYr, topBarMenuNPEBtn);
+    // }
 }
 
 let reforecasting, nonPayrollExpense_lst, budgetYr_lst, reforecasting_lst, allocation_lst, currency_lst, isDirectCost_lst
-async function getNonPayrollExpenseLstAsync(budgetYr) {
+async function getNonPayrollExpenseLstAsync(budgetYr, topBarMenuNPEBtn = null) {
     try {
         const getUri = window.location.origin + `/json_respone/nonPayrollExpense_getLst/?budgetYr=${budgetYr}`;
         const json = await getJsonResponseApiData(getUri);
@@ -26,19 +47,11 @@ async function getNonPayrollExpenseLstAsync(budgetYr) {
 
             // baseMessagesAlert("the data for non Payroll Expense is ready", 'success');
 
-            if (document.querySelector('#dropdownItemPlaceholderForNonPayrollExpenseList').hasChildNodes()) {
-                iniLst(budgetYr);
+            if (topBarMenuNPEBtn) {
+                topBarMenuNPEBtn.disabled = false;
+                topBarMenuNPEBtn.querySelector('span.spinner-border').remove();
             } else {
-                const topBarMenuNPEBtn = document.createElement('button');
-                new Map([
-                    ['class', 'dropdown-item'],
-                    ['type', 'button'],
-                ]).forEach((attrValue, attrKey, attrMap) => {
-                    topBarMenuNPEBtn.setAttribute(attrKey, attrValue);
-                    topBarMenuNPEBtn.innerHTML = `<small>Payment Calendar</small>`;
-                });
-                document.querySelector('#dropdownItemPlaceholderForNonPayrollExpenseList').appendChild(topBarMenuNPEBtn);
-                topBarMenuNPEBtn.addEventListener('click', e => iniLst(budgetYr));
+                iniLst(budgetYr);
             }
         } else {
             baseMessagesAlert("the data for non Payroll Expense is NOT ready", 'danger');
@@ -71,15 +84,14 @@ function iniLst(budgetYr) {
     budgetYr_lst.forEach((yr) => {
         if (yr != budgetYr) {
             budgetYrdropdownMenuUl.innerHTML += `<li><a class="dropdown-item" href="#">${yr}</a></li>`;
-            budgetYrdropdownMenuUl.querySelector('li:last-child').addEventListener('click', e => getNonPayrollExpenseLstAsync(yr));
+            budgetYrdropdownMenuUl.querySelector('li:last-child').addEventListener('click', e => {getNonPayrollExpenseLstAsync(e.target.innerText);});
         }
     });
 
     const budgetYrDropdownToggle = pgCntnt.querySelector('button.btn.btn-link.position-relative.dropdown-toggle');
     const budgetYrDropdownToggleInstance = bootstrap.Dropdown.getOrCreateInstance(budgetYrDropdownToggle);
     budgetYrDropdownToggle.addEventListener('mouseover', e => {budgetYrDropdownToggleInstance.show();});
-    budgetYrDropdownToggle.parentElement.parentElement.addEventListener('mouseleave', e => {setTimeout(() => { budgetYrDropdownToggleInstance.hide();}, 500);})
-    // budgetYrdropdownMenuUl.addEventListener('mouseleave', e => {setTimeout(() => { budgetYrDropdownToggleInstance.hide();}, 300);})
+    budgetYrdropdownMenuUl.addEventListener('mouseleave', e => {setTimeout(() => { budgetYrDropdownToggleInstance.hide();}, 100);})
 
     const accordionFlush = document.createElement('div');
     ['accordion', 'accordion-flush'].forEach(classItm => accordionFlush.classList.add(classItm));
