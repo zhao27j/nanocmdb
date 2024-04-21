@@ -358,9 +358,9 @@ def jsonResponse_nonPayrollExpense_getLst(request):
             nPE_by_budgetYr_lst[nPE.pk] = {}
 
             nPE_related_PRs = []
-            if PaymentRequest.objects.filter(non_payroll_expense=nPE.pk, requested_on__year=int(request.GET.get('budgetYr'))):
+            if PaymentRequest.objects.filter(non_payroll_expense__description=nPE.description, requested_on__year=int(request.GET.get('budgetYr'))):
                 # nPE_by_budgetYr_lst[non_payroll_expense.pk][field.name] = list(set(PaymentRequest.objects.filter(non_payroll_expense=non_payroll_expense.pk, requested_on__year=int(request.GET.get('budgetYr'))).values_list('pk', flat=True).distinct()))
-                for payment_request in PaymentRequest.objects.filter(non_payroll_expense=nPE.pk, requested_on__year=int(request.GET.get('budgetYr'))):
+                for payment_request in PaymentRequest.objects.filter(non_payroll_expense__description=nPE.description, requested_on__year=int(request.GET.get('budgetYr'))):
                     nPE_related_PRs.append(
                         {
                             decimal_to_month(payment_request.requested_on.month): {

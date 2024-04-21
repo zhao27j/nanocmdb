@@ -37,7 +37,7 @@
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">PR Mgmt</a>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="{% url 'nanopay:payment-request-list' %}"><small>Payment Requests</small></a></li>
-                <li><a class="dropdown-item" href="{% url 'nanopay:non-payroll-expense-list' %}"><small>non Payroll Expenses</small></a></li>
+                {# <li><a class="dropdown-item" href="{% url 'nanopay:non-payroll-expense-list' %}"><small>non Payroll Expenses</small></a></li> #}
                 <li id="dropdownItemPlaceholderForNonPayrollExpenseList"></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="{% url 'nanopay:contract-new' %}"><small>New Contract</small></a></li>
@@ -64,7 +64,7 @@
                 {% endif %}
                 <li><a class="dropdown-item" href="{% url 'nanoassets:my-instance-list' %}"><small>Owned</small></a></li>
                 {% if user|has_group:"IT China" %}
-                <li><a class="dropdown-item" href="{% url 'nanoassets:supported-instance-list' %}"><small>Supported</small></a></li>
+                {# <li><a class="dropdown-item" href="{% url 'nanoassets:supported-instance-list' %}"><small>Supported</small></a></li> #}
                 <li id="dropdownItemPlaceholderForSupportedPlusInstanceList"></li>
                 <li><hr class="dropdown-divider"></li>
                 <li>

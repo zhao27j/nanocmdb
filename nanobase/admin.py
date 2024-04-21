@@ -17,6 +17,8 @@ class ChangeHistoryAdmin(admin.ModelAdmin):
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'title', 'dept', 'work_phone', 'postal_addr', 'cellphone', 'legal_entity']
+
+    search_fields = ['user__username']
     
 
 # admin.site.register(UserProfile)

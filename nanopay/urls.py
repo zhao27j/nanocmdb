@@ -7,7 +7,7 @@ app_name = 'nanopay'
 
 # non Payroll Expense
 urlpatterns = [
-    path('non_payroll_expenses/', views.NonPayrollExpenseListView.as_view(), name='non-payroll-expense-list'),
+    # path('non_payroll_expenses/', views.NonPayrollExpenseListView.as_view(), name='non-payroll-expense-list'),
 ]
 
 # Legal Entity

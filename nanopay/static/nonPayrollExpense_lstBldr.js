@@ -78,7 +78,7 @@ function iniLst(budgetYr) {
     const budgetYrDropdownToggle = pgCntnt.querySelector('button.btn.btn-link.position-relative.dropdown-toggle');
     const budgetYrDropdownToggleInstance = bootstrap.Dropdown.getOrCreateInstance(budgetYrDropdownToggle);
     budgetYrDropdownToggle.addEventListener('mouseover', e => {budgetYrDropdownToggleInstance.show();});
-    budgetYrDropdownToggle.parentElement.parentElement.addEventListener('mouseleave', e => {setTimeout(() => { budgetYrDropdownToggleInstance.hide();}, 300);})
+    budgetYrDropdownToggle.parentElement.parentElement.addEventListener('mouseleave', e => {setTimeout(() => { budgetYrDropdownToggleInstance.hide();}, 500);})
     // budgetYrdropdownMenuUl.addEventListener('mouseleave', e => {setTimeout(() => { budgetYrDropdownToggleInstance.hide();}, 300);})
 
     const accordionFlush = document.createElement('div');

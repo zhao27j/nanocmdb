@@ -7,15 +7,25 @@ from .models import NonPayrollExpense
 
 class NonPayrollExpenseResource(resources.ModelResource):
 
-    created_by = fields.Field(attribute='created_by', column_name='created_by', widget=ForeignKeyWidget(User, field='username'),)
+    created_by = fields.Field(
+        attribute='created_by', 
+        column_name='created_by', 
+        widget=ForeignKeyWidget(User, field='username'),
+    )
     
     def before_import_row(self, row, row_number=None, **kwargs):
-        pass
+        
+        if str(row["description"]).strip():
+            row["description"] = str(row["description"]).strip()
+            # description = str(row["description"]).strip()
+            # Configuragion.objects.get_or_create(hostname=configuragion_hostname, defaults={"hostname": configuragion_hostname})
+
+        # return super().before_import_row(row, row_number, **kwargs)
 
     class Meta:
         model = NonPayrollExpense
 
-        # import_id_fields = ('description',)   # 指定 primary key field
+        import_id_fields = ('non_payroll_expense_year', 'non_payroll_expense_reforecasting', 'originating_sub_region', 'functional_department', 'global_gl_account', 'vendor', 'global_expense_tracking_id', 'currency', 'allocation', 'description', )   # 指定 primary key field
         skip_unchanged = True
         report_skipped = False
         # exclude = ('vendor', )
